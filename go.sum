@@ -1,0 +1,5 @@
+github.com/bep/docuapi/v2 v2.3.1 h1:S5IbSLraUhWYQkZh/+IB94Y3SHRnnIru53feSNCa7+A=
+github.com/bep/docuapi/v2 v2.3.1/go.mod h1:3wLOeVtAUkqA/oMrCtT7p2RyxkIgssvarP3aLSikxwM=
+github.com/gohugoio/hugo-mod-jslibs-dist/alpinejs/v3 v3.21000.20300/go.mod h1:WWQxcmPs5Xy3xDgi29ipkmZT6NKVb3bsqyCDTY3eYYY=
+github.com/olivernn/lunr.js v2.3.9+incompatible/go.mod h1:yEkQ1DUSMtNsn8n2CqvQXZd0ErWPEG8g9QRmblR+KS8=
+github.com/slatedocs/slate v2.13.1+incompatible/go.mod h1:n698aXLkExWIlF7prJey0Kq6wlKIKvj/stVb5oouZDM=

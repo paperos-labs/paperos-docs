@@ -1,0 +1,71 @@
+languageCode = "en-us"
+baseurl = "https://dev.paperos.com/"
+title = "PaperOS Developer API"
+
+disableKinds = ["taxonomy"]
+
+# Code higlighting settings
+pygmentsCodefences = true
+pygmentsCodeFencesGuesSsyntax = false
+pygmentsOptions = ""
+pygmentsStyle = "monokai"
+pygmentsUseClasses = false
+
+defaultContentLanguage = "en"
+
+# Disable LibSass (if enabled)
+enableSass = false
+
+# Enable Dart Sass
+enableDartSass = true
+
+[resources.ToCSS]
+transpiler = "dartsass"
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.parser]
+      autoHeadingIDType = "github-ascii"
+    [markup.goldmark.renderer]
+        unsafe = true
+    [markup.goldmark.extensions.typographer]
+        apostrophe = "'"
+
+[module]
+[module.hugoVersion]
+
+[[module.imports]]
+# This is replaced in go.mod to point to the directory above.
+path="github.com/bep/docuapi/v2"
+
+[params]
+search = true
+maxMenuDepth = 3 # (optional) available options are: 1, 2, or 3 (default: 2)
+
+# Configure the language example tabs.
+[[params.language_tabs]]
+key = "shell"
+name = "cURL"
+[[params.language_tabs]]
+key = "javascript"
+name = "JavaScript"
+
+#Languages
+[languages]
+
+[languages.en]
+languageName = "English"
+weight = 2
+title = "PaperOS Developer API"
+
+[languages.en.params]
+# Left sidebar footer items. Use HTMl or Markdown.
+toc_footers = [
+"<a href='https://app.paperos.com' target='_blank'>Sign Up for a Developer Key</a>",
+"Edit: [github.com/Paper-Labs/docs](https://github.com/savvi-legal/docs)",
+"Documentation Powered by [DocuAPI](https://github.com/bep/docuapi)",
+]
+
+[languages.en.params.blackfriday]
+angledQuotes = false
+hrefTargetBlank = true
