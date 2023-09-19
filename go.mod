@@ -1,7 +1,5 @@
-module github.com/bep/docuapi/exampleSite
+module github.com/savvi-legal/docs
 
 go 1.16
 
-require github.com/bep/docuapi/v2 v2.2.0 // indirect
-
-replace github.com/bep/docuapi/v2 => ../
+require github.com/bep/docuapi/v2 v2.3.1 // indirect
