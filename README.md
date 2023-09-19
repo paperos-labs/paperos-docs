@@ -12,6 +12,10 @@
     ```sh
     curl https://webi.sh/node | sh
     ```
+-   Hugo Extended Edition
+    ```sh
+    curl https://webi.sh/hugo-extended | sh
+    ```
 
 # Build
 
