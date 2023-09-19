@@ -23,6 +23,17 @@ go mod download -modcacherw
 hugo
 ```
 
+# Modify
+
+-   the names of the files in `./content/` are arbitrary
+    ```sh
+    ./content/resources.md
+    ```
+-   styles can be overwritten in `./assets/`
+    ```sh
+    ./assets/scss/slate/docuapi_overrides.scss
+    ```
+
 # References
 
 Build with [Hugo Extended Edition](https://webinstall.dev/hugo-extended) and [docuapi](https://github.com/bep/docuapi).
