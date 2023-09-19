@@ -8,8 +8,8 @@ title: Kittens
 ## Get All Kittens
 
 ```shell
-curl "http://example.com/api/kittens"
-  -H "Authorization: meowmeowmeow"
+curl "http://example.c.paperos.dev/api/"
+  -H "Authorization: Bearer <token>"
 ```
 
 ```javascript
