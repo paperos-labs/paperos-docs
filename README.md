@@ -29,6 +29,10 @@ hugo
 hugo --buildDrafts server
 ```
 
+-   `baseurl` will be ignored
+-   Preview will be available at:
+    -   <http://localhost:1313/>
+
 # Modify
 
 -   the names of the files in `./content/` are arbitrary
