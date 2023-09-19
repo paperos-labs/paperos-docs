@@ -23,6 +23,12 @@ go mod download -modcacherw
 hugo
 ```
 
+## Live reload
+
+```sh
+hugo --buildDrafts server
+```
+
 # Modify
 
 -   the names of the files in `./content/` are arbitrary
