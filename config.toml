@@ -54,7 +54,7 @@ name = "JavaScript"
 [languages.en]
 languageName = "English"
 weight = 2
-title = "DocuAPI Example Site"
+title = "PaperOS Developer API"
 
 # Left sidebar footer items. Use HTMl or Markdown.
 toc_footers = [
