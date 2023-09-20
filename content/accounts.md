@@ -5,20 +5,26 @@ title: Accounts
 
 # Accounts
 
-## Get All Accounts
+## List User's Accounts
 
 ```shell
-curl "${PAPEROS_BASE_URL}/api/user/accounts" \
-  -H "Authorization: Bearer ${PAPEROS_API_TOKEN}"
+my_accounts="$(
+
+    curl "${PAPEROS_BASE_URL}/api/user/accounts" \
+        -H "Authorization: Bearer ${PAPEROS_API_TOKEN}"
+
+)"
+echo "${my_accounts}"
 ```
 
 ```javascript
-let resp = await fetch(`${my_baseurl}/api/user/accounts`, {
-    headers: {
-        Authorization: `Bearer ${my_token}`,
-    },
+var url = `${paperBase}/api/user/accounts`;
+var resp = await fetch(url, {
+    headers: { Authorization: `Bearer ${paperToken}` },
 });
-let data = await resp.json();
+var accounts = await resp.json();
+
+console.log(accounts);
 ```
 
 > Example Response:
@@ -77,3 +83,48 @@ Retrieve all accounts associated with this user, including through direct owners
 ### HTTP Request
 
 `GET /api/user/accounts`
+
+## Account Token Debug Info
+
+```shell
+my_account_id="$(
+    echo "${my_accounts}" |
+        jq '.[0].id'
+)"
+
+curl "${PAPEROS_BASE_URL}/api/account/debug?account_id=${my_account_id}" \
+  -H "Authorization: Bearer ${PAPEROS_API_TOKEN}"
+```
+
+```javascript
+var accountId = accounts[0].id;
+var url = `${paperBase}/api/account/debug?account_id=${accountId}`;
+var resp = await fetch(url, {
+    headers: { Authorization: `Bearer ${paperToken}` },
+});
+var accountInfo = await resp.json();
+```
+
+> Example Response:
+
+```json
+{
+    "user": {
+        "account_id": 97,
+        "partner_id": null,
+        "auth_time": "2023-09-19T22:25:54.000Z",
+        "iat": "2023-09-19T22:25:54.000Z",
+        "exp": null,
+        "api_token": true,
+        "email": "services+test1@savvi.legal"
+    },
+    "method": "GET",
+    "originalUrl": "/api/account/debug?account_id=97"
+}
+```
+
+### Query Parameters
+
+| Parameter  | Default | Description                                         |
+| ---------- | ------- | --------------------------------------------------- |
+| account_id | ''      | Either required or disallowed, based on token type. |

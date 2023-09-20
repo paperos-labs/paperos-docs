@@ -11,12 +11,37 @@ You can view code examples in the dark area to the right, and you can switch the
 
 **This example API documentation page was created with [DocuAPI](https://github.com/bep/docuapi/), a multilingual documentation theme for the static site generator [Hugo Extended Edition](http://webinstall.dev/hugo-extended/).**
 
+## Pre-Requisites
+
+> Install the tools used in the examples
+
+```sh
+curl https://webi.sh/jq | sh
+curl https://webi.sh/node | sh
+
+source ~/.local/envman/PATH.sh
+```
+
+Please install `jq` and `node` to follow along in the examples.
+
 ## API Base URL
+
+> The Base URL will be in the form of
 
 ```text
 https://app.paperos.com
 https://example.c.paperos.com
 https://paperos.example.com
+```
+
+> Use `example.c.paperos.dev` (note: `.dev`) for the live examples:
+
+```sh
+export PAPEROS_BASE_URL='https://example.c.paperos.dev'
+```
+
+```javascript
+var paperBase = process.env.PAPEROS_BASE_URL;
 ```
 
 Depending on your account, your PaperOS base URL may resemble any of the following:
@@ -31,29 +56,27 @@ For general operations you can always use `https://app.paperos.com`, however, us
 
 > Use your own API Token, or this example token:
 
-```text
+```sh
 export PAPEROS_API_TOKEN='ppt_2A3u0U9d8xlBOo3CYFRT5vmkuH76bP0yfNVw48IBM5'
+```
+
+```javascript
+var paperToken = process.env.PAPEROS_API_TOKEN;
 ```
 
 > Use the _user_ and _account_ debug endpoints to verifycheck
 
 ```shell
-my_baseurl='https://example.c.paperos.dev'
-
-curl "${my_baseurl}/api/user/debug" \
+curl "${PAPEROS_BASE_URL}/api/user/debug" \
   -H "Authorization: Bearer ${PAPEROS_API_TOKEN}"
 ```
 
 ```javascript
-let my_token = process.env.PAPEROS_API_TOKEN;
-let my_baseurl = "https://example.c.paperos.dev";
-
-let resp = await fetch(`${my_baseurl}/api/user/debug`, {
-    headers: {
-        Authorization: `Bearer ${my_token}`,
-    },
+var url = `${paperBase}/api/user/debug`;
+var resp = await fetch(url, {
+    headers: { Authorization: `Bearer ${paperToken}` },
 });
-let data = await resp.json();
+var data = await resp.json();
 ```
 
 > Example Response:
@@ -74,7 +97,33 @@ let data = await resp.json();
 }
 ```
 
-> Make sure to replace `ppt_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxcccc` with your API key.
+<!--
+<form id="-paper-init">
+    <label>Base URL:
+        <input
+            type="url"
+            placeholder="https://example.c.paperos.dev"
+            value="https://example.c.paperos.dev"
+        />
+    </label>
+    <label>API Token:
+        <input
+            type="text"
+            pattern="p[A-Za-z0-9]{1,}_[A-Za-z0-9]{32,}"
+            placeholder="ppt_2A3u0U9d8xlBOo3CYFRT5vmkuH76bP0yfNVw48IBM5"
+            value="ppt_2A3u0U9d8xlBOo3CYFRT5vmkuH76bP0yfNVw48IBM5"
+        />
+    </label>
+</form>
+<script>
+  (function () {
+    'use strict';
+
+    let $form = document.body.querySelector('#-paper-init');
+
+}());
+</script>
+-->
 
 PaperOS uses API keys to allow access to the API.
 
