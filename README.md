@@ -17,7 +17,7 @@
     curl https://webi.sh/hugo-extended | sh
     ```
 
-# Build
+# Dev Build
 
 ```sh
 git clone https://github.com/savvi-legal/docs.git ./dev.paperos.com/
@@ -36,6 +36,44 @@ hugo --buildDrafts server
 -   `baseurl` will be ignored
 -   Preview will be available at:
     -   <http://localhost:1313/>
+
+# Prod Build
+
+`./config.toml`:
+
+```toml
+baseurl = "https://dev.paperos.com/"
+```
+
+```sh
+hugo
+```
+
+## Deploy
+
+1. install sclient
+    ```sh
+    curl https://webi.sh/sclient | sh
+    ```
+2. add `dev.paperos.com` to your ssh config
+
+    ```sh
+    mkdir -p ~/.ssh/
+
+    echo '
+    Host docs dev.paperos.com
+        Hostname dev.paperos.com
+        User app
+        ProxyCommand sclient %h
+    ' >> ~/.ssh/config
+
+    chmod 0640 ~/.ssh/config
+    ```
+
+3. sync the local build to the server
+    ```sh
+    rsync -avhPz ./public/ dev.paperos.com:~/public/
+    ```
 
 # Modify
 
