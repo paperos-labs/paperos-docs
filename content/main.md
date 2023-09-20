@@ -11,7 +11,7 @@ You can view code examples in the dark area to the right, and you can switch the
 
 **This example API documentation page was created with [DocuAPI](https://github.com/bep/docuapi/), a multilingual documentation theme for the static site generator [Hugo Extended Edition](http://webinstall.dev/hugo-extended/).**
 
-## Pre-Requisites
+## Prerequisites
 
 > Install the tools used in the examples
 
