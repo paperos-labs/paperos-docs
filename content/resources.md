@@ -32,7 +32,7 @@ Resources are scoped to a specific account.
 
 `GET /api/account/v1/resources?account_id={{account_id}}`
 
-# Get One
+## Get One
 
 > List details of a single resource
 
@@ -59,7 +59,7 @@ Show details for a resource by its ID.
 
 `GET /api/account/v1/resources/{{resource_id}}?account_id={{account_id}}`
 
-# Create
+## Create
 
 > Create a new resource instance
 
@@ -127,7 +127,7 @@ TODO: make `resource_type` a parameter, as to not conflict with `/resources/:id`
 | `financials`                          |
 | `quarterly_financials`                |
 
-# Update features of an existing resource
+## Update
 
 ```shell
 my_resource_id='17378'
@@ -155,5 +155,7 @@ curl "$PAPEROS_BASE_URL/api/account/v1/resources/${my_resource_id}?account_id=${
     "TODO": "todo"
 }
 ```
+
+Update the properties of an existing resource
 
 `PATCH {{host}}/api/account/v1/resources/{{resource_id}}?account_id={{account_id}}`
