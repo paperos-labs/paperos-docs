@@ -5,27 +5,31 @@ title: Errors
 
 # Errors
 
-<aside class="notice">This error section is stored in a separate file, errors.md. DocuAPI allows you to split the single page documentation in as many files as needed. Files are included in the  default Hugo page order . One way of ordering the pages is by setting the page `weight` in the front matter. Pages with lower weight will be listed first.</aside>
+<aside class="notice">Our public API is under development. Please contact us if you encounter unexpected behavior.</aside>
 
-The Kittn API uses the following error codes:
+The PaperOS API uses the following error codes:
 
 ## 4xx
 
-| Error Code | Meaning                                                                   |
-| ---------- | ------------------------------------------------------------------------- |
-| 400        | Bad Request -- Your request sucks                                         |
-| 401        | Unauthorized -- Your API key is wrong                                     |
-| 403        | Forbidden -- The kitten requested is hidden for administrators only       |
-| 404        | Not Found -- The specified kitten could not be found                      |
-| 405        | Method Not Allowed -- You tried to access a kitten with an invalid method |
-| 406        | Not Acceptable -- You requested a format that isn't json                  |
-| 410        | Gone -- The kitten requested has been removed from our servers            |
-| 418        | I'm a teapot                                                              |
-| 429        | Too Many Requests -- You're requesting too many kittens! Slow down!       |
+| Error Code | Meaning                                                                       |
+| ---------- | ----------------------------------------------------------------------------- |
+| 400        | Bad Request -- Some of the query params or body props were missing or invalid |
+| 401        | Unauthorized -- The API key, user, or account is invalid or expired           |
+| 402        | Payment Required -- The account must be upgraded to use this feature          |
+| 403        | Forbidden -- The given key, user, or account doesn't have access              |
+| 404        | Not Found -- The specified data was not found                                 |
+| 405        | Method Not Allowed -- A GET was used where a POST was required, etc           |
+| 406        | Not Acceptable -- The data was not in the proper format (i.e. JSON, CSV)      |
+| 410        | Gone -- The kitten requested has been removed from our servers                |
+| 418        | I'm a teapot                                                                  |
+| 420        | Enhance Your Calm -- You're doing that too fast                               |
+| 422        | Unprocessable Content -- The format is correct, but the data is not           |
+| 429        | Too Many Requests -- alias of 420                                             |
 
 ## 5xx
 
-| Error Code | Meaning                                                                                   |
-| ---------- | ----------------------------------------------------------------------------------------- |
-| 500        | Internal Server Error -- We had a problem with our server. Try again later.               |
-| 503        | Service Unavailable -- We're temporarily offline for maintenance. Please try again later. |
+| Error Code | Meaning                                                                       |
+| ---------- | ----------------------------------------------------------------------------- |
+| 500        | Internal Server Error -- We had a problem with our server. Please let us know |
+| 501        | Not Implemented -- The feature you tried to use is still in development       |
+| 502        | Bad Gateway -- The application may be restarting                              |
