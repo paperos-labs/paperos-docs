@@ -13,10 +13,12 @@ curl "${PAPEROS_BASE_URL}/api/user/accounts" \
 ```
 
 ```javascript
-const kittn = require("kittn");
-
-let api = kittn.authorize("meowmeowmeow");
-let kittens = api.kittens.get();
+let resp = await fetch(`${my_baseurl}/api/user/accounts`, {
+    headers: {
+        Authorization: `Bearer ${my_token}`,
+    },
+});
+let data = await resp.json();
 ```
 
 > Example Response:
