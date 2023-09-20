@@ -2,7 +2,7 @@ languageCode = "en-us"
 baseurl = "https://dev.paperos.com/"
 title = "PaperOS Developer API"
 
-disableKinds = ["taxonomyTerm"]
+disableKinds = ["taxonomy"]
 
 # Code higlighting settings
 pygmentsCodefences = true
@@ -28,6 +28,8 @@ transpiler = "dartsass"
       autoHeadingIDType = "github-ascii"
     [markup.goldmark.renderer]
         unsafe = true
+    [markup.goldmark.extensions.typographer]
+        apostrophe = "'"
 
 [module]
 [module.hugoVersion]
@@ -56,12 +58,14 @@ languageName = "English"
 weight = 2
 title = "PaperOS Developer API"
 
+[languages.en.params]
 # Left sidebar footer items. Use HTMl or Markdown.
 toc_footers = [
 "<a href='https://app.paperos.com' target='_blank'>Sign Up for a Developer Key</a>",
 "Documentation Powered by [DocuAPI](https://github.com/bep/docuapi)",
 "Hugo Theme by [bep](https://github.com/bep)"
 ]
-[languages.en.blackfriday]
+
+[languages.en.params.blackfriday]
 angledQuotes = false
 hrefTargetBlank = true
