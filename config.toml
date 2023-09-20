@@ -62,8 +62,8 @@ title = "PaperOS Developer API"
 # Left sidebar footer items. Use HTMl or Markdown.
 toc_footers = [
 "<a href='https://app.paperos.com' target='_blank'>Sign Up for a Developer Key</a>",
+"Improve this Documentation [github.com/Paper-Labs/docs](https://github.com/savvi-legal/docs)"
 "Documentation Powered by [DocuAPI](https://github.com/bep/docuapi)",
-"Hugo Theme by [bep](https://github.com/bep)"
 ]
 
 [languages.en.params.blackfriday]
