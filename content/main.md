@@ -1,5 +1,5 @@
 ---
-weight: 10
+weight: 1000
 title: API Reference
 ---
 
@@ -29,20 +29,23 @@ For general operations you can always use `https://app.paperos.com`, however, us
 
 # Authentication
 
-> To authorize, use this code:
+> Use your own API Token, or this example token:
 
 ```text
-my_token='ppt_2A3u0U9d8xlBOo3CYFRT5vmkuH76bP0yfNVw48IBM5'
+export PAPEROS_API_TOKEN='ppt_2A3u0U9d8xlBOo3CYFRT5vmkuH76bP0yfNVw48IBM5'
 ```
+
+> Use the _user_ and _account_ debug endpoints to verifycheck
 
 ```shell
 my_baseurl='https://example.c.paperos.dev'
 
 curl "${my_baseurl}/api/user/debug" \
-  -H "Authorization: Bearer ${my_token}"
+  -H "Authorization: Bearer ${PAPEROS_API_TOKEN}"
 ```
 
 ```javascript
+let my_token = process.env.PAPEROS_API_TOKEN;
 let my_baseurl = "https://example.c.paperos.dev";
 
 let resp = await fetch(`${my_baseurl}/api/user/debug`, {
@@ -51,6 +54,24 @@ let resp = await fetch(`${my_baseurl}/api/user/debug`, {
     },
 });
 let data = await resp.json();
+```
+
+> Example Response:
+
+```json
+{
+    "user": {
+        "account_id": null,
+        "partner_id": null,
+        "auth_time": "2023-09-19T22:25:54.000Z",
+        "iat": "2023-09-19T22:25:54.000Z",
+        "exp": null,
+        "api_token": true,
+        "email": "services+test1@savvi.legal"
+    },
+    "method": "GET",
+    "originalUrl": "/api/user/debug"
+}
 ```
 
 > Make sure to replace `ppt_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxcccc` with your API key.
