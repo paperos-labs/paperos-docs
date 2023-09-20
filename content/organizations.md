@@ -1,20 +1,20 @@
 ---
 weight: 1100
-title: Accounts
+title: Organizations
 ---
 
-# Accounts
+# Organizations
 
-## List User's Accounts
+## List
 
 ```shell
-my_accounts="$(
+my_orgs="$(
 
     curl "${PAPEROS_BASE_URL}/api/user/accounts" \
         -H "Authorization: Bearer ${PAPEROS_API_TOKEN}"
 
 )"
-echo "${my_accounts}"
+echo "${my_orgs}"
 ```
 
 ```javascript
@@ -22,9 +22,9 @@ var url = `${paperBase}/api/user/accounts`;
 var resp = await fetch(url, {
     headers: { Authorization: `Bearer ${paperToken}` },
 });
-var accounts = await resp.json();
+var orgs = await resp.json();
 
-console.log(accounts);
+console.log(orgs);
 ```
 
 > Example Response:
@@ -78,17 +78,17 @@ console.log(accounts);
 ]
 ```
 
-Retrieve all accounts associated with this user, including through direct ownership, delegation, or partnerships.
+Retrieve all orgs associated with this user, including through direct ownership, delegation, or partnerships.
 
 ### HTTP Request
 
 `GET /api/user/accounts`
 
-## Account Token Debug Info
+## View Token Debug Info
 
 ```shell
 my_account_id="$(
-    echo "${my_accounts}" |
+    echo "${my_orgs}" |
         jq '.[0].id'
 )"
 
@@ -97,7 +97,7 @@ curl "${PAPEROS_BASE_URL}/api/account/debug?account_id=${my_account_id}" \
 ```
 
 ```javascript
-var accountId = accounts[0].id;
+var accountId = orgs[0].id;
 var url = `${paperBase}/api/account/debug?account_id=${accountId}`;
 var resp = await fetch(url, {
     headers: { Authorization: `Bearer ${paperToken}` },
@@ -128,3 +128,20 @@ var accountInfo = await resp.json();
 | Parameter  | Default | Description                                         |
 | ---------- | ------- | --------------------------------------------------- |
 | account_id | ''      | Either required or disallowed, based on token type. |
+
+## Create
+
+```sh
+curl "${PAPEROS_BASE_URL}/api/user/accounts" \
+    -X 'POST' \
+    -H 'Authorization: Bearer ${PAPEROS_API_TOKEN}' \
+    -H 'Content-Type: application/json' \
+    --data-raw '{
+        "company_name": "My Ranes Test Company 9",
+        "features": [
+            { "feature_type_id": 881, "value": "Ranes"}
+        ]
+    }'
+```
+
+`POST /api/user/accounts`

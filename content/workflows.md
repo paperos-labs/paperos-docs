@@ -7,7 +7,7 @@ title: Accounts
 
 The Workflow Library shows each of the available form collections for a particular task.
 
-## List Account's Library
+## List Org's Library
 
 ```shell
 my_account_id="$(
@@ -266,10 +266,13 @@ console.log(library);
 
 ```shell
 my_template_id='2'
+my_employee_resource='17400'
 
 curl "${PAPEROS_BASE_URL}/api/account/project_template/${my_template_id}/create?account_id=${my_account_id}" \
-  -H "Authorization: Bearer ${PAPEROS_API_TOKEN}" |
-  jq
+    -X POST \
+    -H "Authorization: Bearer ${PAPEROS_API_TOKEN}" \
+    -H 'Content-Type: application/json' |
+    jq
 ```
 
 ```javascript
@@ -278,10 +281,11 @@ var params = { account_id: accountId };
 var search = new URLSearchParams(params).toString();
 
 var url = `${paperBase}/api/account/project_template/${templateId}/create?${search}`;
-
 var resp = await fetch(url, {
     method: "POST",
-    headers: { Authorization: `Bearer ${paperToken}` },
+    headers: {
+        Authorization: `Bearer ${paperToken}`,
+    },
 });
 var workflow = await resp.json();
 
@@ -380,3 +384,55 @@ console.log(workflow);
 Opening a workflow will create the associated To-Do items in the PaperOS interface.
 
 `POST /api/account/project_template/${templateId}/create`
+
+## Open with Prepopulated Data
+
+> Prepopulate a new workflow instance:
+
+```shell
+my_template_id='2'
+my_employee_resource='17400'
+
+curl "${PAPEROS_BASE_URL}/api/account/project_template/${my_template_id}/create?account_id=${my_account_id}" \
+    -X POST \
+    -H "Authorization: Bearer ${PAPEROS_API_TOKEN}" \
+    -H 'Content-Type: application/json' \
+    --data-raw '{
+        "resources": {
+            "employee": "'"${my_employee_resource}"'"
+        },
+        "auto_complete": true
+    }' |
+    jq
+```
+
+```javascript
+var templateId = 2;
+var params = { account_id: accountId };
+var search = new URLSearchParams(params).toString();
+
+var employeeResource = "17400";
+var data = {
+    resources: {
+        employee: employeeResource,
+    },
+    auto_complete: true,
+};
+var payload = JSON.stringify(data, null, 2);
+
+var url = `${paperBase}/api/account/project_template/${templateId}/create?${search}`;
+var resp = await fetch(url, {
+    method: "POST",
+    headers: {
+        Authorization: `Bearer ${paperToken}`,
+        "Content-Type": "application/json",
+    },
+    body: payload,
+});
+var workflow = await resp.json();
+
+console.log(workflow);
+```
+
+1. See the _Resources_ section to create the resources that will be referenced here.
+2. List those resources when opening a workflow to make them available for autofill.
