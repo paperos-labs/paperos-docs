@@ -7,59 +7,7 @@ title: Resources
 
 Resources are the collections of data that can be both the result of form submissions, and made available for autofill selection to future forms.
 
-## List All
-
-> List all of an Org's Resources:
-
-```shell
-curl "$PAPEROS_BASE_URL/api/account/v1/resources?account_id=${my_account_id}" \
-  -H "Authorization: Bearer $PAPEROS_API_TOKEN"
-```
-
-```javascript
-// TODO
-```
-
-> Example Response:
-
-```json
-{
-    "TODO": "todo"
-}
-```
-
-Resources are scoped to a specific account.
-
-`GET /api/account/v1/resources?account_id={{account_id}}`
-
-## Get One
-
-> List details of a single resource
-
-```shell
-my_resource_id='23456'
-
-curl "$PAPEROS_BASE_URL/api/account/v1/resources/${my_resource_id}?account_id=${my_account_id}" \
-  -H "Authorization: Bearer $PAPEROS_API_TOKEN"
-```
-
-```javascript
-// TODO
-```
-
-> Example Response:
-
-```json
-{
-    "TODO": "todo"
-}
-```
-
-Show details for a resource by its ID.
-
-`GET /api/account/v1/resources/{{resource_id}}?account_id={{account_id}}`
-
-## Create
+## Create One
 
 > Create a new resource instance
 
@@ -95,7 +43,7 @@ TODO: make `resource_type` a parameter, as to not conflict with `/resources/:id`
 
 `POST /api/account/v1/resources/{{resource_type}}?account_id={{account_id}}`
 
-## Resource Types
+### Resource Types
 
 | Type                                  |
 | ------------------------------------- |
@@ -127,7 +75,59 @@ TODO: make `resource_type` a parameter, as to not conflict with `/resources/:id`
 | `financials`                          |
 | `quarterly_financials`                |
 
-## Update
+## List All by Org
+
+> List all of an Org's Resources:
+
+```shell
+curl "$PAPEROS_BASE_URL/api/account/v1/resources?account_id=${my_account_id}" \
+  -H "Authorization: Bearer $PAPEROS_API_TOKEN"
+```
+
+```javascript
+// TODO
+```
+
+> Example Response:
+
+```json
+{
+    "TODO": "todo"
+}
+```
+
+Resources are scoped to a specific account.
+
+`GET /api/account/v1/resources?account_id={{account_id}}`
+
+## Get One by ID
+
+> List details of a single resource
+
+```shell
+my_resource_id='23456'
+
+curl "$PAPEROS_BASE_URL/api/account/v1/resources/${my_resource_id}?account_id=${my_account_id}" \
+  -H "Authorization: Bearer $PAPEROS_API_TOKEN"
+```
+
+```javascript
+// TODO
+```
+
+> Example Response:
+
+```json
+{
+    "TODO": "todo"
+}
+```
+
+Show details for a resource by its ID.
+
+`GET /api/account/v1/resources/{{resource_id}}?account_id={{account_id}}`
+
+## Update One by ID
 
 ```shell
 my_resource_id='17378'
