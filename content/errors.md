@@ -20,8 +20,6 @@ The PaperOS API uses the following error codes:
 | 404        | Not Found -- The specified data was not found                                 |
 | 405        | Method Not Allowed -- A GET was used where a POST was required, etc           |
 | 406        | Not Acceptable -- The data was not in the proper format (i.e. JSON, CSV)      |
-| 410        | Gone -- The kitten requested has been removed from our servers                |
-| 418        | I'm a teapot                                                                  |
 | 420        | Enhance Your Calm -- You're doing that too fast                               |
 | 422        | Unprocessable Content -- The format is correct, but the data is not           |
 | 429        | Too Many Requests -- alias of 420                                             |

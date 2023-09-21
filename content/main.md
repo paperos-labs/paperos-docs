@@ -5,7 +5,7 @@ title: API Reference
 
 # Introduction
 
-Welcome to the PaperOS API! You can use our API to access Kittn API endpoints, which can get information on various cats, kittens, and breeds in our database.
+Welcome to the PaperOS API!
 
 You can view code examples in the dark area to the right, and you can switch the programming language of the examples with the tabs in the top right.
 
