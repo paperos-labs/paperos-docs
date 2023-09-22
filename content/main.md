@@ -46,9 +46,9 @@ var paperBase = process.env.PAPEROS_BASE_URL;
 
 Depending on your account, your PaperOS base URL may resemble any of the following:
 
--   https://app.paperos.com
--   https://example.c.paperos.com
--   https://paperos.example.com
+- https://app.paperos.com
+- https://example.c.paperos.com
+- https://paperos.example.com
 
 For general operations you can always use `https://app.paperos.com`, however, using the branded domain may be required for certain actions, such as those that generate branded notifications.
 
@@ -68,13 +68,14 @@ var paperToken = process.env.PAPEROS_API_TOKEN;
 
 ```shell
 curl "${PAPEROS_BASE_URL}/api/user/debug" \
-  -H "Authorization: Bearer ${PAPEROS_API_TOKEN}"
+  -H "Authorization: Bearer ${PAPEROS_API_TOKEN}" |
+  jq
 ```
 
 ```javascript
 var url = `${paperBase}/api/user/debug`;
 var resp = await fetch(url, {
-    headers: { Authorization: `Bearer ${paperToken}` },
+  headers: { Authorization: `Bearer ${paperToken}` },
 });
 var data = await resp.json();
 ```
@@ -83,17 +84,17 @@ var data = await resp.json();
 
 ```json
 {
-    "user": {
-        "account_id": null,
-        "partner_id": null,
-        "auth_time": "2023-09-19T22:25:54.000Z",
-        "iat": "2023-09-19T22:25:54.000Z",
-        "exp": null,
-        "api_token": true,
-        "email": "services+test1@savvi.legal"
-    },
-    "method": "GET",
-    "originalUrl": "/api/user/debug"
+  "user": {
+    "account_id": null,
+    "partner_id": null,
+    "auth_time": "2023-09-19T22:25:54.000Z",
+    "iat": "2023-09-19T22:25:54.000Z",
+    "exp": null,
+    "api_token": true,
+    "email": "services+test1@savvi.legal"
+  },
+  "method": "GET",
+  "originalUrl": "/api/user/debug"
 }
 ```
 
