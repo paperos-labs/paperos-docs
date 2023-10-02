@@ -7,6 +7,8 @@ title: Organizations
 
 ## List
 
+> `GET /api/user/accounts`
+
 ```shell
 my_orgs="$(
 
@@ -81,11 +83,9 @@ console.log(orgs);
 
 Retrieve all orgs associated with this user, including through direct ownership, delegation, or partnerships.
 
-### HTTP Request
-
-`GET /api/user/accounts`
-
 ## View Token Debug Info
+
+> `GET /api/account/debug`
 
 ```shell
 my_org_id="$(
@@ -126,6 +126,8 @@ var orgInfo = await resp.json();
 }
 ```
 
+Show account token details
+
 ### Query Parameters
 
 | Parameter    | Default | Description                                         |
@@ -134,7 +136,7 @@ var orgInfo = await resp.json();
 
 ## Create
 
-> POST /api/user/accounts
+> `POST /api/user/accounts`
 
 ```shell
 curl "${PAPEROS_BASE_URL}/api/user/accounts" \
@@ -175,7 +177,7 @@ var resp = await fetch(url, {
 var orgInfo = await resp.json();
 ```
 
-> Example response:
+> Example Response:
 
 ```json
 {
@@ -183,7 +185,7 @@ var orgInfo = await resp.json();
 }
 ```
 
-`POST /api/user/accounts`
+Create a new organization.
 
 Options for `org:business_type` are:
 
