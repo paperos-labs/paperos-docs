@@ -178,7 +178,67 @@ Show account token details
 | ------------ | ------- | --------------------------------------------------- |
 | `account_id` | ''      | Either required or disallowed, based on token type. |
 
-## Create
+## Create (v1-draft)
+
+> `POST /api/user/v1/orgs`
+
+```shell
+curl "${PAPEROS_BASE_URL}/api/user/v1/orgs" \
+    -X 'POST' \
+    -H "Authorization: Bearer ${PAPEROS_API_TOKEN}" \
+    -H 'Content-Type: application/json' \
+    --data-raw '{
+        "name": "My Test Company 11",
+        "inputs": {
+            "org:business_type": "for_profit"
+        }
+    }' |
+    jq
+```
+
+```javascript
+var data = {
+  name: "My Test Company 11",
+  inputs: {
+    "org:business_type": "for_profit",
+  },
+};
+var payload = JSON.stringify(data, null, 2);
+
+var url = `${paperBase}/api/user/v1/orgs`;
+var resp = await fetch(url, {
+  method: "POST",
+  headers: {
+    Authorization: `Bearer ${paperToken}`,
+    "Content-Type": "application/json",
+  },
+  body: payload,
+});
+var orgInfo = await resp.json();
+```
+
+> Example Response:
+
+```json
+{
+  "id": "org_01hbsvp9tk3qthd2jjz2vzv0g8",
+  "name": "My Test Company 11",
+  "brand_id": "brand_01h2stkn1fqe8dcfmyrq7thpab",
+  "created_at": "2023-10-03T04:10:43.000Z",
+  "updated_at": "2023-10-03T04:10:49.000Z"
+}
+```
+
+Create a new organization.
+
+Options for `org:business_type` are:
+
+- `for_profit`
+- `investment_vehicle`
+- `professional_services`
+- `other`
+
+## Create (internal)
 
 > `POST /api/user/accounts`
 
