@@ -5,7 +5,51 @@ title: Organizations
 
 # Organizations
 
-## List
+## List (v1-draft)
+
+> `GET /api/user/v1/orgs?updated_since=0`
+
+```shell
+my_orgs="$(
+
+    curl "${PAPEROS_BASE_URL}/api/user/v1/orgs?updated_since=0" \
+        -H "Authorization: Bearer ${PAPEROS_API_TOKEN}"
+
+)"
+echo "${my_orgs}" |
+    jq
+```
+
+```javascript
+var url = `${paperBase}/api/user/v1/orgs?updated_since=0`;
+var resp = await fetch(url, {
+  headers: { Authorization: `Bearer ${paperToken}` },
+});
+var orgs = await resp.json();
+
+console.log(orgs);
+```
+
+> Example Response:
+
+```json
+{
+  "updated_at": 1677000469,
+  "orgs": [
+    {
+      "id": "org_01ewdxxpvgg2y19pbtbyddtvv8",
+      "name": "Test 1",
+      "brand_id": "brand_00000000000000000000000000",
+      "created_at": "2021-01-19T18:18:46.000Z",
+      "updated_at": "2023-02-21T17:27:49.000Z"
+    }
+  ]
+}
+```
+
+Retrieve all orgs associated with this user, including through direct ownership, delegation, or partnerships.
+
+## List (internal)
 
 > `GET /api/user/accounts`
 
