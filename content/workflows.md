@@ -407,11 +407,11 @@ curl "${PAPEROS_BASE_URL}/api/account/project_template/${my_template_id}/create?
 
 ```javascript
 var templateId = 2;
-var employeeResource = "5617";
+var employeeRecord = "5617";
 
 var data = {
   resources: {
-    employee: employeeResource,
+    employee: employeeRecord,
   },
   auto_complete: true,
 };
@@ -524,7 +524,7 @@ console.log(workflow);
 
 Prepopulate a new workflow instance:
 
-1. See the _Resources_ section to create the resources that will be referenced here.
+1. See the _Records_ section to create the resources that will be referenced here.
 2. List those resources when opening a workflow to make them available for autofill.
 
 TODO: create slug for library item

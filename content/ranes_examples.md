@@ -49,9 +49,9 @@ var resource = await resp.json();
 console.log(resource);
 ```
 
-## Create Employee Resource
+## Create Employee Records
 
-Create Resource the same time a Ranes Employee is added.
+Create a Record at the same time a Ranes Employee is added.
 
 1. All you will currently need to pass through the request body will be the name
    and email of the employee, which will be used on our end to populate question
@@ -100,7 +100,7 @@ assessment to auto complete.
 
 ```shell
 template_id='2' # this is the template id telling us to generate a new "Employee Onboarding (Ranes)" Workflow
-employee_resource='*RESOURCE ID*' # this will be the id from the response of the Create Resource api request.
+employee_resource='*RESOURCE ID*' # this will be the id from the response of the Create Record api request.
 
 curl "${PAPEROS_BASE_URL}/api/account/project_template/${template_id}/create?account_id=${account_id}" \
     -X POST \
@@ -120,20 +120,20 @@ var templateId = 2; // this is the template id telling us to generate a new "Emp
 var params = { account_id: accountId };
 var search = new URLSearchParams(params).toString();
 
-var employeeResource = '*RESOURCE ID*'; // this will be the id from the response of the Create Resource api request.
+var employeeRecord = "*RESOURCE ID*"; // this will be the id from the response of the Create Record api request.
 var data = {
   resources: {
-    employee: employeeResource,
+    employee: employeeRecord,
   },
   auto_complete: true,
 };
 
 var url = `${paperBase}/api/account/project_template/${templateId}/create?${search}`;
 var resp = await fetch(url, {
-  method: 'POST',
+  method: "POST",
   headers: {
     Authorization: `Bearer ${paperToken}`,
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
   body: JSON.stringify(data, null, 2),
 });
@@ -156,7 +156,7 @@ curl "$PAPEROS_BASE_URL/api/account/document_history?account_id=${account_id}" \
 ```javascript
 var url = `${paperBase}/api/account/document_history?account_id=${account_id}`;
 var resp = await fetch(url, {
-  method: 'GET',
+  method: "GET",
   headers: {
     Authorization: `Bearer ${PAPEROS_API_TOKEN}`,
   },
@@ -188,7 +188,7 @@ curl "$PAPEROS_BASE_URL/api/account/document_history?account_id=${account_id}&em
 ```javascript
 var url = `${paperBase}/api/account/document_history?account_id=${account_id}&email=${employee_email}`;
 var resp = await fetch(url, {
-  method: 'GET',
+  method: "GET",
   headers: {
     Authorization: `Bearer ${PAPEROS_API_TOKEN}`,
   },

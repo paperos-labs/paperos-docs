@@ -1,11 +1,11 @@
 ---
 weight: 1200
-title: Resources
+title: Records
 ---
 
-# Resources
+# Records
 
-Resources are the collections of data that can be both the result of form submissions, and made available for autofill selection to future forms.
+Records are the collections of data that can be both the result of form submissions, and made available for autofill selection to future forms.
 
 ## Create One
 
@@ -77,13 +77,13 @@ var resInfo = await resp.json();
 }
 ```
 
-Create a new resource for an organization.
+Create a new record belonging to this organization.
 
 TODO: make `resource_type` a parameter, as to not conflict with `/resources/:id`
 
 `POST /api/account/v1/resources/{{resource_type}}?account_id={{org_id}}`
 
-### Resource Types
+### Record Types
 
 | Type                                  |
 | ------------------------------------- |
@@ -181,7 +181,7 @@ var resInfos = await resp.json();
 ]
 ```
 
-Resources are scoped to a specific account.
+Records are scoped to a specific account.
 
 TODO don't allow creating completely empty entities
 
