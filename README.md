@@ -79,7 +79,7 @@ hugo
 
 -   the names of the files in `./content/` are arbitrary
     ```sh
-    ./content/resources.md
+    ./content/records.md
     ```
 -   styles can be overwritten in `./assets/`
     ```sh
