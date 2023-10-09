@@ -85,35 +85,42 @@ TODO: make `resource_type` a parameter, as to not conflict with `/resources/:id`
 
 ### Record Types
 
-| Type                                  |
-| ------------------------------------- |
-| `individual`                          |
-| `intellectual_property`               |
-| `document`                            |
-| `document`                            |
-| `equity`                              |
-| `task`                                |
-| `questionnaire`                       |
-| `securities`                          |
-| `financing`                           |
-| `outside_entity`                      |
-| `investment`                          |
-| `equity_plan`                         |
-| `state`                               |
-| `foreign_entity_qualification_states` |
-| `company_history`                     |
-| `counsel`                             |
-| `secretary`                           |
-| `legal_audit`                         |
-| `equity_class`                        |
-| `web_policy_terms`                    |
-| `personal_information`                |
-| `annual_report`                       |
-| `contracts`                           |
-| `tax_filing`                          |
-| `benefit_plans`                       |
-| `financials`                          |
-| `quarterly_financials`                |
+<!--
+    SELECT CONCAT("`", `slug`, "`") AS Slug
+    FROM `resource_type`
+    ORDER BY `slug`;
+-->
+
+| Slug             |
+| ---------------- |
+| `activity`       |
+| `annual_report`  |
+| `benefit_plan`   |
+| `contract`       |
+| `counsel`        |
+| `doc`            |
+| `equity`         |
+| `equity_class`   |
+| `equity_plan`    |
+| `ext_entity`     |
+| `financials`     |
+| `financing`      |
+| `investment`     |
+| `ip`             |
+| `legal_audit`    |
+| `npo`            |
+| `org`            |
+| `org_history`    |
+| `pii`            |
+| `qtly_finacials` |
+| `questionnaire`  |
+| `secretary`      |
+| `security`       |
+| `state`          |
+| `task`           |
+| `tax_filing`     |
+| `tos`            |
+| `user`           |
 
 ## List All by Org
 
