@@ -86,41 +86,43 @@ TODO: make `resource_type` a parameter, as to not conflict with `/resources/:id`
 ### Record Types
 
 <!--
-    SELECT CONCAT("`", `slug`, "`") AS Slug
+    SELECT
+        CONCAT("`", `slug`, "`") AS Slug,
+        CONCAT("`", `code`, "`") AS Code
     FROM `resource_type`
     ORDER BY `slug`;
 -->
 
-| Slug             |
-| ---------------- |
-| `activity`       |
-| `annual_report`  |
-| `benefit_plan`   |
-| `contract`       |
-| `counsel`        |
-| `doc`            |
-| `equity`         |
-| `equity_class`   |
-| `equity_plan`    |
-| `ext_entity`     |
-| `financials`     |
-| `financing`      |
-| `investment`     |
-| `ip`             |
-| `legal_audit`    |
-| `npo`            |
-| `org`            |
-| `org_history`    |
-| `pii`            |
-| `qtly_finacials` |
-| `questionnaire`  |
-| `secretary`      |
-| `security`       |
-| `state`          |
-| `task`           |
-| `tax_filing`     |
-| `tos`            |
-| `user`           |
+| Slug             | Code        |
+| ---------------- | ----------- |
+| `activity`       | `acty`      |
+| `annual_report`  | `ann_rpt`   |
+| `benefit_plan`   | `benf`      |
+| `contract`       | `k`         |
+| `counsel`        | `cnsl`      |
+| `doc`            | `doc`       |
+| `equity`         | `eq`        |
+| `equity_class`   | `eq_cl`     |
+| `equity_plan`    | `eq_plan`   |
+| `ext_entity`     | `ext_enty`  |
+| `financials`     | `fins`      |
+| `financing`      | `fin`       |
+| `individual`     | `indv`      |
+| `investment`     | `invt`      |
+| `ip`             | `ip`        |
+| `legal_audit`    | `lgl_adt`   |
+| `npo`            | `npo`       |
+| `org`            | `org`       |
+| `org_history`    | `org_hx`    |
+| `pii`            | `pii`       |
+| `qtly_finacials` | `qtly_fins` |
+| `questionnaire`  | `qre`       |
+| `secretary`      | `secy`      |
+| `security`       | `sec`       |
+| `state`          | `st`        |
+| `task`           | `task`      |
+| `tax_filing`     | `tax`       |
+| `tos`            | `tos`       |
 
 ## List All by Org
 
