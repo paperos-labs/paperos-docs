@@ -124,9 +124,11 @@ TODO: make `resource_type` a parameter, as to not conflict with `/resources/:id`
 | `tax_filing`     | `tax`       |
 | `tos`            | `tos`       |
 
-## List All by Org
+## List All by Type by Org
 
-> `GET /api/account/v1/resources`
+> `GET /api/v1/org/records?org_id={org_id}&type={type_slug}`
+>
+> `GET /api/v1/orgs/{org_id}/records`
 
 ```shell
 curl "$PAPEROS_BASE_URL/api/account/v1/resources?account_id=${my_org_id}" \
@@ -193,6 +195,15 @@ var resInfos = await resp.json();
 Records are scoped to a specific account.
 
 TODO don't allow creating completely empty entities
+
+| Query     | Description                                                       |
+| --------- | ----------------------------------------------------------------- |
+| `org_id`  | the organization's public id (begins with `org_`)                 |
+| `type`    | the record type slug, such as `individual` or `org` (`*` for any) |
+| `rec_id`  | a single recor ids (begins with `rec_`)                           |
+| `rec_ids` | a comma-separated list of record ids (begin with `rec_`)          |
+| `since`   | an ISO timestamp of the last record received (second resolution)  |
+| `limit`   | return only `n` records                                           |
 
 ## Get One by ID
 
