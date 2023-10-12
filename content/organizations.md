@@ -7,12 +7,12 @@ title: Organizations
 
 ## List (v1-draft)
 
-> `GET /api/user/v1/orgs?updated_since=0`
+> `GET /api/v1/orgs?updated_since=0`
 
 ```shell
 my_orgs="$(
 
-    curl "${PAPEROS_BASE_URL}/api/user/v1/orgs?updated_since=0" \
+    curl "${PAPEROS_BASE_URL}/api/v1/orgs?updated_since=0" \
         -H "Authorization: Bearer ${PAPEROS_API_TOKEN}"
 
 )"
@@ -21,7 +21,7 @@ echo "${my_orgs}" |
 ```
 
 ```javascript
-var url = `${paperBase}/api/user/v1/orgs?updated_since=0`;
+var url = `${paperBase}/api/v1/orgs?updated_since=0`;
 var resp = await fetch(url, {
   headers: { Authorization: `Bearer ${paperToken}` },
 });
@@ -49,9 +49,15 @@ console.log(orgs);
 
 Retrieve all orgs associated with this user, including through direct ownership, delegation, or partnerships.
 
+### Query Parameters
+
+| Parameter       | Default | Description                                         |
+| --------------- | ------- | --------------------------------------------------- |
+| `updated_since` | ''      | required, pass 0 or the previous `updated_since`    |
+
 ## View Token Debug Info
 
-> `GET /api/account/debug`
+> `GET /api/v1/org/debug`
 
 ```shell
 my_org_id="$(
@@ -60,14 +66,14 @@ my_org_id="$(
 )"
 echo "${my_org_id}"
 
-curl "${PAPEROS_BASE_URL}/api/account/debug?account_id=${my_org_id}" \
+curl "${PAPEROS_BASE_URL}/api/v1/org/debug?account_id=${my_org_id}" \
   -H "Authorization: Bearer ${PAPEROS_API_TOKEN}" |
   jq
 ```
 
 ```javascript
 var orgId = orgs[0].id;
-var url = `${paperBase}/api/account/debug?account_id=${orgId}`;
+var url = `${paperBase}/api/v1/org/debug?account_id=${orgId}`;
 var resp = await fetch(url, {
   headers: { Authorization: `Bearer ${paperToken}` },
 });
@@ -88,7 +94,7 @@ var orgInfo = await resp.json();
     "email": "services+test1@savvi.legal"
   },
   "method": "GET",
-  "originalUrl": "/api/account/debug?account_id=97"
+  "originalUrl": "/api/v1/org/debug?account_id=97"
 }
 ```
 
@@ -102,10 +108,10 @@ Show account token details
 
 ## Create (v1-draft)
 
-> `POST /api/user/v1/orgs`
+> `POST /api/v1/orgs`
 
 ```shell
-curl "${PAPEROS_BASE_URL}/api/user/v1/orgs" \
+curl "${PAPEROS_BASE_URL}/api/v1/orgs" \
     -X 'POST' \
     -H "Authorization: Bearer ${PAPEROS_API_TOKEN}" \
     -H 'Content-Type: application/json' \
@@ -127,7 +133,7 @@ var data = {
 };
 var payload = JSON.stringify(data, null, 2);
 
-var url = `${paperBase}/api/user/v1/orgs`;
+var url = `${paperBase}/api/v1/orgs`;
 var resp = await fetch(url, {
   method: "POST",
   headers: {

@@ -15,7 +15,7 @@ Get a list of documents for a specific account
 
 ```shell
 curl "$PAPEROS_BASE_URL/api/account/document_history?account_id=${account_id}" \
-    -H "Authorization: Bearer $PAPEROS_API_TOKEN"
+    -H "Authorization: Bearer ${PAPEROS_API_TOKEN}"
 ```
 
 ```javascript
@@ -31,14 +31,6 @@ var resource = await resp.json();
 console.log(resource);
 ```
 
-> Example Response:
-
-```json
-{
-  "TODO": "todo"
-}
-```
-
 ## Get Documents by Email
 
 Get a list of documents for a specific account & email
@@ -47,7 +39,7 @@ Get a list of documents for a specific account & email
 
 ```shell
 curl "$PAPEROS_BASE_URL/api/account/document_history?account_id=${account_id}&email=${email}" \
-    -H "Authorization: Bearer $PAPEROS_API_TOKEN"
+    -H "Authorization: Bearer ${PAPEROS_API_TOKEN}"
 ```
 
 ```javascript
@@ -61,12 +53,4 @@ var resp = await fetch(url, {
 var resource = await resp.json();
 
 console.log(resource);
-```
-
-> Example Response:
-
-```json
-{
-  "TODO": "todo"
-}
 ```

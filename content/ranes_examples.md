@@ -8,46 +8,82 @@ title: Ranes Examples
 An example of what api requests Ranes will be initially using and how they
 interact with each other.
 
-Whitelabelled Staging Site: https://ranes.c.paperos.dev/
+**Variables Used**: \
+`PAPEROS_BASE_URL: https://ranes.c.paperos.dev/` \
+`PAPEROS_API_TOKEN: *ranes api token*` \
+`my_org_id: *saved from the "POST /api/v1/orgs" response*`
 
 ## Create Organization
 
 Create PaperOS Organization the same time a Ranes Organization is created.
 
-1. Save `account_id` from response payload to use in later api requests.
+1. Save `id` from response payload to use in later api requests.
 
 ```shell
-curl "${PAPEROS_BASE_URL}/api/user/accounts" \
+curl "${PAPEROS_BASE_URL}/api/v1/orgs" \
     -X 'POST' \
-    -H 'Authorization: Bearer ${PAPEROS_API_TOKEN}' \
+    -H "Authorization: Bearer ${PAPEROS_API_TOKEN}" \
     -H 'Content-Type: application/json' \
     --data-raw '{
-        "company_name": "*RANES COMPANY NAME*",
-        "features": [
-            { "feature_type_id": 881, "value": "Ranes" }
-        ]
-    }'
+        "name": "My Test Company 11",
+        "inputs": {
+            "org:partner_slug": "ranes"
+        }
+    }' |
+    jq
 ```
 
 ```javascript
 var data = {
-  "company_name": "*RANES COMPANY NAME*",
-  "features": [
-    { "feature_type_id": 881, "value": "Ranes" }
-  ]
+  name: 'My Test Company 11',
+  inputs: {
+    'org:partner_slug': 'ranes',
+  },
 };
-var url = `${paperBase}/api/user/accounts`;
-var resp = await fetch(url, {
-    method: "POST",
-    headers: {
-        Authorization: `Bearer ${PAPEROS_API_TOKEN}`,
-    },
-    body: JSON.stringify(data, null, 2);
-});
-var resource = await resp.json();
+var url = `${paperBase}/api/v1/orgs`;
 
-console.log(resource);
+var resp = await fetch(url, {
+  method: 'POST',
+  headers: {
+    Authorization: `Bearer ${paperToken}`,
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify(data, null, 2),
+});
+var orgInfo = await resp.json();
 ```
+
+> Example Response:
+
+```json
+{
+  "id": "org_01hbsvp9tk3qthd2jjz2vzv0g8",
+  "name": "My Test Company 11",
+  "brand_id": "brand_01h2stkn1fqe8dcfmyrq7thpab",
+  "created_at": "2023-10-03T04:10:43.000Z",
+  "updated_at": "2023-10-03T04:10:49.000Z"
+}
+```
+
+## Onboard Org on PaperOS
+
+Before doing the next steps\* a Ranes Operator\*\* will need to:
+
+1. Go to https://ranes.c.paperos.dev and login.
+2. Select the Organization just created.
+3. Complete the **Ranes Account Setup** Workflow, which can be accessed in the
+   **Home** Tab through the **Setup Your Account** To-do, or in the **Workflow
+   Library** tab.
+
+\*The **Employee Onboarding** Workflow relies on some data being auto-filled
+based off the **Ranes Account Setup** Workflow, & will not generate the
+documents correctly if started before this step is complete. It might make sense
+to disable the option to create employees until that workflow is completed,
+which you can do with our current api, but we can discuss what route would be
+best.
+
+\*\*This would technically be the only PaperOS touch point necessary for a Ranes
+Operator at mvp.
 
 ## Create Employee Records
 
@@ -56,13 +92,13 @@ Create a Record at the same time a Ranes Employee is added.
 1. All you will currently need to pass through the request body will be the name
    and email of the employee, which will be used on our end to populate question
    inputs in the Employee Onboarding Workflow Assessment.
-2. The resource id from this payload will be used in the "Open Workflow" api
+2. The record `id` from this response will be used in the "Open Workflow" api
    request body.
 
 ```shell
-curl "$PAPEROS_BASE_URL/api/account/v1/resources/individual?account_id=${account_id}" \
+curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/records" \
     -X 'POST' \
-    -H "Authorization: Bearer $PAPEROS_API_TOKEN"
+    -H "Authorization: Bearer $PAPEROS_API_TOKEN" \
     -H 'Content-Type: application/json' \
     --data-raw '{
         "name": "Jeff Richards",
@@ -75,7 +111,7 @@ var data = {
   "name": "Jeff Richards",
   "email": "jeff.richards@ranes.com",
 };
-var url = `${paperBase}/api/account/v1/resources/individual?account_id=${account_id}`;
+var url = `${paperBase}/api/account/v1/resources/individual?account_id=${my_org_id}`;
 var resp = await fetch(url, {
     method: "POST",
     headers: {
@@ -83,9 +119,18 @@ var resp = await fetch(url, {
     },
     body: JSON.stringify(data, null, 2);
 });
-var resource = await resp.json();
+var recordInfo = await resp.json();
+var record_id = recordInfo.id;
+```
 
-console.log(resource);
+> Example Response:
+
+```json
+{
+  "success": true,
+  "type": "string",
+  "rec_id": "rec_01hcey7qcfeeqmh1af6x3xafa2"
+}
 ```
 
 ## Open Employee Onboarding Workflow
@@ -99,16 +144,16 @@ assessment to auto complete.
    the "Ranes Account Setup Workflow" for the company of that employee.
 
 ```shell
-template_id='2' # this is the template id telling us to generate a new "Employee Onboarding (Ranes)" Workflow
-employee_resource='*RESOURCE ID*' # this will be the id from the response of the Create Record api request.
+template_id='185' # this is the template id telling us to generate a new "Employee Onboarding (Ranes)" Workflow
+employee_resource=record_id # this will be the id from the response of the Create Record api request.
 
-curl "${PAPEROS_BASE_URL}/api/account/project_template/${template_id}/create?account_id=${account_id}" \
+curl "${PAPEROS_BASE_URL}/api/account/project_template/${template_id}/create?account_id=${my_org_id}" \
     -X POST \
     -H "Authorization: Bearer ${PAPEROS_API_TOKEN}" \
     -H 'Content-Type: application/json' \
     --data-raw '{
         "resources": {
-            "employee": "${employee_resource}"
+            "employee": "'"${employee_resource}"'"
         },
         "auto_complete": true
     }' |
@@ -116,11 +161,11 @@ curl "${PAPEROS_BASE_URL}/api/account/project_template/${template_id}/create?acc
 ```
 
 ```javascript
-var templateId = 2; // this is the template id telling us to generate a new "Employee Onboarding (Ranes)" Workflow
+var templateId = 185; // this is the template id telling us to generate a new "Employee Onboarding (Ranes)" Workflow
 var params = { account_id: accountId };
 var search = new URLSearchParams(params).toString();
 
-var employeeRecord = "*RESOURCE ID*"; // this will be the id from the response of the Create Record api request.
+var employeeRecord = record_id; // this will be the id from the response of the Create Record api request.
 var data = {
   resources: {
     employee: employeeRecord,
@@ -130,78 +175,56 @@ var data = {
 
 var url = `${paperBase}/api/account/project_template/${templateId}/create?${search}`;
 var resp = await fetch(url, {
-  method: "POST",
+  method: 'POST',
   headers: {
     Authorization: `Bearer ${paperToken}`,
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
   body: JSON.stringify(data, null, 2),
 });
-var workflow = await resp.json();
-
-console.log(workflow);
+var workflowInfo = await resp.json();
 ```
 
 ## Get Documents by Company
 
 Get a list of documents for a specific account
 
-`GET /api/account/document_history?account_id={{account_id}}`
-
 ```shell
-curl "$PAPEROS_BASE_URL/api/account/document_history?account_id=${account_id}" \
-    -H "Authorization: Bearer $PAPEROS_API_TOKEN"
+curl "${PAPEROS_BASE_URL}/api/account/document_history?account_id=${my_org_id}" \
+  -H "Authorization: Bearer ${PAPEROS_API_TOKEN}"
 ```
 
 ```javascript
-var url = `${paperBase}/api/account/document_history?account_id=${account_id}`;
+var url = `${paperBase}/api/account/document_history?account_id=${my_org_id}`;
 var resp = await fetch(url, {
-  method: "GET",
+  method: 'GET',
   headers: {
     Authorization: `Bearer ${PAPEROS_API_TOKEN}`,
   },
 });
-var resource = await resp.json();
+var companyDocsInfo = await resp.json();
 
-console.log(resource);
-```
-
-> Example Response:
-
-```json
-{
-  "TODO": "todo"
-}
+console.log(companyDocsInfo);
 ```
 
 ## Get Documents by Employee Email
 
 Get a list of documents for an employee by company account id & email.
 
-`GET /api/account/document_history?account_id={{account_id}}&email={{email}}`
-
 ```shell
-curl "$PAPEROS_BASE_URL/api/account/document_history?account_id=${account_id}&email=${employee_email}" \
-    -H "Authorization: Bearer $PAPEROS_API_TOKEN"
+curl "${PAPEROS_BASE_URL}/api/account/document_history?account_id=${my_org_id}&email=${employee_email}" \
+  -H "Authorization: Bearer ${PAPEROS_API_TOKEN}"
 ```
 
 ```javascript
-var url = `${paperBase}/api/account/document_history?account_id=${account_id}&email=${employee_email}`;
+var url = `${paperBase}/api/account/document_history?account_id=${my_org_id}&email=${employee_email}`;
 var resp = await fetch(url, {
-  method: "GET",
+  method: 'GET',
   headers: {
     Authorization: `Bearer ${PAPEROS_API_TOKEN}`,
   },
 });
-var resource = await resp.json();
+var employeeDocsInfo = await resp.json();
 
-console.log(resource);
-```
-
-> Example Response:
-
-```json
-{
-  "TODO": "todo"
-}
+console.log(employeeDocsInfo);
 ```

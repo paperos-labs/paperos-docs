@@ -5,81 +5,69 @@ title: Records
 
 # Records
 
-Records are the collections of data that can be both the result of form submissions, and made available for autofill selection to future forms.
+Records are the collections of data that can be both the result of form
+submissions, and made available for autofill selection to future forms.
 
 ## Create One
 
-> `POST /api/account/v1/resources/individual`
+> `POST /api/v1/orgs/:org_id`
 
 ```shell
-curl "$PAPEROS_BASE_URL/api/account/v1/resources/individual?account_id=${my_org_id}" \
+curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/records" \
     -X 'POST' \
-    -H "Authorization: Bearer $PAPEROS_API_TOKEN" \
+    -H "Authorization: Bearer ${PAPEROS_API_TOKEN}" \
     -H 'Content-Type: application/json' \
     --data-raw '{
-        "name": "Bob the Builder",
+      "type": "individual",
+      "name": "John Doe",
+      "fields": {
         "title": "master builder",
-        "email": "bob@bobbuild.bob",
+        "email": "john@john.doe",
         "employee_documents_list": "All of the above",
         "upload_or_generate": "Generate"
+      }
     }' |
     jq
 ```
 
 ```javascript
 var data = {
-  name: "Bob the Builder",
-  title: "master builder",
-  email: "bob@bobbuild.bob",
-  employee_documents_list: "All of the above",
-  upload_or_generate: "Generate",
+  type: 'individual',
+  name: 'John Doe',
+  fields: {
+    title: 'master builder',
+    email: 'john@john.doe',
+    employee_documents_list: 'All of the above',
+    upload_or_generate: 'Generate',
+  },
 };
 var payload = JSON.stringify(data, null, 2);
 
 var params = { account_id: orgId };
 var search = new URLSearchParams(params).toString();
-var url = `${paperBase}/api/account/v1/resources/individual?${search}`;
+var url = `${paperBase}/api/v1/orgs/${my_org_id}/records`;
 var resp = await fetch(url, {
-  method: "POST",
+  method: 'POST',
   headers: {
     Authorization: `Bearer ${paperToken}`,
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
   body: payload,
 });
-var resInfo = await resp.json();
+var recordInfo = await resp.json();
 ```
 
 > Example Response:
 
 ```json
 {
-  "id": 17413,
-  "name": "Bob the Builder",
-  "resource_type_id": 1,
-  "account_id": 97,
-  "created_at": "2023-09-22T19:50:13.000Z",
-  "updated_at": "2023-09-22T19:50:13.000Z",
-  "finalized": 0,
-  "archived": 0,
-  "is_draft": 0,
-  "features": {
-    "name": "Bob the Builder",
-    "signatory_name": "Bob the Builder",
-    "first_name": "Bob",
-    "last_name": "Builder",
-    "middle_name": "the",
-    "title": "master builder",
-    "email": "bob@bobbuild.bob",
-    "employee_documents_list": "All of the above",
-    "upload_or_generate": "Generate"
-  }
+  "success": true,
+  "type": "string",
+  "rec_id": "rec_01hcey7qcfeeqmh1af6x3xafa2"
 }
 ```
 
 Create a new record belonging to this organization.
-
-TODO: make `resource_type` a parameter, as to not conflict with `/resources/:id`
 
 `POST /api/account/v1/resources/{{resource_type}}?account_id={{org_id}}`
 
@@ -141,7 +129,7 @@ var params = { account_id: orgId };
 var search = new URLSearchParams(params).toString();
 var url = `${paperBase}/api/account/v1/resources?${search}`;
 var resp = await fetch(url, {
-  method: "POST",
+  method: 'POST',
   headers: {
     Authorization: `Bearer ${paperToken}`,
   },
@@ -200,35 +188,33 @@ TODO don't allow creating completely empty entities
 | --------- | ----------------------------------------------------------------- |
 | `org_id`  | the organization's public id (begins with `org_`)                 |
 | `type`    | the record type slug, such as `individual` or `org` (`*` for any) |
-| `rec_id`  | a single recor ids (begins with `rec_`)                           |
+| `rec_id`  | a single record ids (begins with `rec_`)                           |
 | `rec_ids` | a comma-separated list of record ids (begin with `rec_`)          |
 | `since`   | an ISO timestamp of the last record received (second resolution)  |
 | `limit`   | return only `n` records                                           |
 
 ## Get One by ID
 
-> `GET /api/account/v1/resources/:id`
+> `GET /api/v1/orgs/:org_id/records/:rec_id`
 
 ```shell
-my_resource_id='17413'
+my_rec_id='17413'
 
-curl "$PAPEROS_BASE_URL/api/account/v1/resources/${my_resource_id}?account_id=${my_org_id}" \
+curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/records/${my_rec_id}" \
   -H "Authorization: Bearer $PAPEROS_API_TOKEN" |
   jq
 ```
 
 ```javascript
-var resourceId = "17413";
+var myRecId = '17413';
 
-var params = { account_id: orgId };
-var search = new URLSearchParams(params).toString();
-var url = `${paperBase}/api/account/v1/resources/${resourceId}?${search}`;
+var url = `${paperBase}/api/v1/orgs/${my_org_id}/records/${myRecId}`;
 var resp = await fetch(url, {
   headers: {
     Authorization: `Bearer ${paperToken}`,
   },
 });
-var resInfo = await resp.json();
+var recordInfo = await resp.json();
 ```
 
 > Example Response:
@@ -262,43 +248,43 @@ Show details for a resource by its ID.
 
 ## Update One by ID
 
-> `PATCH /api/account/v1/resources/:id`
+> `PATCH /api/v1/orgs/:org_id/records/:rec_id`
 
 ```shell
-my_resource_id='5617'
+my_rec_id='5617'
 
-curl "$PAPEROS_BASE_URL/api/account/v1/resources/${my_resource_id}?account_id=${my_org_id}" \
+curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/records/${my_rec_id}" \
     -X 'PATCH' \
-    -H "Authorization: Bearer $PAPEROS_API_TOKEN"
+    -H "Authorization: Bearer ${PAPEROS_API_TOKEN}" \
     -H 'Content-Type: application/json' \
     --data-raw '{
-        "title": "Ultra Master painter",
-        "email": "bob@bobrossian.bob",
-        "contractor_notes": "Paintings on a field of liquid white.",
-        "name": "Bob Painter Ross"
+      "fields": {
+        "title": "Product Manager",
+        "email": "john2@john.doe",
+      }
     }' |
     jq
 ```
 
 ```javascript
-var resourceId = "5617";
+var myRecId = '5617';
 
 var data = {
-  title: "Ultra Master painter",
-  email: "bob@bobrossian.bob",
-  contractor_notes: "Paintings on a field of liquid white.",
-  name: "Bob Painter Ross",
+  fields: {
+    title: 'Product Manager',
+    email: 'john2@john.doe',
+  },
 };
 var payload = JSON.stringify(data, null, 2);
 
 var params = { account_id: orgId };
 var search = new URLSearchParams(params).toString();
-var url = `${paperBase}/api/account/v1/resources/${resourceId}?${search}`;
+var url = `${paperBase}/api/v1/orgs/${my_org_id}/records/${myRecId}`;
 var resp = await fetch(url, {
-  method: "PATCH",
+  method: 'PATCH',
   headers: {
     Authorization: `Bearer ${paperToken}`,
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
   body: payload,
 });
@@ -309,19 +295,11 @@ var resInfo = await resp.json();
 
 ```json
 {
-  "id": 5617,
-  "name": "Bob Painter Ross",
-  "resource_type_id": 2,
-  "account_id": 97,
-  "created_at": "2021-01-19T18:18:49.000Z",
-  "updated_at": "2023-09-22T21:23:01.000Z",
-  "finalized": 0,
-  "archived": 0,
-  "is_draft": 0,
-  "features": {
-    "name": "Bob Painter Ross",
-    "email": "bob@bobrossian.bob"
-  }
+  "success": true,
+  "type": "[]<string>",
+  "total": 2,
+  "changes": ["title", "email"],
+  "count": 2
 }
 ```
 
