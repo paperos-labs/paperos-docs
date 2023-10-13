@@ -9,7 +9,8 @@ The Workflow Library shows each of the available form collections for a particul
 
 ## List All
 
-> `GET /api/account/project_template`
+> `GET /api/v1/org/workflow_templates`
+> `GET /api/v1/orgs/:org_id/workflow_templates`
 
 ```shell
 my_org_id="$(
@@ -17,14 +18,14 @@ my_org_id="$(
         jq '.[0].id'
 )"
 
-curl "${PAPEROS_BASE_URL}/api/account/project_template?account_id=${my_org_id}" \
+curl "${PAPEROS_BASE_URL}/api/v1/org/workflow_templates?account_id=${my_org_id}" \
   -H "Authorization: Bearer ${PAPEROS_API_TOKEN}" |
   jq
 ```
 
 ```javascript
 var orgId = accounts[0].id;
-var url = `${paperBase}/api/account/project_template?account_id=${my_org_id}`;
+var url = `${paperBase}/api/v1/org/workflow_templates?account_id=${my_org_id}`;
 var resp = await fetch(url, {
   headers: { Authorization: `Bearer ${paperToken}` },
 });
@@ -36,8 +37,11 @@ console.log(library);
 > Example Response:
 
 ```json
-[
-  {
+{
+  "success": true,
+  "count": 2,
+  "type": "[]<workflow_template>",
+  "workflows": [{
     "id": 1,
     "label": "Entity Setup",
     "description": "Form a new C-Corporation or LLC, or upload your documentation for an existing entity.",
@@ -258,18 +262,20 @@ console.log(library);
       }
     ],
     "status": "Repeatable"
-  }
-]
+  }],
+  "total": 2
+}
 ```
 
 ## Open a Workflow
 
-> `POST /api/account/project_template/:workflow_id/create`
+> `POST /api/v1/org/workflow/:workflow_template_id`
+> `POST /api/v1/orgs/:org_id/workflow/:workflow_template_id`
 
 ```shell
 my_template_id='2'
 
-curl "${PAPEROS_BASE_URL}/api/account/project_template/${my_template_id}/create?account_id=${my_org_id}" \
+curl "${PAPEROS_BASE_URL}/api/v1/org/workflow/${my_template_id}?account_id=${my_org_id}" \
     -X POST \
     -H "Authorization: Bearer ${PAPEROS_API_TOKEN}" \
     -H 'Content-Type: application/json' |
@@ -281,7 +287,7 @@ var templateId = 2;
 var params = { account_id: orgId };
 var search = new URLSearchParams(params).toString();
 
-var url = `${paperBase}/api/account/project_template/${templateId}/create?${search}`;
+var url = `${PAPEROS_BASE_URL}/api/v1/org/workflow/${my_template_id}?account_id=${my_org_id}`;
 var resp = await fetch(url, {
   method: "POST",
   headers: {
@@ -297,88 +303,7 @@ console.log(workflow);
 
 ```json
 {
-  "id": 7545,
-  "label": "Onboard Employees",
-  "description": "Onboard employees and generate appropriate documents. Or upload the documents that you've already executed.",
-  "account_id": 97,
-  "project_template_id": 2,
-  "created_at": "2023-09-20T20:29:07.000Z",
-  "updated_at": "2023-09-20T20:29:07.000Z",
-  "source_action_id": null,
-  "status": null,
-  "transactions": [
-    {
-      "id": 20189,
-      "label": "Onboard Employees",
-      "description": "Enter the names of each employee you want to onboard.",
-      "group": null,
-      "open": 1,
-      "account_id": 97,
-      "transaction_template_id": 15,
-      "created_at": "2023-09-20T20:29:07.000Z",
-      "updated_at": "2023-09-20T20:29:07.000Z",
-      "order": null,
-      "is_started": 0,
-      "submission_date": null,
-      "reviewers": [],
-      "redline_enabled": 0,
-      "allow_reopen": 1,
-      "parent_transaction": null,
-      "validated_questionnaire": 0,
-      "order_block": 0,
-      "order_require_complete": 0,
-      "submitter_id": null,
-      "impersonator_id": null,
-      "tasks": [
-        {
-          "id": 28526,
-          "account_id": 97,
-          "template_id": 127,
-          "status_id": 1,
-          "values": {},
-          "prerequisites": null,
-          "state": "incomplete",
-          "created_at": "2023-09-20T20:29:07.000Z",
-          "updated_at": "2023-09-20T20:29:07.000Z",
-          "label": "Onboard Employees",
-          "recommended_documents": null,
-          "attorney_recommended": 0,
-          "task_product_paid": 0,
-          "paid_stripe_invoice": null,
-          "resources": [
-            {
-              "name": "Individual",
-              "resource_type_id": 1,
-              "resource_id": [],
-              "feature_type_ids": [1, 349, 729],
-              "label": "Employee",
-              "custom_label": "New Employee",
-              "multi_entry": true
-            }
-          ],
-          "hubspot_task_id": null,
-          "submitted_at": null,
-          "bypassed": 0,
-          "finalize_snapshot": {},
-          "status_label": null,
-          "pandadoc_id": null,
-          "box_document_id": null,
-          "redline_enabled": 0,
-          "custom_document": 0,
-          "completion_timestamp": null,
-          "owner_user_id": null,
-          "owner_partner_id": null,
-          "owner_email": null,
-          "mode": "Generate",
-          "document_counter": 0,
-          "product_id": 6,
-          "instant_report": 0,
-          "template_type_id": "NULL",
-          "template_variant_id": ""
-        }
-      ]
-    }
-  ]
+  "status":"success","workflow_id":"wrk_01hcn8arzxb9heq3saaf97b7bx"
 }
 ```
 
@@ -392,7 +317,7 @@ Opening a workflow will create the associated To-Do items in the PaperOS interfa
 my_template_id='2'
 my_employee_resource='5617'
 
-curl "${PAPEROS_BASE_URL}/api/account/project_template/${my_template_id}/create?account_id=${my_org_id}" \
+curl "${PAPEROS_BASE_URL}/api/v1/org/workflow/${my_template_id}?account_id=${my_org_id}" \
     -X POST \
     -H "Authorization: Bearer ${PAPEROS_API_TOKEN}" \
     -H 'Content-Type: application/json' \
@@ -419,7 +344,7 @@ var payload = JSON.stringify(data, null, 2);
 
 var params = { account_id: orgId };
 var search = new URLSearchParams(params).toString();
-var url = `${paperBase}/api/account/project_template/${templateId}/create?${search}`;
+var url = `${paperBase}/api/v1/org/workflow${templateId}?${search}`;
 var resp = await fetch(url, {
   method: "POST",
   headers: {
@@ -437,88 +362,7 @@ console.log(workflow);
 
 ```json
 {
-  "id": 7548,
-  "label": "Onboard Employees",
-  "description": "Onboard employees and generate appropriate documents. Or upload the documents that you've already executed.",
-  "account_id": 97,
-  "project_template_id": 2,
-  "created_at": "2023-09-22T21:47:16.000Z",
-  "updated_at": "2023-09-22T21:47:16.000Z",
-  "source_action_id": null,
-  "status": null,
-  "transactions": [
-    {
-      "id": 20194,
-      "label": "Onboard Employees",
-      "description": "Enter the names of each employee you want to onboard.",
-      "group": null,
-      "open": 1,
-      "account_id": 97,
-      "transaction_template_id": 15,
-      "created_at": "2023-09-22T21:47:16.000Z",
-      "updated_at": "2023-09-22T21:47:16.000Z",
-      "order": null,
-      "is_started": 0,
-      "submission_date": null,
-      "reviewers": [],
-      "redline_enabled": 0,
-      "allow_reopen": 1,
-      "parent_transaction": null,
-      "validated_questionnaire": 0,
-      "order_block": 0,
-      "order_require_complete": 0,
-      "submitter_id": null,
-      "impersonator_id": null,
-      "tasks": [
-        {
-          "id": 28531,
-          "account_id": 97,
-          "template_id": 127,
-          "status_id": 1,
-          "values": {},
-          "prerequisites": null,
-          "state": "incomplete",
-          "created_at": "2023-09-22T21:47:16.000Z",
-          "updated_at": "2023-09-22T21:47:16.000Z",
-          "label": "Onboard Employees",
-          "recommended_documents": null,
-          "attorney_recommended": 0,
-          "task_product_paid": 0,
-          "paid_stripe_invoice": null,
-          "resources": [
-            {
-              "name": "Individual",
-              "resource_type_id": 1,
-              "resource_id": [],
-              "feature_type_ids": [1, 349, 729],
-              "label": "Employee",
-              "custom_label": "New Employee",
-              "multi_entry": true
-            }
-          ],
-          "hubspot_task_id": null,
-          "submitted_at": null,
-          "bypassed": 0,
-          "finalize_snapshot": {},
-          "status_label": null,
-          "pandadoc_id": null,
-          "box_document_id": null,
-          "redline_enabled": 0,
-          "custom_document": 0,
-          "completion_timestamp": null,
-          "owner_user_id": null,
-          "owner_partner_id": null,
-          "owner_email": null,
-          "mode": "Generate",
-          "document_counter": 0,
-          "product_id": 6,
-          "instant_report": 0,
-          "template_type_id": "NULL",
-          "template_variant_id": ""
-        }
-      ]
-    }
-  ]
+  "status":"success","workflow_id":"wrk_01hcn8arzxb9heq3saaf97b7bx"
 }
 ```
 
