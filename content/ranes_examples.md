@@ -9,9 +9,10 @@ An example of what api requests Ranes will be initially using and how they
 interact with each other.
 
 **Variables Used in Examples**: \
-`PAPEROS_BASE_URL: https://ranes.c.paperos.dev/` \
+`PAPEROS_BASE_URL: https://ranes.c.paperos.dev` \
 `PAPEROS_API_TOKEN: *ranes api token*` \
-`my_org_id: *saved from the "POST /api/v1/orgs" response*`
+`my_org_id: *saved from "POST /api/v1/orgs" response*` \
+`record_id: *saved from "POST /api/v1/orgs/:org_id/records" response*` \
 
 ## Create Organization
 
@@ -21,9 +22,9 @@ curl "${PAPEROS_BASE_URL}/api/v1/orgs" \
     -H "Authorization: Bearer ${PAPEROS_API_TOKEN}" \
     -H 'Content-Type: application/json' \
     --data-raw '{
-        "name": "My Test Company 11",
-        "inputs": {
-            "org:partner_slug": "ranes"
+        "name": "Ranes Test Company 3",
+        "fields": {
+            "partner_slug": "ranes"
         }
     }' |
     jq
@@ -31,39 +32,42 @@ curl "${PAPEROS_BASE_URL}/api/v1/orgs" \
 
 ```javascript
 var data = {
-  name: 'My Test Company 11',
-  inputs: {
-    'org:partner_slug': 'ranes',
-  },
+    name: 'Ranes Test Company 3',
+    fields: {
+        partner_slug: 'ranes',
+    },
 };
 var url = `${paperBase}/api/v1/orgs`;
 
 var resp = await fetch(url, {
-  method: 'POST',
-  headers: {
-    Authorization: `Bearer ${paperToken}`,
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify(data, null, 2),
+    method: 'POST',
+    headers: {
+        Authorization: `Bearer ${paperToken}`,
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data, null, 2),
 });
 var orgInfo = await resp.json();
+var my_org_id = orgInfo.id;
 ```
 
 > Example Response:
 
 ```json
 {
-  "id": "org_01hbsvp9tk3qthd2jjz2vzv0g8",
-  "name": "My Test Company 11",
-  "brand_id": "brand_01h2stkn1fqe8dcfmyrq7thpab",
-  "created_at": "2023-10-03T04:10:43.000Z",
-  "updated_at": "2023-10-03T04:10:49.000Z"
+    "id": "org_01hbsvp9tk3qthd2jjz2vzv0g8",
+    "name": "Ranes Test Company 3",
+    "brand_id": "brand_01h2stkn1fqe8dcfmyrq7thpab",
+    "created_at": "2023-10-03T04:10:43.000Z",
+    "updated_at": "2023-10-03T04:10:49.000Z"
 }
 ```
 
 Create PaperOS Organization the same time a Ranes Organization is created.
 
-1. Save `id` from response payload to use in later api requests.
+1. Save `id` value from the response payload to Ranes' DB to be used in any api
+   request around this organization. used in later examples under the variable
+   `my_org_id`.
 
 ## Onboard Org on PaperOS
 
@@ -90,20 +94,27 @@ Operator at mvp.
 ```shell
 curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/records" \
     -X 'POST' \
-    -H "Authorization: Bearer $PAPEROS_API_TOKEN" \
+    -H "Authorization: Bearer ${PAPEROS_API_TOKEN}" \
     -H 'Content-Type: application/json' \
     --data-raw '{
+        "type": "individual",
         "name": "Jeff Richards",
-        "email": "jeff.richards@ranes.com",
+        "fields": {
+          "email": "jeff.richards@ranes.com"
+        }
     }'
 ```
 
 ```javascript
 var data = {
-  "name": "Jeff Richards",
-  "email": "jeff.richards@ranes.com",
+    type: 'individual',
+    name: 'Jeff Richards',
+    fields: {
+        email: 'jeff.richards@ranes.com',
+}
 };
-var url = `${paperBase}/api/account/v1/resources/individual?account_id=${my_org_id}`;
+
+var url = `${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/records`;
 var resp = await fetch(url, {
     method: "POST",
     headers: {
@@ -111,17 +122,18 @@ var resp = await fetch(url, {
     },
     body: JSON.stringify(data, null, 2);
 });
+
 var recordInfo = await resp.json();
-var record_id = recordInfo.id;
+var record_id = recordInfo.rec_id;
 ```
 
 > Example Response:
 
 ```json
 {
-  "success": true,
-  "type": "string",
-  "rec_id": "rec_01hcey7qcfeeqmh1af6x3xafa2"
+    "success": true,
+    "type": "string",
+    "rec_id": "rec_01hcey7qcfeeqmh1af6x3xafa2"
 }
 ```
 
@@ -130,14 +142,14 @@ Create a Record at the same time a Ranes Employee is added.
 1. All you will currently need to pass through the request body will be the name
    and email of the employee, which will be used on our end to populate question
    inputs in the Employee Onboarding Workflow Assessment.
-2. The record `id` from this response will be used in the "Open Workflow" api
-   request body.
+2. Use the `rec_id` value from the response payload right away in the "Open
+   Workflow" api request body. used in later examples under the variable
+   `record_id`.
 
 ## Open Employee Onboarding Workflow
 
 ```shell
 template_id='185' # this is the template id telling us to generate a new "Employee Onboarding (Ranes)" Workflow
-employee_record=record_id # this will be the id from the response of the Create Record api request.
 
 curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/workflows/${template_id}" \
     -X POST \
@@ -145,7 +157,7 @@ curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/workflows/${template_id}" \
     -H 'Content-Type: application/json' \
     --data-raw '{
         "records": {
-            "employee": "'"${employee_record}"'"
+            "employee": "'"${record_id}"'"
         },
         "auto_complete": true
     }' |
@@ -154,23 +166,21 @@ curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/workflows/${template_id}" \
 
 ```javascript
 var templateId = 185; // this is the template id telling us to generate a new "Employee Onboarding (Ranes)" Workflow
-
-var employeeRecord = record_id; // this will be the id from the response of the Create Record api request.
 var data = {
-  records: {
-    employee: employeeRecord,
-  },
-  auto_complete: true,
+    records: {
+        employee: record_id,
+    },
+    auto_complete: true,
 };
 
 var url = `${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/workflows/${templateId}`;
 var resp = await fetch(url, {
-  method: 'POST',
-  headers: {
-    Authorization: `Bearer ${PAPEROS_API_TOKEN}`,
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify(data, null, 2),
+    method: 'POST',
+    headers: {
+        Authorization: `Bearer ${PAPEROS_API_TOKEN}`,
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data, null, 2),
 });
 var workflowInfo = await resp.json();
 ```
@@ -179,8 +189,8 @@ var workflowInfo = await resp.json();
 
 ```json
 {
-  "status": "success",
-  "workflow_id": "wrk_01hcn8arzxb9heq3saaf97b7bx"
+    "status": "success",
+    "workflow_id": "wrk_01hcn8arzxb9heq3saaf97b7bx"
 }
 ```
 
@@ -202,70 +212,97 @@ curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/documents" \
 ```javascript
 var url = `${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/documents`;
 var resp = await fetch(url, {
-  method: 'GET',
-  headers: {
-    Authorization: `Bearer ${PAPEROS_API_TOKEN}`,
-  },
+    method: 'GET',
+    headers: {
+        Authorization: `Bearer ${PAPEROS_API_TOKEN}`,
+    },
 });
-var orgDocumentsInfo = await resp.json();
 
-console.log(orgDocumentsInfo);
+var orgDocumentsInfo = await resp.json();
 ```
 
 Get a list of documents for a specific account
 
+- recipient signature links will always assume whoever is coming from that url is that recipient, so make sure not to expose all recipients' links on a document to an employee.
+
 ## Get Documents by Employee Email
 
+<!-- curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/documents?email=${employee_email}" \ -->
 ```shell
-curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/documents?email=${employee_email}" \
-  -H "Authorization: Bearer ${PAPEROS_API_TOKEN}"
+curl -G "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/documents" \
+    --data-urlencode "email=${employee_email}" \
+    -H "Authorization: Bearer ${PAPEROS_API_TOKEN}"
 ```
 
 ```javascript
-var url = `${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/documents?email=${employee_email}`;
+var params = { email: employee_email };
+var search = new URLSearchParams(params).toString();
+var url = `${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/documents?${search}`;
 var resp = await fetch(url, {
-  method: 'GET',
-  headers: {
-    Authorization: `Bearer ${PAPEROS_API_TOKEN}`,
-  },
+    method: 'GET',
+    headers: {
+        Authorization: `Bearer ${PAPEROS_API_TOKEN}`,
+    },
 });
 var employeeDocsInfo = await resp.json();
-
-console.log(employeeDocsInfo);
 ```
 
 > Example Response:
 
 ```json
 {
-  "success": true,
-  "total": 3,
-  "count": 3,
-  "type": "[]<document>",
-  "documents": [
-    {
-      "path": "/Archived Documentation/Historical Financials",
-      "filename": "2017 - 2020 Balance Sheet.xlsx",
-      "recipients": [],
-      "url": "https://ranes.c.paperos.dev/api/public/documents/820701358552/eyJ0eXAiOiJKV1QiLCJraWQiOiJKa3BxUW1faW9IeHRsb1BOTS12VE1IenkzR0xWLW1GbEhDdkxPMVJ0RlhVIiwiYWxnIjoiRVMyNTYifQ.eyJmaWxlIjoiODIwNzAxMzU4NTUyIiwiaWF0IjoxNjk3MjI3NTA0LCJleHAiOjE2OTcyMjg0MDQsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6MzAwMSJ9.iNPasWw1VfMDuNTTDHW16f5CgmXgKJUoyY9I6Ac2RPosGn61GSMDMgPXzi10uSk2Mg9SjtWclZxdIe5t6z-Lqw",
-      "pub_id": "doc_0000000000p6a290bsjjqmkfk1"
-    },
-    {
-      "path": "/Archived Documentation/Historical Financials",
-      "filename": "2017 - 2020 PnL.xlsx",
-      "recipients": [],
-      "url": "https://ranes.c.paperos.dev/api/public/documents/820688814651/eyJ0eXAiOiJKV1QiLCJraWQiOiJKa3BxUW1faW9IeHRsb1BOTS12VE1IenkzR0xWLW1GbEhDdkxPMVJ0RlhVIiwiYWxnIjoiRVMyNTYifQ.eyJmaWxlIjoiODIwNjg4ODE0NjUxIiwiaWF0IjoxNjk3MjI3NTA0LCJleHAiOjE2OTcyMjg0MDQsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6MzAwMSJ9.WMcM5HULwVyVmiDMMVtibStMou6C_O3Z2886VNZko7U7dBvOrqgPMcYaX0Ilt10q_iM_aj7LF29pNfTgxuXLxQ",
-      "pub_id": "doc_00000000000b4j5gfbg8hb0sp6"
-    },
-    {
-      "path": "/Archived Documentation/Historical Financials",
-      "filename": "2017 - 2020 Statement of Cash Flows.xlsx",
-      "recipients": [],
-      "url": "https://ranes.c.paperos.dev/api/public/documents/820700190254/eyJ0eXAiOiJKV1QiLCJraWQiOiJKa3BxUW1faW9IeHRsb1BOTS12VE1IenkzR0xWLW1GbEhDdkxPMVJ0RlhVIiwiYWxnIjoiRVMyNTYifQ.eyJmaWxlIjoiODIwNzAwMTkwMjU0IiwiaWF0IjoxNjk3MjI3NTA0LCJleHAiOjE2OTcyMjg0MDQsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6MzAwMSJ9.HXaecHH5bq1QAw5TRQCqnb1dn8dE7spcQpLU1DM6J8AJYraTRqeOcLjRziA9P83YbFgMCzHKY-cDDiGsGoUVlw",
-      "pub_id": "doc_0000000000y62e1skpa27jywhv"
-    }
-  ]
+    "success": true,
+    "total": 3,
+    "count": 3,
+    "type": "[]<document>",
+    "documents": [
+        {
+            "path": "/Team",
+            "filename": "NewCo Inc.--Offer Letter (Daniel Andelin).pdf",
+            "recipients": [],
+            "url": "https://ranes.c.paperos.dev/api/public/documents/951806910727/eyJ0eXAiOiJKV1QiLCJraWQiOiJTcG5TVEkyc1p3d0p3aV9oWVJ4VFFnOGlJZHdBMS0zUG81c1NsVUptUXdjIiwiYWxnIjoiRVMyNTYifQ.eyJmaWxlIjoiOTUxODA2OTEwNzI3IiwiaWF0IjoxNjk3ODM5ODUwLCJleHAiOjE2OTc4NDA3NTAsImlzcyI6Imh0dHBzOi8vc3RhZ2luZy5zYXZ2aS5sZWdhbCJ9.vyRncFtXBSXrvNvhseytsBulfKKKoGYQYN2NiXkAv1jocvRDlzz5Basv-kyPDOAxTIlGFhko7VftLGMsUihd6A",
+            "pub_id": "doc_01g1v7xpzrkyhs82vm7fwf9p59"
+        },
+        {
+            "path": "/Team/Offer Letters",
+            "filename": "NewCo, Inc.--Offer Letter",
+            "recipients": [
+                {
+                    "email": "sam+henryk@savvi.legal",
+                    "signature_link": "*url link to pandadoc to sign document*",
+                    "signed": 1
+                },
+                {
+                    "email": "sam+test@savvi.legal",
+                    "signature_link": "*url link to pandadoc to sign document*",
+                    "signed": 0
+                }
+            ],
+            "url": "",
+            "pub_id": "doc_01ga7bz7qrags0e02zawdjr0b6"
+        },
+        {
+            "path": "Team/Non-Compete Agreements",
+            "filename": "NewCo, Inc.--Non-Competition Agreement (Henryk Tillamook)",
+            "recipients": [
+                {
+                    "email": "sam+henryk@savvi.legal",
+                    "signature_link": "*url link to pandadoc to sign document*",
+                    "signed": 0
+                },
+                {
+                    "email": "sam+test@savvi.legal",
+                    "signature_link": "*url link to pandadoc to sign document*",
+                    "signed": 0
+                }
+            ],
+            "url": "",
+            "pub_id": "doc_01ga7c1zm8e3js90v2nqjpv68x"
+        }
+    ]
 }
 ```
 
 Get a list of documents for an employee by company account id & email.
+
+- Response will only have this email recipient of the document, even if the document has multiple recipients.
