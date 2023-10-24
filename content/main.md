@@ -80,7 +80,7 @@ There are a lot of things that need to have public-facing IDs and slugs and name
 > Use your own API Token, or this example token:
 
 ```sh
-export PAPEROS_API_TOKEN='ppt_2A3u0U9d8xlBOo3CYFRT5vmkuH76bP0yfNVw48IBM5'
+export PAPEROS_API_TOKEN='ppt_7COQmKv8EUi95AkGYDRXjsfI7ZamHr9o0I8D0072uo'
 ```
 
 ```javascript
@@ -100,8 +100,8 @@ var paperToken = process.env.PAPEROS_API_TOKEN;
         <input
             type="text"
             pattern="p[A-Za-z0-9]{1,}_[A-Za-z0-9]{32,}"
-            placeholder="ppt_2A3u0U9d8xlBOo3CYFRT5vmkuH76bP0yfNVw48IBM5"
-            value="ppt_2A3u0U9d8xlBOo3CYFRT5vmkuH76bP0yfNVw48IBM5"
+            placeholder="ppt_7COQmKv8EUi95AkGYDRXjsfI7ZamHr9o0I8D0072uo"
+            value="ppt_7COQmKv8EUi95AkGYDRXjsfI7ZamHr9o0I8D0072uo"
         />
     </label>
 </form>
