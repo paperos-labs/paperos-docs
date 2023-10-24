@@ -118,8 +118,8 @@ curl "${PAPEROS_BASE_URL}/api/v1/orgs" \
     -H 'Content-Type: application/json' \
     --data-raw '{
         "name": "My Test Company 11",
-        "inputs": {
-            "org:business_type": "for_profit"
+        "fields": {
+            "business_type": "for_profit"
         }
     }' |
     jq
@@ -128,8 +128,8 @@ curl "${PAPEROS_BASE_URL}/api/v1/orgs" \
 ```javascript
 var data = {
     name: 'My Test Company 11',
-    inputs: {
-        'org:business_type': 'for_profit',
+    fields: {
+        'business_type': 'for_profit',
     },
 };
 var payload = JSON.stringify(data, null, 2);
@@ -160,7 +160,7 @@ var orgInfo = await resp.json();
 
 Create a new organization.
 
-Options for `org:business_type` are:
+Options for `business_type` are:
 
 -   `for_profit`
 -   `investment_vehicle`
