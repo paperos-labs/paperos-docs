@@ -100,7 +100,8 @@ curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/records" \
         "type": "individual",
         "name": "Jeff Richards",
         "fields": {
-          "email": "jeff.richards@ranes.com"
+          "email": "jeff.richards@ranes.com",
+          "employee_type": "Office Employee (Exempt)"
         }
     }'
 ```
@@ -111,6 +112,7 @@ var data = {
     name: 'Jeff Richards',
     fields: {
         email: 'jeff.richards@ranes.com',
+        employee_type: 'Office Employee (Exempt)',
 }
 };
 
@@ -139,17 +141,25 @@ var record_id = recordInfo.rec_id;
 
 Create a Record at the same time a Ranes Employee is added.
 
-1. All you will currently need to pass through the request body will be the name
-   and email of the employee, which will be used on our end to populate question
-   inputs in the Employee Onboarding Workflow Assessment.
-2. Use the `rec_id` value from the response payload right away in the "Open
-   Workflow" api request body. used in later examples under the variable
-   `record_id`.
+| Request Body           | Required Values (Case Sensitive)          |
+| ---------------------- | ----------------------------------------- |
+| `type`                 | `"individual"`                            |
+| `name`                 | `*name of employee*`                      |
+| `fields.email`         | `*email of employee*`                     |
+| `fields.employee_type` | `<OneOf>` Available Options:              |
+|                        | `"Office Employee (Exempt)"`              |
+|                        | `"Office Employee (Non-Exempt)"`          |
+|                        | `"Full-Time Field Employee (Exempt)"`     |
+|                        | `"Full-Time Field Employee (Non-Exempt)"` |
+|                        | `"Part-Time Employee"`                    |
+
+-   Use the `rec_id` value from the response payload in the "Open Workflow"
+    request params, which will be called right after.
 
 ## Open Employee Onboarding Workflow
 
 ```shell
-template_id='185' # this is the template id telling us to generate a new "Employee Onboarding (Ranes)" Workflow
+template_id='185' # this is the static template id telling us to generate a new "Employee Onboarding (Ranes)" Workflow
 
 curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/workflows/${template_id}" \
     -X POST \
@@ -165,7 +175,7 @@ curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/workflows/${template_id}" \
 ```
 
 ```javascript
-var templateId = 185; // this is the template id telling us to generate a new "Employee Onboarding (Ranes)" Workflow
+var templateId = 185; // this is the static template id telling us to generate a new "Employee Onboarding (Ranes)" Workflow
 var data = {
     records: {
         employee: record_id,
@@ -223,11 +233,14 @@ var orgDocumentsInfo = await resp.json();
 
 Get a list of documents for a specific account
 
-- recipient signature links will always assume whoever is coming from that url is that recipient, so make sure not to expose all recipients' links on a document to an employee.
+-   recipient signature links will always assume whoever is coming from that url
+    is that recipient, so make sure not to expose all recipients' links on a
+    document to an employee.
 
 ## Get Documents by Employee Email
 
 <!-- curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/documents?email=${employee_email}" \ -->
+
 ```shell
 curl -G "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/documents" \
     --data-urlencode "email=${employee_email}" \
@@ -305,4 +318,5 @@ var employeeDocsInfo = await resp.json();
 
 Get a list of documents for an employee by company account id & email.
 
-- Response will only have this email recipient of the document, even if the document has multiple recipients.
+-   Response will only have this email recipient of the document, even if the
+    document has multiple recipients.
