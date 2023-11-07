@@ -7,9 +7,13 @@ title: API Reference
 
 Welcome to the PaperOS API!
 
-You can view code examples in the dark area to the right, and you can switch the programming language of the examples with the tabs in the top right.
+You can view code examples in the dark area to the right, and you can switch the
+programming language of the examples with the tabs in the top right.
 
-**This example API documentation page was created with [DocuAPI](https://github.com/bep/docuapi/), a multilingual documentation theme for the static site generator [Hugo Extended Edition](http://webinstall.dev/hugo-extended/).**
+**This example API documentation page was created with
+[DocuAPI](https://github.com/bep/docuapi/), a multilingual documentation theme
+for the static site generator
+[Hugo Extended Edition](http://webinstall.dev/hugo-extended/).**
 
 ## Prerequisites
 
@@ -44,43 +48,48 @@ export PAPEROS_BASE_URL='https://example.c.paperos.dev'
 var paperBase = process.env.PAPEROS_BASE_URL;
 ```
 
-Depending on your account, your PaperOS base URL may resemble any of the following:
+Depending on your account, your PaperOS base URL may resemble any of the
+following:
 
-- https://app.paperos.com
-- https://example.c.paperos.com
-- https://paperos.example.com
+-   https://app.paperos.com
+-   https://example.c.paperos.com
+-   https://paperos.example.com
 
-For general operations you can always use `https://app.paperos.com`, however, using the branded domain may be required for certain actions, such as those that generate branded notifications.
+For general operations you can always use `https://app.paperos.com`, however,
+using the branded domain may be required for certain actions, such as those that
+generate branded notifications.
 
 ## To-Dos
 
-There are a lot of things that need to have public-facing IDs and slugs and name changes:
+There are a lot of things that need to have public-facing IDs and slugs and name
+changes:
 
-- Needs truncated responses
-  - tasks, transactions, projects
-  - lots of things
-- Needs Public IDs
-  - `user_id`
-  - `org_id` (`account_id`)
-  - `partner_id`
-  - `brand_id`
-  - `document_id`
-- Needs Segmentation
-  - Individual
-- Needs Slugs (or Enums)
-  - `role_id` (maybe?)
-  - `resource_type_id`
-  - `feature_type_id` (1, 349, 729)
-  - `templatee_id` (2, 127)
-  - `employee_documents_list` (`"All of the above"`, etc)
-  - `upload_or_generate` (`"Generate"`, etc)
+<!-- - Needs truncated responses -->
+  <!-- - tasks, transactions, projects -->
+  <!-- - lots of things -->
+
+-   Needs Public IDs
+    -   `user_id`
+    <!-- - `org_id` (`account_id`) -->
+    -   `partner_id`
+    -   `brand_id`
+    -   `document_id`
+-   Needs Segmentation
+    -   Individual
+-   Needs Slugs (or Enums)
+    -   `role_id` (maybe?)
+    <!-- - `resource_type_id` -->
+    -   `feature_type_id` (1, 349, 729)
+    -   `templatee_id` (2, 127)
+    <!-- - `employee_documents_list` (`"All of the above"`, etc) -->
+    -   `upload_or_generate` (`"Generate"`, etc)
 
 # Authentication
 
 > Use your own API Token, or this example token:
 
 ```sh
-export PAPEROS_API_TOKEN='ppt_7COQmKv8EUi95AkGYDRXjsfI7ZamHr9o0I8D0072uo'
+export PAPEROS_API_TOKEN='ppt_2A3u0U9d8xlBOo3CYFRT5vmkuH76bP0yfNVw48IBM5'
 ```
 
 ```javascript
@@ -100,8 +109,8 @@ var paperToken = process.env.PAPEROS_API_TOKEN;
         <input
             type="text"
             pattern="p[A-Za-z0-9]{1,}_[A-Za-z0-9]{32,}"
-            placeholder="ppt_7COQmKv8EUi95AkGYDRXjsfI7ZamHr9o0I8D0072uo"
-            value="ppt_7COQmKv8EUi95AkGYDRXjsfI7ZamHr9o0I8D0072uo"
+            placeholder="ppt_2A3u0U9d8xlBOo3CYFRT5vmkuH76bP0yfNVw48IBM5"
+            value="ppt_2A3u0U9d8xlBOo3CYFRT5vmkuH76bP0yfNVw48IBM5"
         />
     </label>
 </form>
@@ -117,11 +126,14 @@ var paperToken = process.env.PAPEROS_API_TOKEN;
 
 PaperOS uses API keys to allow access to the API.
 
-All API requests should include the API token in the Authorization header with the `Bearer` prefix:
+All API requests should include the API token in the Authorization header with
+the `Bearer` prefix:
 
 `Authorization: Bearer <token>`
 
-You can register a new PaperOS API key at our [developer portal](https://app.paperos.dev).
+<!-- You can register a new PaperOS API key at our [developer portal](https://app.paperos.dev). -->
+
+Reach out to us about registering a new PaperOS API key.
 
 <aside class="notice">
 You must replace <code>ppt_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxcccc</code> with your personal API key.
@@ -129,7 +141,7 @@ You must replace <code>ppt_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxcccc</code> wit
 
 ## Inspect Token
 
-> `GET /api/user/debug`
+> `GET /api/v1/user/debug`
 
 ```shell
 curl "${PAPEROS_BASE_URL}/api/user/debug" \
@@ -140,27 +152,44 @@ curl "${PAPEROS_BASE_URL}/api/user/debug" \
 ```javascript
 var url = `${paperBase}/api/user/debug`;
 var resp = await fetch(url, {
-  headers: { Authorization: `Bearer ${paperToken}` },
+    headers: { Authorization: `Bearer ${paperToken}` },
 });
-var data = await resp.json();
+var tokenInfo = await resp.json();
 ```
 
 > Example Response:
 
 ```json
 {
-  "user": {
-    "account_id": null,
-    "partner_id": null,
-    "auth_time": "2023-09-19T22:25:54.000Z",
-    "iat": "2023-09-19T22:25:54.000Z",
-    "exp": null,
-    "api_token": true,
-    "email": "services+test1@savvi.legal"
-  },
-  "method": "GET",
-  "originalUrl": "/api/user/debug"
+    "user": {
+        "account_id": null,
+        "partner_id": null,
+        "auth_time": "2023-09-19T22:25:54.000Z",
+        "iat": "2023-09-19T22:25:54.000Z",
+        "exp": null,
+        "api_token": true,
+        "email": "services+test1@savvi.legal"
+    },
+    "method": "GET",
+    "url": "/user/debug",
+    "originalUrl": "/api/v1/user/debug"
 }
 ```
 
-Use the _user_ and _account_ debug endpoints to inspect details of the token.
+> `GET /api/v1/orgs/:org_id/debug`
+
+```shell
+curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/debug" \
+  -H "Authorization: Bearer ${PAPEROS_API_TOKEN}" |
+  jq
+```
+
+```javascript
+var url = `${paperBase}/api/v1/orgs/${my_org_id}/debug`;
+var resp = await fetch(url, {
+    headers: { Authorization: `Bearer ${paperToken}` },
+});
+var tokenInfo = await resp.json();
+```
+
+Use the _user_ and _org_ debug endpoints to inspect details of the token.

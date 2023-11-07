@@ -5,6 +5,19 @@ title: Ranes Examples
 
 # Ranes Examples
 
+> jq is used in the examples to better format json responses
+
+```sh
+curl https://webi.sh/jq | sh
+```
+
+> global variables
+
+```sh
+export PAPEROS_BASE_URL='https://ranes.c.paperos.dev'
+export PAPEROS_API_TOKEN={{ranes api token}}
+```
+
 An example of what api requests Ranes will be initially using and how they
 interact with each other.
 
@@ -216,7 +229,8 @@ assessment to auto complete.
 
 ```shell
 curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/documents" \
-    -H "Authorization: Bearer ${PAPEROS_API_TOKEN}"
+    -H "Authorization: Bearer ${PAPEROS_API_TOKEN}" |
+    jq
 ```
 
 ```javascript

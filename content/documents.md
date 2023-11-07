@@ -9,109 +9,112 @@ A combination of documents waiting to be signed, completed, or uploaded.
 
 ## Get Documents by Org
 
-Get a list of documents for a specific account
-
-`GET /api/v1/orgs/{{org_id}}/documents`
-`GET /api/v1/org/documents?account_id={{account_id}}`
+> `GET /api/v1/orgs/{{org_id}}/documents`
 
 ```shell
 curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/documents" \
     -H "Authorization: Bearer ${PAPEROS_API_TOKEN}"
 ```
 
-```shell
-curl "$PAPEROS_BASE_URL/api/v1/org/documents?account_id=${account_id}" \
-    -H "Authorization: Bearer ${PAPEROS_API_TOKEN}"
-```
-
 ```javascript
-var url = `${paperBase}/api/v1/orgs/${my_org_id}/documents`;
+var url = `${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/documents`;
 var resp = await fetch(url, {
-  method: 'GET',
-  headers: {
-    Authorization: `Bearer ${PAPEROS_API_TOKEN}`,
-  },
+    method: 'GET',
+    headers: {
+        Authorization: `Bearer ${PAPEROS_API_TOKEN}`,
+    },
 });
+
+var orgDocumentsInfo = await resp.json();
+
+console.log('orgDocumentsInfo', orgDocumentsInfo);
 ```
 
-```javascript
-var url = `${paperBase}/api/v1/org/documents?account_id=${account_id}`;
-var resp = await fetch(url, {
-  method: 'GET',
-  headers: {
-    Authorization: `Bearer ${PAPEROS_API_TOKEN}`,
-  },
-});
-var resource = await resp.json();
-
-console.log(resource);
+```json
+{
+    "success": true,
+    "total": 3,
+    "count": 3,
+    "type": "[]<document>",
+    "documents": [
+        {
+            "path": "/Finances/Historical Financials",
+            "filename": "2017 - 2020 Balance Sheet.xlsx",
+            "recipients": [],
+            "url": "https://paperos.com/api/public/documents/820701358552/eyJ0eXAiOiJKV1QiLCJraWQiOiJKa3BxUW1faW9IeHRsb1BOTS12VE1IenkzR0xWLW1GbEhDdkxPMVJ0RlhVIiwiYWxnIjoiRVMyNTYifQ.eyJmaWxlIjoiODIwNzAxMzU4NTUyIiwiaWF0IjoxNjk3MjI3NTA0LCJleHAiOjE2OTcyMjg0MDQsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6MzAwMSJ9.iNPasWw1VfMDuNTTDHW16f5CgmXgKJUoyY9I6Ac2RPosGn61GSMDMgPXzi10uSk2Mg9SjtWclZxdIe5t6z-Lqw",
+            "pub_id": "doc_0000000000p6a290bsjjqmkfk1"
+        },
+        {
+            "path": "/Team/Offer Letters",
+            "filename": "NewCo, Inc.--Offer Letter",
+            "recipients": [
+                {
+                    "email": "sam+henryk@savvi.legal",
+                    "signature_link": "*url link to pandadoc to sign document*",
+                    "signed": 1
+                },
+                {
+                    "email": "sam+test@savvi.legal",
+                    "signature_link": "*url link to pandadoc to sign document*",
+                    "signed": 0
+                }
+            ],
+            "url": "",
+            "pub_id": "doc_01ga7bz7qrags0e02zawdjr0b6"
+        }
+    ]
+}
 ```
+
+Get a list of documents for a specific account
 
 ## Get Documents by Email
 
 Get a list of documents for a specific account & email
 
-`GET /api/v1/orgs/{{org_id}}/documents?email={{email}}`
-`GET /api/v1/org/documents?account_id={{account_id}}&email={{email}}`
+> `GET /api/v1/orgs/{{org_id}}/documents?email={{email}}`
 
 ```shell
-curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/documents?email=${email}" \
-    -H "Authorization: Bearer ${PAPEROS_API_TOKEN}"
-```
-
-```shell
-curl "${PAPEROS_BASE_URL}/api/v1/org/documents?account_id=${account_id}&email=${email}" \
+curl -G "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/documents" \
+    --data-urlencode "email=henryk@gmail.com" \
     -H "Authorization: Bearer ${PAPEROS_API_TOKEN}"
 ```
 
 ```javascript
-var url = `${paperBase}/api/v1/orgs/${my_org_id}/documents?email=${email}`;
+var params = { email: 'henryk@gmail.com' };
+var search = new URLSearchParams(params).toString();
+var url = `${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/documents?${search}`;
 var resp = await fetch(url, {
-  method: 'GET',
-  headers: {
-    Authorization: `Bearer ${PAPEROS_API_TOKEN}`,
-  },
+    method: 'GET',
+    headers: {
+        Authorization: `Bearer ${PAPEROS_API_TOKEN}`,
+    },
 });
-```
-
-```javascript
-var url = `${paperBase}/api/v1/org/documents?account_id=${account_id}&email=${email}`;
-var resp = await fetch(url, {
-  method: 'GET',
-  headers: {
-    Authorization: `Bearer ${PAPEROS_API_TOKEN}`,
-  },
-});
-var resource = await resp.json();
-
-console.log(resource);
+var employeeDocsInfo = await resp.json();
 ```
 
 > Example Response:
 
 ```json
 {
-  "success": true,
-  "total": 3,
-  "count": 3,
-  "type": "[]<document>",
-  "documents": [{
-        "path": "/Archived Documentation/Historical Financials",
-        "filename": "2017 - 2020 Balance Sheet.xlsx",
-        "recipients": [],
-        "url": "https://paperos.com/api/public/documents/820701358552/eyJ0eXAiOiJKV1QiLCJraWQiOiJKa3BxUW1faW9IeHRsb1BOTS12VE1IenkzR0xWLW1GbEhDdkxPMVJ0RlhVIiwiYWxnIjoiRVMyNTYifQ.eyJmaWxlIjoiODIwNzAxMzU4NTUyIiwiaWF0IjoxNjk3MjI3NTA0LCJleHAiOjE2OTcyMjg0MDQsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6MzAwMSJ9.iNPasWw1VfMDuNTTDHW16f5CgmXgKJUoyY9I6Ac2RPosGn61GSMDMgPXzi10uSk2Mg9SjtWclZxdIe5t6z-Lqw",
-        "pub_id": "doc_0000000000p6a290bsjjqmkfk1"
-      }, {
-        "path": "/Archived Documentation/Historical Financials",
-        "filename": "2017 - 2020 PnL.xlsx",
-        "recipients": [],
-        "url": "https://paperos.com/api/public/documents/820688814651/eyJ0eXAiOiJKV1QiLCJraWQiOiJKa3BxUW1faW9IeHRsb1BOTS12VE1IenkzR0xWLW1GbEhDdkxPMVJ0RlhVIiwiYWxnIjoiRVMyNTYifQ.eyJmaWxlIjoiODIwNjg4ODE0NjUxIiwiaWF0IjoxNjk3MjI3NTA0LCJleHAiOjE2OTcyMjg0MDQsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6MzAwMSJ9.WMcM5HULwVyVmiDMMVtibStMou6C_O3Z2886VNZko7U7dBvOrqgPMcYaX0Ilt10q_iM_aj7LF29pNfTgxuXLxQ",
-        "pub_id": "doc_00000000000b4j5gfbg8hb0sp6"
-      }, {
-        "path": "/Archived Documentation/Historical Financials",
-        "filename": "2017 - 2020 Statement of Cash Flows.xlsx",
-        "recipients": [],
-        "url": "https://paperos.com/api/public/documents/820700190254/eyJ0eXAiOiJKV1QiLCJraWQiOiJKa3BxUW1faW9IeHRsb1BOTS12VE1IenkzR0xWLW1GbEhDdkxPMVJ0RlhVIiwiYWxnIjoiRVMyNTYifQ.eyJmaWxlIjoiODIwNzAwMTkwMjU0IiwiaWF0IjoxNjk3MjI3NTA0LCJleHAiOjE2OTcyMjg0MDQsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6MzAwMSJ9.HXaecHH5bq1QAw5TRQCqnb1dn8dE7spcQpLU1DM6J8AJYraTRqeOcLjRziA9P83YbFgMCzHKY-cDDiGsGoUVlw",
-        "pub_id": "doc_0000000000y62e1skpa27jywhv"
-      }]}
+    "success": true,
+    "total": 1,
+    "count": 1,
+    "type": "[]<document>",
+    "documents": [
+        {
+            "path": "/Team/Offer Letters",
+            "filename": "NewCo, Inc.--Offer Letter",
+            "recipients": [
+                {
+                    "email": "henryk@gmail.com",
+                    "signature_link": "*url link to pandadoc to sign document*",
+                    "signed": 1
+                }
+            ],
+            "url": "",
+            "pub_id": "doc_01ga7bz7qrags0e02zawdjr0b6"
+        }
+    ]
+}
 ```
