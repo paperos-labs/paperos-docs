@@ -245,11 +245,14 @@ var resp = await fetch(url, {
 var orgDocumentsInfo = await resp.json();
 ```
 
-Get a list of documents for a specific account
+Get a list of documents for a specific account.
 
--   recipient signature links will always assume whoever is coming from that url
-    is that recipient, so make sure not to expose all recipients' links on a
-    document to an employee.
+-   If a document has been uploaded or completed, then a pdf url
+    (`documents[].url`) is shared that expires after one hour.
+-   Document Recipient signature links
+    (`documents[].recipients[].signature_link`) will always assume whoever is
+    coming from that url is that recipient, so make sure not to expose all
+    recipients' links on a document to an employee.
 
 ## Get Documents by Employee Email
 
@@ -332,5 +335,131 @@ var employeeDocsInfo = await resp.json();
 
 Get a list of documents for an employee by company account id & email.
 
--   Response will only have this email recipient of the document, even if the
-    document has multiple recipients.
+-   The Response data is sanitized for that employee email, for example it will
+    only have this email recipient links for the document, even if the document
+    has multiple recipients.
+
+## Other Endpoints
+
+Other endpoints that Ranes may use based off of scoping discussions.
+
+## List Ranes Orgs
+
+> `GET /api/v1/orgs?updated_since=0`
+
+```shell
+curl -G "${PAPEROS_BASE_URL}/api/v1/orgs" \
+--data-urlencode "updated_since=0" \
+    -H "Authorization: Bearer ${PAPEROS_API_TOKEN}" |
+    jq
+```
+
+```javascript
+var params = { updated_since: 0 };
+var search = new URLSearchParams(params).toString();
+
+var url = `${paperBase}/api/v1/orgs?${search}`;
+var resp = await fetch(url, {
+    headers: { Authorization: `Bearer ${paperToken}` },
+});
+var orgsInfo = await resp.json();
+
+console.log(orgsInfo);
+```
+
+> Example Response:
+
+```json
+{
+    "updated_at": 1677000469,
+    "orgs": [
+        {
+            "id": "org_01ewdxxpvgg2y19pbtbyddtvv8",
+            "name": "Test 1",
+            "brand_id": "brand_00000000000000000000000000",
+            "created_at": "2021-01-19T18:18:46.000Z",
+            "updated_at": "2023-02-21T17:27:49.000Z"
+        },
+        {
+            "id": "org_01hbsvp9tk3qthd2jjz2vzv0g8",
+            "name": "Ranes Test Company 3",
+            "brand_id": "brand_01h2stkn1fqe8dcfmyrq7thpab",
+            "created_at": "2023-10-03T04:10:43.000Z",
+            "updated_at": "2023-10-03T04:10:49.000Z"
+        }
+    ]
+}
+```
+
+Retrieve all orgs associated with the user of the api token, including through
+direct ownership, delegation, or partnerships.
+
+| Parameter       | Default | Description                                      |
+| --------------- | ------- | ------------------------------------------------ |
+| `updated_since` | ''      | required, pass 0 or the previous `updated_since` |
+
+## List Started Workflows
+
+> `GET /api/v1/orgs/:org_id/workflows`
+
+```shell
+curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/workflows" \
+  -H "Authorization: Bearer ${PAPEROS_API_TOKEN}" |
+  jq
+```
+
+```javascript
+var url = `${paperBase}/api/v1/orgs/${my_org_id}/workflows`;
+var resp = await fetch(url, {
+    headers: { Authorization: `Bearer ${paperToken}` },
+});
+var workflowLibrary = await resp.json();
+
+console.log(workflowLibrary);
+```
+
+> Example JSON Response
+
+```json
+{
+    "success": "true",
+    "total": 1,
+    "count": 1,
+    "workflows": [
+        {
+            "pub_id": "work_j2qxreh675bam141",
+            "label": "Ranes Account Setup Workflow",
+            "workflow_template_id": 183,
+            "status": null,
+            "created_at": "2023-11-07T00:14:24.000Z",
+            "updated_at": "2023-11-07T00:14:24.000Z"
+        }
+    ]
+}
+```
+
+View All Started & Completed Workflows for your Organization.
+
+## List Workflow Library
+
+> `GET /api/v1/orgs/:org_id/workflow_templates`
+
+```shell
+curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/workflow_templates" \
+  -H "Authorization: Bearer ${PAPEROS_API_TOKEN}" |
+  jq
+```
+
+```javascript
+var url = `${paperBase}/api/v1/orgs/${my_org_id}/workflow_templates`;
+var resp = await fetch(url, {
+    headers: { Authorization: `Bearer ${paperToken}` },
+});
+var workflowLibrary = await resp.json();
+
+console.log(workflowLibrary);
+```
+
+View Workflow Templates Library for your Organization.
+
+-   Current response has not been massaged, should be updated here soon.

@@ -114,7 +114,7 @@ Prepopulate a new workflow instance:
 
 TODO: create slug for library item
 
-## List Workflow Templates
+## List Org Workflows
 
 > `GET /api/v1/orgs/:org_id/workflows`
 
@@ -153,6 +153,8 @@ console.log(workflowLibrary);
     ]
 }
 ```
+
+View Started & Completed Workflows for your Organization.
 
 ## List Workflow Templates Library
 
