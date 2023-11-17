@@ -440,6 +440,7 @@ console.log(workflowLibrary);
 
 View All Started & Completed Workflows for your Organization.
 
+
 ## List Workflow Library
 
 > `GET /api/v1/orgs/:org_id/workflow_templates`
@@ -463,3 +464,62 @@ console.log(workflowLibrary);
 View Workflow Templates Library for your Organization.
 
 -   Current response has not been massaged, should be updated here soon.
+
+## List Employees in Org
+
+```shell
+curl -G "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}" \
+  --data-urlencode "type=individual" \
+  -H "Authorization: Bearer $PAPEROS_API_TOKEN" |
+  jq
+```
+
+```javascript
+var params = { type: 'individual' };
+var search = new URLSearchParams(params).toString();
+var url = `${paperBase}/api/v1/orgs/:org_id/records?${search}`;
+var resp = await fetch(url, {
+    method: 'GET',
+    headers: {
+        Authorization: `Bearer ${paperToken}`,
+    },
+});
+var resInfos = await resp.json();
+```
+
+> Example Response:
+
+```json
+{
+  "success": true,
+  "count": 2,
+  "total": 2,
+  "type": "[]<individual>",
+  "records": [
+    {
+      "id": "rec_01he9550cqm37gybnpv1yfvdpp",
+      "type": "individual",
+      "name": "Stanley Yelnats",
+      "fields": {
+        "email": "stanley2+yelnats.com",
+        "title": "Product Manager"
+      },
+      "created_at": "2023-11-02T23:16:02.000Z",
+      "updated_at": "2023-11-03T17:51:36.000Z"
+    },
+    {
+      "id": "rec_01heb5dbb10t5q5qtemxy3f5n2",
+      "type": "individual",
+      "name": "Shirley Yelnats",
+      "fields": {
+        "email": "sam+yelnats3@savvi.legal",
+        "title": "Hole Digger Supervisor"
+      },
+      "created_at": "2023-11-03T17:59:04.000Z",
+      "updated_at": "2023-11-03T17:59:04.000Z"
+    },
+  ]
+}
+```
+
+- You can use these record ids to prepopulate a workflow.
