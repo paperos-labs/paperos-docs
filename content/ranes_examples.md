@@ -172,31 +172,33 @@ Create a Record at the same time a Ranes Employee is added.
 ## Open Employee Onboarding Workflow
 
 ```shell
-template_id='185' # this is the static template id telling us to generate a new "Employee Onboarding (Ranes)" Workflow
+flow_id='185' # this is the static workflow template id telling us to generate a new "Employee Onboarding (Ranes)" Workflow
 
-curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/workflows/${template_id}" \
+curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/workflows" \
     -X POST \
     -H "Authorization: Bearer ${PAPEROS_API_TOKEN}" \
     -H 'Content-Type: application/json' \
     --data-raw '{
+        "auto_complete": true,
+        "flow_id": "'"${flow_id}"'",
         "records": {
             "employee": "'"${record_id}"'"
-        },
-        "auto_complete": true
+        }
     }' |
     jq
 ```
 
 ```javascript
-var templateId = 185; // this is the static template id telling us to generate a new "Employee Onboarding (Ranes)" Workflow
+var flowId = 185; // this is the static workflow template id telling us to generate a new "Employee Onboarding (Ranes)" Workflow
 var data = {
+    auto_complete: true,
+    flow_id: flowId,
     records: {
         employee: record_id,
     },
-    auto_complete: true,
 };
 
-var url = `${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/workflows/${templateId}`;
+var url = `${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/workflows`;
 var resp = await fetch(url, {
     method: 'POST',
     headers: {
@@ -440,7 +442,6 @@ console.log(workflowLibrary);
 
 View All Started & Completed Workflows for your Organization.
 
-
 ## List Workflow Library
 
 > `GET /api/v1/orgs/:org_id/workflow_templates`
@@ -459,6 +460,32 @@ var resp = await fetch(url, {
 var workflowLibrary = await resp.json();
 
 console.log(workflowLibrary);
+```
+
+```json
+{
+    "success": true,
+    "count": 3,
+    "total": 3,
+    "type": "[]<workflow_template>",
+    "workflow_templates": [
+        {
+            "id": "flow_bj2gg9f595cjd5g6",
+            "label": "Ranes Account Setup Workflow",
+            "description": "Setup account to prepare for employee onboarding and workflow tools."
+        },
+        {
+            "id": "flow_bj2ggn9q3hzhkw7v",
+            "label": "Employee Onboarding Assessment (Ranes)",
+            "description": null
+        },
+        {
+            "id": "flow_bj2ggkmttyawfpzd",
+            "label": "Training Certificate Assessment (Ranes)",
+            "description": "Complete a Training Certificate. Form ID 5000-23"
+        }
+    ]
+}
 ```
 
 View Workflow Templates Library for your Organization.
@@ -491,35 +518,35 @@ var resInfos = await resp.json();
 
 ```json
 {
-  "success": true,
-  "count": 2,
-  "total": 2,
-  "type": "[]<individual>",
-  "records": [
-    {
-      "id": "rec_01he9550cqm37gybnpv1yfvdpp",
-      "type": "individual",
-      "name": "Stanley Yelnats",
-      "fields": {
-        "email": "stanley2+yelnats.com",
-        "title": "Product Manager"
-      },
-      "created_at": "2023-11-02T23:16:02.000Z",
-      "updated_at": "2023-11-03T17:51:36.000Z"
-    },
-    {
-      "id": "rec_01heb5dbb10t5q5qtemxy3f5n2",
-      "type": "individual",
-      "name": "Shirley Yelnats",
-      "fields": {
-        "email": "sam+yelnats3@savvi.legal",
-        "title": "Hole Digger Supervisor"
-      },
-      "created_at": "2023-11-03T17:59:04.000Z",
-      "updated_at": "2023-11-03T17:59:04.000Z"
-    },
-  ]
+    "success": true,
+    "count": 2,
+    "total": 2,
+    "type": "[]<individual>",
+    "records": [
+        {
+            "id": "rec_01he9550cqm37gybnpv1yfvdpp",
+            "type": "individual",
+            "name": "Stanley Yelnats",
+            "fields": {
+                "email": "stanley2+yelnats.com",
+                "title": "Product Manager"
+            },
+            "created_at": "2023-11-02T23:16:02.000Z",
+            "updated_at": "2023-11-03T17:51:36.000Z"
+        },
+        {
+            "id": "rec_01heb5dbb10t5q5qtemxy3f5n2",
+            "type": "individual",
+            "name": "Shirley Yelnats",
+            "fields": {
+                "email": "sam+yelnats3@savvi.legal",
+                "title": "Hole Digger Supervisor"
+            },
+            "created_at": "2023-11-03T17:59:04.000Z",
+            "updated_at": "2023-11-03T17:59:04.000Z"
+        }
+    ]
 }
 ```
 
-- You can use these record ids to prepopulate a workflow.
+-   You can use these record ids to prepopulate a workflow.

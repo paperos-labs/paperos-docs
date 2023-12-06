@@ -130,7 +130,7 @@ Create a new record belonging to this organization.
 > `GET /api/v1/orgs/:org_id/records?type={type_slug}`
 
 ```shell
-curl -G "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}" \
+curl -G "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/records" \
   --data-urlencode "type=*" \
   -H "Authorization: Bearer $PAPEROS_API_TOKEN" |
   jq

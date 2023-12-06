@@ -58,15 +58,16 @@ my_template_id='2'
 my_employee_record='rec_01hcey7qcfeeqmh1af6x3xafa2'
 
 
-curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/workflows/${template_id}" \
+curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/workflows" \
     -X POST \
     -H "Authorization: Bearer ${PAPEROS_API_TOKEN}" \
     -H 'Content-Type: application/json' \
     --data-raw '{
+        "auto_complete": true,
+        "flow_id": "'"${my_template_id}"'",
         "records": {
             "employee": "'"${record_id}"'"
-        },
-        "auto_complete": true
+        }
     }' |
     jq
 ```
@@ -76,14 +77,15 @@ var templateId = 2;
 var employeeRecord = 'rec_01hcey7qcfeeqmh1af6x3xafa2';
 
 var data = {
+    auto_complete: true,
+    flow_id: templateId,
     records: {
         employee: employeeRecord,
     },
-    auto_complete: true,
 };
 var payload = JSON.stringify(data, null, 2);
 
-var url = `${paperBase}/api/v1/orgs/${my_org_id}/workflows/${templateId}`;
+var url = `${paperBase}/api/v1/orgs/${my_org_id}/workflows`;
 var resp = await fetch(url, {
     method: 'POST',
     headers: {
@@ -174,6 +176,32 @@ var resp = await fetch(url, {
 var workflowLibrary = await resp.json();
 
 console.log(workflowLibrary);
+```
+
+```json
+{
+    "success": true,
+    "count": 3,
+    "total": 3,
+    "type": "[]<workflow_template>",
+    "workflow_templates": [
+        {
+            "id": "flow_bj2gg9f595cjd5s2",
+            "label": "Account Setup Workflow",
+            "description": "Setup account to prepare for employee onboarding and workflow tools."
+        },
+        {
+            "id": "flow_bj2ggn9q3hzhso7v",
+            "label": "Employee Onboarding Assessment",
+            "description": null
+        },
+        {
+            "id": "flow_bj2ggkmttyawfpgg",
+            "label": "Training Certificate Assessment",
+            "description": "Complete a Training Certificate. Form ID 5000-23"
+        }
+    ]
+}
 ```
 
 View Workflow Library for your Organization.
