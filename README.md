@@ -10,19 +10,19 @@
     ```
 -   Node
     ```sh
-    curl https://webi.sh/node | sh
+    curl https://webi.sh/node@lts | sh
     ```
 -   Hugo Extended Edition
     ```sh
-    curl https://webi.sh/hugo-extended | sh
+    curl https://webi.sh/hugo-extended@0.146 | sh
     ```
 
 # Dev Build
 
 ```sh
-git clone https://github.com/savvi-legal/docs.git ./dev.paperos.com/
+git clone https://github.com/paperos-labs/paperos-docs.git ./dev.paperos.com/
 pushd ./dev.paperos.com/
-npm ci
+npm clean-install
 go mod download -modcacherw
 hugo
 ```
@@ -51,7 +51,7 @@ hugo
 
 ## Deploy
 
-1. install sclient
+1. install `sclient`
     ```sh
     curl https://webi.sh/sclient | sh
     ```
