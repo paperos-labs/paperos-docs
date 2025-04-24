@@ -2,17 +2,17 @@
 
 # Pre-Reqs
 
--   Hugo Extended (in the Assets section, hidden under **show all**) \
-    <https://github.com/gohugoio/hugo/releases>
--   Go
+- Hugo Extended (in the Assets section, hidden under **show all**) \
+  <https://github.com/gohugoio/hugo/releases>
+- Go
     ```sh
     curl https://webi.sh/golang | sh
     ```
--   Node
+- Node
     ```sh
     curl https://webi.sh/node@lts | sh
     ```
--   Hugo Extended Edition
+- Hugo Extended Edition
     ```sh
     curl https://webi.sh/hugo-extended@0.146 | sh
     ```
@@ -33,9 +33,9 @@ hugo
 hugo --buildDrafts server
 ```
 
--   `baseurl` will be ignored
--   Preview will be available at:
-    -   <http://localhost:1313/>
+- `baseurl` will be ignored
+- Preview will be available at:
+    - <http://localhost:1313/>
 
 # Prod Build
 
@@ -77,11 +77,11 @@ hugo
 
 # Modify
 
--   the names of the files in `./content/` are arbitrary
+- the names of the files in `./content/` are arbitrary
     ```sh
     ./content/records.md
     ```
--   styles can be overwritten in `./assets/`
+- styles can be overwritten in `./assets/`
     ```sh
     ./assets/scss/slate/docuapi_overrides.scss
     ```
