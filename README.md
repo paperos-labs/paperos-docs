@@ -5,17 +5,17 @@
 - Hugo Extended (in the Assets section, hidden under **show all**) \
   <https://github.com/gohugoio/hugo/releases>
 - Go
-    ```sh
-    curl https://webi.sh/golang | sh
-    ```
+   ```sh
+   curl https://webi.sh/golang | sh
+   ```
 - Node
-    ```sh
-    curl https://webi.sh/node@lts | sh
-    ```
+   ```sh
+   curl https://webi.sh/node@lts | sh
+   ```
 - Hugo Extended Edition
-    ```sh
-    curl https://webi.sh/hugo-extended@0.146 | sh
-    ```
+   ```sh
+   curl https://webi.sh/hugo-extended@0.146 | sh
+   ```
 
 # Dev Build
 
@@ -35,7 +35,7 @@ hugo --buildDrafts server
 
 - `baseurl` will be ignored
 - Preview will be available at:
-    - <http://localhost:1313/>
+   - <http://localhost:1313/>
 
 # Prod Build
 
@@ -52,39 +52,39 @@ hugo
 ## Deploy
 
 1. install `sclient`
-    ```sh
-    curl https://webi.sh/sclient | sh
-    ```
+   ```sh
+   curl https://webi.sh/sclient | sh
+   ```
 2. add `dev.paperos.com` to your ssh config
 
-    ```sh
-    mkdir -p ~/.ssh/
+   ```sh
+   mkdir -p ~/.ssh/
 
-    echo '
-    Host docs dev.paperos.com
-        Hostname dev.paperos.com
-        User app
-        ProxyCommand sclient %h
-    ' >> ~/.ssh/config
+   echo '
+   Host docs dev.paperos.com
+       Hostname dev.paperos.com
+       User app
+       ProxyCommand sclient %h
+   ' >> ~/.ssh/config
 
-    chmod 0640 ~/.ssh/config
-    ```
+   chmod 0640 ~/.ssh/config
+   ```
 
 3. sync the local build to the server
-    ```sh
-    rsync -avhPz ./public/ dev.paperos.com:~/public/
-    ```
+   ```sh
+   rsync -avhPz ./public/ dev.paperos.com:~/public/
+   ```
 
 # Modify
 
 - the names of the files in `./content/` are arbitrary
-    ```sh
-    ./content/records.md
-    ```
+   ```sh
+   ./content/records.md
+   ```
 - styles can be overwritten in `./assets/`
-    ```sh
-    ./assets/scss/slate/docuapi_overrides.scss
-    ```
+   ```sh
+   ./assets/scss/slate/docuapi_overrides.scss
+   ```
 
 # References
 

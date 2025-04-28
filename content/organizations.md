@@ -23,7 +23,7 @@ echo "${my_orgs}" |
 ```javascript
 var url = `${paperBase}/api/v1/orgs?updated_since=0`;
 var resp = await fetch(url, {
-    headers: { Authorization: `Bearer ${paperToken}` },
+   headers: { Authorization: `Bearer ${paperToken}` },
 });
 var orgs = await resp.json();
 
@@ -34,16 +34,16 @@ console.log(orgs);
 
 ```json
 {
-    "updated_at": 1677000469,
-    "orgs": [
-        {
-            "id": "org_01ewdxxpvgg2y19pbtbyddtvv8",
-            "name": "Test 1",
-            "brand_id": "brand_00000000000000000000000000",
-            "created_at": "2021-01-19T18:18:46.000Z",
-            "updated_at": "2023-02-21T17:27:49.000Z"
-        }
-    ]
+   "updated_at": 1677000469,
+   "orgs": [
+      {
+         "id": "org_01ewdxxpvgg2y19pbtbyddtvv8",
+         "name": "Test 1",
+         "brand_id": "brand_00000000000000000000000000",
+         "created_at": "2021-01-19T18:18:46.000Z",
+         "updated_at": "2023-02-21T17:27:49.000Z"
+      }
+   ]
 }
 ```
 
@@ -76,7 +76,7 @@ curl "${PAPEROS_BASE_URL}/api/v1/org/debug?account_id=${my_org_id}" \
 var orgId = orgs[0].id;
 var url = `${paperBase}/api/v1/org/debug?account_id=${orgId}`;
 var resp = await fetch(url, {
-    headers: { Authorization: `Bearer ${paperToken}` },
+   headers: { Authorization: `Bearer ${paperToken}` },
 });
 var orgInfo = await resp.json();
 ```
@@ -85,17 +85,17 @@ var orgInfo = await resp.json();
 
 ```json
 {
-    "user": {
-        "account_id": 97,
-        "partner_id": null,
-        "auth_time": "2023-09-19T22:25:54.000Z",
-        "iat": "2023-09-19T22:25:54.000Z",
-        "exp": null,
-        "api_token": true,
-        "email": "services+test1@savvi.legal"
-    },
-    "method": "GET",
-    "originalUrl": "/api/v1/org/debug?account_id=97"
+   "user": {
+      "account_id": 97,
+      "partner_id": null,
+      "auth_time": "2023-09-19T22:25:54.000Z",
+      "iat": "2023-09-19T22:25:54.000Z",
+      "exp": null,
+      "api_token": true,
+      "email": "services+test1@savvi.legal"
+   },
+   "method": "GET",
+   "originalUrl": "/api/v1/org/debug?account_id=97"
 }
 ```
 
@@ -127,21 +127,21 @@ curl "${PAPEROS_BASE_URL}/api/v1/orgs" \
 
 ```javascript
 var data = {
-    name: 'My Test Company 11',
-    fields: {
-        'business_type': 'for_profit',
-    },
+   name: "My Test Company 11",
+   fields: {
+      business_type: "for_profit",
+   },
 };
 var payload = JSON.stringify(data, null, 2);
 
 var url = `${paperBase}/api/v1/orgs`;
 var resp = await fetch(url, {
-    method: 'POST',
-    headers: {
-        Authorization: `Bearer ${paperToken}`,
-        'Content-Type': 'application/json',
-    },
-    body: payload,
+   method: "POST",
+   headers: {
+      Authorization: `Bearer ${paperToken}`,
+      "Content-Type": "application/json",
+   },
+   body: payload,
 });
 var orgInfo = await resp.json();
 ```
@@ -150,11 +150,11 @@ var orgInfo = await resp.json();
 
 ```json
 {
-    "id": "org_01hbsvp9tk3qthd2jjz2vzv0g8",
-    "name": "My Test Company 11",
-    "brand_id": "brand_01h2stkn1fqe8dcfmyrq7thpab",
-    "created_at": "2023-10-03T04:10:43.000Z",
-    "updated_at": "2023-10-03T04:10:49.000Z"
+   "id": "org_01hbsvp9tk3qthd2jjz2vzv0g8",
+   "name": "My Test Company 11",
+   "brand_id": "brand_01h2stkn1fqe8dcfmyrq7thpab",
+   "created_at": "2023-10-03T04:10:43.000Z",
+   "updated_at": "2023-10-03T04:10:49.000Z"
 }
 ```
 
@@ -162,7 +162,7 @@ Create a new organization.
 
 Options for `business_type` are:
 
--   `for_profit`
--   `investment_vehicle`
--   `professional_services`
--   `other`
+- `for_profit`
+- `investment_vehicle`
+- `professional_services`
+- `other`

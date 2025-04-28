@@ -57,35 +57,35 @@ For general operations you can always use `https://app.paperos.com`, however, us
 There are a lot of things that need to have public-facing IDs and slugs and name changes:
 
 - Needs truncated responses
-    - tasks, transactions, projects
-    - lots of things
+   - tasks, transactions, projects
+   - lots of things
 - Needs Public IDs
-    - `user_id`
-    - `org_id` (`account_id`)
-    - `partner_id`
-    - `brand_id`
-    - `document_id`
+   - `user_id`
+   - `org_id` (`account_id`)
+   - `partner_id`
+   - `brand_id`
+   - `document_id`
 - Needs Segmentation
-    - Individual
+   - Individual
 - Needs Slugs (or Enums)
-    - `role_id` (maybe?)
-    - `resource_type_id`
-    - `feature_type_id` (1, 349, 729)
-    - `templatee_id` (2, 127)
-    - `employee_documents_list` (`"All of the above"`, etc)
-    - `upload_or_generate` (`"Generate"`, etc)
+   - `role_id` (maybe?)
+   - `resource_type_id`
+   - `feature_type_id` (1, 349, 729)
+   - `templatee_id` (2, 127)
+   - `employee_documents_list` (`"All of the above"`, etc)
+   - `upload_or_generate` (`"Generate"`, etc)
 
 # OIDC Client
 
 Our goal is Just Works™ compatibility with OIDC clients for:
 
 - [OIDC Section 2: ID Token](https://openid.net/specs/openid-connect-core-1_0.html#IDToken)
-    - [RFC 7638 Section 1: JWK Key ID (kid)](https://www.rfc-editor.org/rfc/rfc7638.html#section-1)
-    - [RFC 7638 Section 3: JWK Thumbprint](https://www.rfc-editor.org/rfc/rfc7638.html#section-3.2)
+   - [RFC 7638 Section 1: JWK Key ID (kid)](https://www.rfc-editor.org/rfc/rfc7638.html#section-1)
+   - [RFC 7638 Section 3: JWK Thumbprint](https://www.rfc-editor.org/rfc/rfc7638.html#section-3.2)
 - [OIDC Section 3.1: Authorization Code Flow](https://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth)
 - [OIDC Section 3.2: Implicit Flow](https://openid.net/specs/openid-connect-core-1_0.html#ImplicitFlowAuth)
 - [OIDC Section 5.1: Standard Claims](https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims)
-    - [RFC 8176: AMR (Authentication Method Reference) Values](https://www.rfc-editor.org/rfc/rfc8176.html)
+   - [RFC 8176: AMR (Authentication Method Reference) Values](https://www.rfc-editor.org/rfc/rfc8176.html)
 - [OIDC Dynamic Client Registration 1.0 incorporating errata set 2](https://openid.net/specs/openid-connect-registration-1_0.html)
 
 However, as the spec is large and many pieces are sections have been superseded by other methodologies or unadopted in industry, we implement functionality as needed.
@@ -121,31 +121,31 @@ curl --fail-with-body -X POST "${PAPEROS_BASE_URL}/api/v1/oidc/clients" \
 
 ```javascript
 var data = {
-    redirect_uris: [
-        "https://app.example.com/callback",
-        "https://app.example.com/return",
-    ],
-    response_types: ["code"],
-    grant_types: ["authorization_code"],
-    contacts: ["devops@example.com"],
-    client_name: "Example App",
-    logo_uri: "https://app.example.com/logo.png",
-    client_uri: "https://app.example.com",
-    policy_uri: "https://app.example.com/privacy",
-    tos_uri: "https://app.example.com/terms",
-    sector_identifier_uri: "https://example.com/allowed_redirects.json",
-    initiate_login_uri: "https://app.example.com/oidc/start",
+   redirect_uris: [
+      "https://app.example.com/callback",
+      "https://app.example.com/return",
+   ],
+   response_types: ["code"],
+   grant_types: ["authorization_code"],
+   contacts: ["devops@example.com"],
+   client_name: "Example App",
+   logo_uri: "https://app.example.com/logo.png",
+   client_uri: "https://app.example.com",
+   policy_uri: "https://app.example.com/privacy",
+   tos_uri: "https://app.example.com/terms",
+   sector_identifier_uri: "https://example.com/allowed_redirects.json",
+   initiate_login_uri: "https://app.example.com/oidc/start",
 };
 var payload = JSON.stringify(data, null, 2);
 
 var url = `${paperBase}/api/v1/oidc/clients`;
 var resp = await fetch(url, {
-    method: "POST",
-    headers: {
-        Authorization: `Bearer ${uiAccessToken}`,
-        "Content-Type": "application/json",
-    },
-    body: payload,
+   method: "POST",
+   headers: {
+      Authorization: `Bearer ${uiAccessToken}`,
+      "Content-Type": "application/json",
+   },
+   body: payload,
 });
 var oidcClient = await resp.json();
 
@@ -156,32 +156,32 @@ console.log(oidcClient);
 
 ```json
 {
-    "rp_id": "ocrp_zdcw9paqtecqby8c",
-    "sector_identifier": "a468aa0d-97ff-4b92-849e-63fe7f6b1817",
-    "redirect_uris": [
-        "https://app.example.com/callback",
-        "https://app.example.com/return"
-    ],
-    "response_types": ["code"],
-    "grant_types": ["authorization_code"],
-    "application_type": "web",
-    "contacts": ["devops@example.com"],
-    "client_name": "Example App",
-    "logo_uri": "https://app.example.com/logo.png",
-    "client_uri": "https://app.example.com",
-    "policy_uri": "https://app.example.com/privacy",
-    "tos_uri": "https://app.example.com/terms",
-    "jwks_uri": null,
-    "subject_type": "pairwise",
-    "token_endpoint_auth_method": "client_secret_basic",
-    "default_max_age": 0,
-    "require_auth_time": true,
-    "initiate_login_uri": "https://app.example.com/oidc/start",
-    "requestable_scopes": ["profile"],
-    "client_secret": "86fa1382-055c-492d-9f0b-7fc0963ca0c7",
-    "client_secret_expires_at": 0,
-    "client_id": "oidc_pc2tsa5rd1m4tamb",
-    "client_id_issued_at": 1745559634
+   "rp_id": "ocrp_zdcw9paqtecqby8c",
+   "sector_identifier": "a468aa0d-97ff-4b92-849e-63fe7f6b1817",
+   "redirect_uris": [
+      "https://app.example.com/callback",
+      "https://app.example.com/return"
+   ],
+   "response_types": ["code"],
+   "grant_types": ["authorization_code"],
+   "application_type": "web",
+   "contacts": ["devops@example.com"],
+   "client_name": "Example App",
+   "logo_uri": "https://app.example.com/logo.png",
+   "client_uri": "https://app.example.com",
+   "policy_uri": "https://app.example.com/privacy",
+   "tos_uri": "https://app.example.com/terms",
+   "jwks_uri": null,
+   "subject_type": "pairwise",
+   "token_endpoint_auth_method": "client_secret_basic",
+   "default_max_age": 0,
+   "require_auth_time": true,
+   "initiate_login_uri": "https://app.example.com/oidc/start",
+   "requestable_scopes": ["profile"],
+   "client_secret": "86fa1382-055c-492d-9f0b-7fc0963ca0c7",
+   "client_secret_expires_at": 0,
+   "client_id": "oidc_pc2tsa5rd1m4tamb",
+   "client_id_issued_at": 1745559634
 }
 ```
 
@@ -206,7 +206,7 @@ curl --fail-with-body "${PAPEROS_BASE_URL}/api/v1/oidc/clients" \
 ```javascript
 var url = `${paperBase}/api/v1/oidc/clients`;
 var resp = await fetch(url, {
-    headers: { Authorization: `Bearer ${uiAccessToken}` },
+   headers: { Authorization: `Bearer ${uiAccessToken}` },
 });
 var oidcClients = await resp.json();
 
@@ -217,53 +217,53 @@ console.log(oidcClients);
 
 ```json
 {
-    "success": true,
-    "total": 1,
-    "type": "[]<oidc_client>",
-    "oidc_clients": [
-        {
-            "client_id": "oidc_zdcw93k7h4w4zb2m",
-            "rp_id": "ocrp_zdcw9paqtecqby8c",
-            "org_id": "org_01he3t2sjcs6zybd2cemyvn7qn",
-            "external_id": null,
-            "sector_identifier": "15e4cd2d-22e8-4f47-b9ca-8b80d7b4a870",
-            "redirect_uris": [
-                "https://app.example.com/callback",
-                "https://app.example.com/return"
-            ],
-            "response_types": ["code"],
-            "grant_types": ["authorization_code"],
-            "application_type": "web",
-            "contacts": ["devops@example.com"],
-            "client_name": "Example App",
-            "logo_uri": "https://app.example.com/logo.png",
-            "client_uri": "https://app.example.com",
-            "policy_uri": "https://app.example.com/privacy",
-            "tos_uri": "https://app.example.com/terms",
-            "jwks_uri": null,
-            "sector_identifier_uri": null,
-            "subject_type": "pairwise",
-            "token_endpoint_auth_method": "client_secret_basic",
-            "default_max_age": 0,
-            "require_auth_time": true,
-            "initiate_login_uri": "https://app.example.com/oidc/start",
-            "requestable_scopes": ["profile", "impersonation"],
-            "client_id_issued_at": 1745455434,
-            "secrets": [
-                {
-                    "id": "occs_zdcw9631vkaf4ppk",
-                    "secret": "9ba82b72-38eb-4a6d-bc57-bace7a0d5bd1",
-                    "comment": "",
-                    "expires_at": null,
-                    "created_at": "2025-04-23T18:43:54Z",
-                    "revoked_at": null
-                }
-            ],
-            "client_secret_expires_at": 0,
-            "client_secret": "9ba82b72-38eb-4a6d-bc57-bace7a0d5bd1"
-        }
-    ],
-    "count": 1
+   "success": true,
+   "total": 1,
+   "type": "[]<oidc_client>",
+   "oidc_clients": [
+      {
+         "client_id": "oidc_zdcw93k7h4w4zb2m",
+         "rp_id": "ocrp_zdcw9paqtecqby8c",
+         "org_id": "org_01he3t2sjcs6zybd2cemyvn7qn",
+         "external_id": null,
+         "sector_identifier": "15e4cd2d-22e8-4f47-b9ca-8b80d7b4a870",
+         "redirect_uris": [
+            "https://app.example.com/callback",
+            "https://app.example.com/return"
+         ],
+         "response_types": ["code"],
+         "grant_types": ["authorization_code"],
+         "application_type": "web",
+         "contacts": ["devops@example.com"],
+         "client_name": "Example App",
+         "logo_uri": "https://app.example.com/logo.png",
+         "client_uri": "https://app.example.com",
+         "policy_uri": "https://app.example.com/privacy",
+         "tos_uri": "https://app.example.com/terms",
+         "jwks_uri": null,
+         "sector_identifier_uri": null,
+         "subject_type": "pairwise",
+         "token_endpoint_auth_method": "client_secret_basic",
+         "default_max_age": 0,
+         "require_auth_time": true,
+         "initiate_login_uri": "https://app.example.com/oidc/start",
+         "requestable_scopes": ["profile", "impersonation"],
+         "client_id_issued_at": 1745455434,
+         "secrets": [
+            {
+               "id": "occs_zdcw9631vkaf4ppk",
+               "secret": "9ba82b72-38eb-4a6d-bc57-bace7a0d5bd1",
+               "comment": "",
+               "expires_at": null,
+               "created_at": "2025-04-23T18:43:54Z",
+               "revoked_at": null
+            }
+         ],
+         "client_secret_expires_at": 0,
+         "client_secret": "9ba82b72-38eb-4a6d-bc57-bace7a0d5bd1"
+      }
+   ],
+   "count": 1
 }
 ```
 
@@ -292,26 +292,26 @@ curl -v --fail-with-body -X POST "${PAPEROS_BASE_URL}/api/v1/integrations/users"
 
 ```javascript
 var data = {
-    external_id: "john_doe-101",
-    email: "john.doe+101@example.com",
-    email_verified: false,
-    given_name: "John",
-    family_name: "Doe",
-    zoneinfo: "America/Denver",
-    local: "en-US",
+   external_id: "john_doe-101",
+   email: "john.doe+101@example.com",
+   email_verified: false,
+   given_name: "John",
+   family_name: "Doe",
+   zoneinfo: "America/Denver",
+   local: "en-US",
 };
 var payload = JSON.stringify(data, null, 2);
 
 var url = `${PAPEROS_BASE_URL}/api/v1/integrations/users`;
 var basicAuth = btoa(`${oidc.client_id}:${oidc.client_secret}`);
 var resp = await fetch(url, {
-    method: "POST",
-    credentials: "include",
-    headers: {
-        Authorization: `Basic ${basicAuth}`,
-        "Content-Type": "application/json",
-    },
-    body: payload,
+   method: "POST",
+   credentials: "include",
+   headers: {
+      Authorization: `Basic ${basicAuth}`,
+      "Content-Type": "application/json",
+   },
+   body: payload,
 });
 
 var subjectResp = await resp.json();
@@ -322,24 +322,24 @@ console.log(subjectResp);
 
 ```json
 {
-    "success": true,
-    "type": "<oidc_subject>",
-    "subject": {
-        "oidc_client_id": "oidc_zdcw93k7h4w4zb2m",
-        "sub": "sub_159rjy10v4qpfr0d",
-        "external_id": "john_doe-101",
-        "first_name": "John",
-        "last_name": "Doe",
-        "email": "john.doe+101@example.com",
-        "phone": null,
-        "zoneinfo": "America/Denver",
-        "locale": "en-US",
-        "picture": null,
-        "granted_scopes": ["profile", "impersonation"],
-        "orgs": [],
-        "created_at": "2025-04-25 08:31:23Z",
-        "updated_at": "2025-04-25 08:31:23Z"
-    }
+   "success": true,
+   "type": "<oidc_subject>",
+   "subject": {
+      "oidc_client_id": "oidc_zdcw93k7h4w4zb2m",
+      "sub": "sub_159rjy10v4qpfr0d",
+      "external_id": "john_doe-101",
+      "first_name": "John",
+      "last_name": "Doe",
+      "email": "john.doe+101@example.com",
+      "phone": null,
+      "zoneinfo": "America/Denver",
+      "locale": "en-US",
+      "picture": null,
+      "granted_scopes": ["profile", "impersonation"],
+      "orgs": [],
+      "created_at": "2025-04-25 08:31:23Z",
+      "updated_at": "2025-04-25 08:31:23Z"
+   }
 }
 ```
 
@@ -357,8 +357,8 @@ curl --fail-with-body "${PAPEROS_BASE_URL}/api/v1/integrations/users" \
 var url = `${PAPEROS_BASE_URL}/api/v1/integrations/users`;
 var basicAuth = btoa(`${oidc.client_id}:${oidc.client_secret}`);
 var resp = await fetch(url, {
-    credentials: "include",
-    headers: { Authorization: `Basic ${basicAuth}` },
+   credentials: "include",
+   headers: { Authorization: `Basic ${basicAuth}` },
 });
 ```
 
@@ -366,25 +366,25 @@ var resp = await fetch(url, {
 
 ```json
 {
-    "success": true,
-    "type": "<[]oidc_subject>",
-    "subjects": [
-        {
-            "given_name": "John",
-            "family_name": "Doe",
-            "locale": "en-US",
-            "zoneinfo": "America/Denver",
-            "external_id": "john_doe-101",
-            "sub": "sub_d0255a8r3hknnzsh",
-            "granted_scopes": ["profile", "impersonation"],
-            "orgs": [
-                {
-                    "id": "org_ew421jr4pmnhs02z",
-                    "name": "My For Profit OIDC Client Test Co"
-                }
-            ]
-        }
-    ]
+   "success": true,
+   "type": "<[]oidc_subject>",
+   "subjects": [
+      {
+         "given_name": "John",
+         "family_name": "Doe",
+         "locale": "en-US",
+         "zoneinfo": "America/Denver",
+         "external_id": "john_doe-101",
+         "sub": "sub_d0255a8r3hknnzsh",
+         "granted_scopes": ["profile", "impersonation"],
+         "orgs": [
+            {
+               "id": "org_ew421jr4pmnhs02z",
+               "name": "My For Profit OIDC Client Test Co"
+            }
+         ]
+      }
+   ]
 }
 ```
 
@@ -461,29 +461,29 @@ curl -v --fail-with-body -X POST "${PAPEROS_BASE_URL}/api/v1/integrations/access
 
 ```javascript
 var payload = JSON.stringify(
-    {
-        claims: {
-            external_id: { value: "john_doe-101" },
-            org_id: { value: "org_ew421jr4pmnhs02z" },
-            auth_time: { value: 1745571774 },
-            exp: { value: 1745575374 },
-            amr: { values: ["pwd"] },
-        },
-    },
-    null,
-    2
+   {
+      claims: {
+         external_id: { value: "john_doe-101" },
+         org_id: { value: "org_ew421jr4pmnhs02z" },
+         auth_time: { value: 1745571774 },
+         exp: { value: 1745575374 },
+         amr: { values: ["pwd"] },
+      },
+   },
+   null,
+   2,
 );
 
 var url = `${PAPEROS_BASE_URL}/api/v1/integrations/users`;
 var basicAuth = btoa(`${oidc.client_id}:${oidc.client_secret}`);
 var resp = await fetch(url, {
-    method: "POST",
-    credentials: "include",
-    headers: {
-        Authorization: `Basic ${basicAuth}`,
-        "Content-Type": "application/json",
-    },
-    body: payload,
+   method: "POST",
+   credentials: "include",
+   headers: {
+      Authorization: `Basic ${basicAuth}`,
+      "Content-Type": "application/json",
+   },
+   body: payload,
 });
 
 var accessTokenResult = await resp.json();
@@ -494,7 +494,7 @@ console.log(accessTokenResult);
 
 ```json
 {
-    "access_token": "eyJ0eXAiOiJKV1QiLCJraWQiOiJTcG5TVEkyc1p3d0p3aV9oWVJ4VFFnOGlJZHdBMS0zUG81c1NsVUptUXdjIiwiYWxnIjoiRVMyNTYifQ.eyJqdGkiOiJkWXZfZHduTWtIajd3ZjNaM0FQbHZ3IiwiaXNzIjoiaHR0cHM6Ly9wYXBlcm9zLWRldi03LjExMDQuYy5ibm5hLm5ldCIsInN1YiI6InN1Yl9kMDI1NWE4cjNoa25uenNoIiwiYXV0aF90aW1lIjoxNzQ1NDQ3NzQ4LCJjbGllbnRfaWQiOiJvaWRjX3pkY3c5M2s3aDR3NHpiMm0iLCJlbWFpbCI6ImpvaG4uZG9lKzEwMUBleGFtcGxlLmNvbSIsImdpdmVuX25hbWUiOiJKb2huIiwiZmFtaWx5X25hbWUiOiJEb2UiLCJvcmdfaWQiOiJvcmdfZXc0MjFqcjRwbW5oczAyeiIsImlhdCI6MTc0NTQ1MDE0OSwiZXhwIjoxNzQ1NDUzNzQ5fQ.YuvVXJcwfsBJT00SzOHuphh1pt8KXJEMoPmZxKJJWCDrDPbrcI2vX6YNcKtgLOVcv7lKMK1-YKvJBNgAF_N-iA"
+   "access_token": "eyJ0eXAiOiJKV1QiLCJraWQiOiJTcG5TVEkyc1p3d0p3aV9oWVJ4VFFnOGlJZHdBMS0zUG81c1NsVUptUXdjIiwiYWxnIjoiRVMyNTYifQ.eyJqdGkiOiJkWXZfZHduTWtIajd3ZjNaM0FQbHZ3IiwiaXNzIjoiaHR0cHM6Ly9wYXBlcm9zLWRldi03LjExMDQuYy5ibm5hLm5ldCIsInN1YiI6InN1Yl9kMDI1NWE4cjNoa25uenNoIiwiYXV0aF90aW1lIjoxNzQ1NDQ3NzQ4LCJjbGllbnRfaWQiOiJvaWRjX3pkY3c5M2s3aDR3NHpiMm0iLCJlbWFpbCI6ImpvaG4uZG9lKzEwMUBleGFtcGxlLmNvbSIsImdpdmVuX25hbWUiOiJKb2huIiwiZmFtaWx5X25hbWUiOiJEb2UiLCJvcmdfaWQiOiJvcmdfZXc0MjFqcjRwbW5oczAyeiIsImlhdCI6MTc0NTQ1MDE0OSwiZXhwIjoxNzQ1NDUzNzQ5fQ.YuvVXJcwfsBJT00SzOHuphh1pt8KXJEMoPmZxKJJWCDrDPbrcI2vX6YNcKtgLOVcv7lKMK1-YKvJBNgAF_N-iA"
 }
 ```
 
@@ -511,7 +511,7 @@ curl --fail-with-body "${PAPEROS_BASE_URL}/api/user/debug" \
 ```javascript
 var url = `${paperBase}/api/user/debug`;
 var resp = await fetch(url, {
-    headers: { Authorization: `Bearer ${paperToken}` },
+   headers: { Authorization: `Bearer ${paperToken}` },
 });
 var data = await resp.json();
 ```
@@ -520,17 +520,17 @@ var data = await resp.json();
 
 ```json
 {
-    "user": {
-        "account_id": null,
-        "partner_id": null,
-        "auth_time": "2023-09-19T22:25:54.000Z",
-        "iat": "2023-09-19T22:25:54.000Z",
-        "exp": null,
-        "api_token": true,
-        "email": "services+test1@savvi.legal"
-    },
-    "method": "GET",
-    "originalUrl": "/api/user/debug"
+   "user": {
+      "account_id": null,
+      "partner_id": null,
+      "auth_time": "2023-09-19T22:25:54.000Z",
+      "iat": "2023-09-19T22:25:54.000Z",
+      "exp": null,
+      "api_token": true,
+      "email": "services+test1@savvi.legal"
+   },
+   "method": "GET",
+   "originalUrl": "/api/user/debug"
 }
 ```
 

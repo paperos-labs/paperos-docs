@@ -32,14 +32,14 @@ curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/records" \
 
 ```javascript
 var data = {
-  type: 'individual',
-  name: 'John Doe',
-  fields: {
-    title: 'master builder',
-    email: 'john@john.doe',
-    employee_documents_list: 'All of the above',
-    upload_or_generate: 'Generate',
-  },
+   type: "individual",
+   name: "John Doe",
+   fields: {
+      title: "master builder",
+      email: "john@john.doe",
+      employee_documents_list: "All of the above",
+      upload_or_generate: "Generate",
+   },
 };
 var payload = JSON.stringify(data, null, 2);
 
@@ -47,12 +47,12 @@ var params = { account_id: orgId };
 var search = new URLSearchParams(params).toString();
 var url = `${paperBase}/api/v1/orgs/${my_org_id}/records`;
 var resp = await fetch(url, {
-  method: 'POST',
-  headers: {
-    Authorization: `Bearer ${paperToken}`,
-    'Content-Type': 'application/json',
-  },
-  body: payload,
+   method: "POST",
+   headers: {
+      Authorization: `Bearer ${paperToken}`,
+      "Content-Type": "application/json",
+   },
+   body: payload,
 });
 var recordInfo = await resp.json();
 ```
@@ -61,9 +61,9 @@ var recordInfo = await resp.json();
 
 ```json
 {
-  "success": true,
-  "type": "string",
-  "rec_id": "rec_01hcey7qcfeeqmh1af6x3xafa2"
+   "success": true,
+   "type": "string",
+   "rec_id": "rec_01hcey7qcfeeqmh1af6x3xafa2"
 }
 ```
 
@@ -129,10 +129,10 @@ var params = { account_id: orgId };
 var search = new URLSearchParams(params).toString();
 var url = `${paperBase}/api/account/v1/resources?${search}`;
 var resp = await fetch(url, {
-  method: 'POST',
-  headers: {
-    Authorization: `Bearer ${paperToken}`,
-  },
+   method: "POST",
+   headers: {
+      Authorization: `Bearer ${paperToken}`,
+   },
 });
 var resInfos = await resp.json();
 ```
@@ -141,42 +141,42 @@ var resInfos = await resp.json();
 
 ```json
 [
-  {
-    "id": 5617,
-    "name": "Test 1",
-    "resource_type_id": 2,
-    "account_id": 97,
-    "created_at": "2021-01-19T18:18:49.000Z",
-    "updated_at": "2021-01-19T18:18:49.000Z",
-    "finalized": 0,
-    "archived": 0,
-    "is_draft": 0,
-    "features": {
-      "name": "Test 1"
-    }
-  },
-  {
-    "id": 17413,
-    "name": "Bob the Builder",
-    "resource_type_id": 1,
-    "account_id": 97,
-    "created_at": "2023-09-22T19:50:13.000Z",
-    "updated_at": "2023-09-22T19:50:13.000Z",
-    "finalized": 0,
-    "archived": 0,
-    "is_draft": 0,
-    "features": {
+   {
+      "id": 5617,
+      "name": "Test 1",
+      "resource_type_id": 2,
+      "account_id": 97,
+      "created_at": "2021-01-19T18:18:49.000Z",
+      "updated_at": "2021-01-19T18:18:49.000Z",
+      "finalized": 0,
+      "archived": 0,
+      "is_draft": 0,
+      "features": {
+         "name": "Test 1"
+      }
+   },
+   {
+      "id": 17413,
       "name": "Bob the Builder",
-      "signatory_name": "Bob the Builder",
-      "first_name": "Bob",
-      "last_name": "Builder",
-      "middle_name": "the",
-      "title": "master builder",
-      "email": "bob@bobbuild.bob",
-      "employee_documents_list": "All of the above",
-      "upload_or_generate": "Generate"
-    }
-  }
+      "resource_type_id": 1,
+      "account_id": 97,
+      "created_at": "2023-09-22T19:50:13.000Z",
+      "updated_at": "2023-09-22T19:50:13.000Z",
+      "finalized": 0,
+      "archived": 0,
+      "is_draft": 0,
+      "features": {
+         "name": "Bob the Builder",
+         "signatory_name": "Bob the Builder",
+         "first_name": "Bob",
+         "last_name": "Builder",
+         "middle_name": "the",
+         "title": "master builder",
+         "email": "bob@bobbuild.bob",
+         "employee_documents_list": "All of the above",
+         "upload_or_generate": "Generate"
+      }
+   }
 ]
 ```
 
@@ -188,7 +188,7 @@ TODO don't allow creating completely empty entities
 | --------- | ----------------------------------------------------------------- |
 | `org_id`  | the organization's public id (begins with `org_`)                 |
 | `type`    | the record type slug, such as `individual` or `org` (`*` for any) |
-| `rec_id`  | a single record ids (begins with `rec_`)                           |
+| `rec_id`  | a single record ids (begins with `rec_`)                          |
 | `rec_ids` | a comma-separated list of record ids (begin with `rec_`)          |
 | `since`   | an ISO timestamp of the last record received (second resolution)  |
 | `limit`   | return only `n` records                                           |
@@ -206,13 +206,13 @@ curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/records/${my_rec_id}" \
 ```
 
 ```javascript
-var myRecId = '17413';
+var myRecId = "17413";
 
 var url = `${paperBase}/api/v1/orgs/${my_org_id}/records/${myRecId}`;
 var resp = await fetch(url, {
-  headers: {
-    Authorization: `Bearer ${paperToken}`,
-  },
+   headers: {
+      Authorization: `Bearer ${paperToken}`,
+   },
 });
 var recordInfo = await resp.json();
 ```
@@ -221,26 +221,26 @@ var recordInfo = await resp.json();
 
 ```json
 {
-  "id": 17413,
-  "name": "Bob the Builder",
-  "resource_type_id": 1,
-  "account_id": 97,
-  "created_at": "2023-09-22T19:50:13.000Z",
-  "updated_at": "2023-09-22T19:50:13.000Z",
-  "finalized": 0,
-  "archived": 0,
-  "is_draft": 0,
-  "features": {
-    "name": "Bob the Builder",
-    "signatory_name": "Bob the Builder",
-    "first_name": "Bob",
-    "last_name": "Builder",
-    "middle_name": "the",
-    "title": "master builder",
-    "email": "bob@bobbuild.bob",
-    "employee_documents_list": "All of the above",
-    "upload_or_generate": "Generate"
-  }
+   "id": 17413,
+   "name": "Bob the Builder",
+   "resource_type_id": 1,
+   "account_id": 97,
+   "created_at": "2023-09-22T19:50:13.000Z",
+   "updated_at": "2023-09-22T19:50:13.000Z",
+   "finalized": 0,
+   "archived": 0,
+   "is_draft": 0,
+   "features": {
+      "name": "Bob the Builder",
+      "signatory_name": "Bob the Builder",
+      "first_name": "Bob",
+      "last_name": "Builder",
+      "middle_name": "the",
+      "title": "master builder",
+      "email": "bob@bobbuild.bob",
+      "employee_documents_list": "All of the above",
+      "upload_or_generate": "Generate"
+   }
 }
 ```
 
@@ -267,13 +267,13 @@ curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/records/${my_rec_id}" \
 ```
 
 ```javascript
-var myRecId = '5617';
+var myRecId = "5617";
 
 var data = {
-  fields: {
-    title: 'Product Manager',
-    email: 'john2@john.doe',
-  },
+   fields: {
+      title: "Product Manager",
+      email: "john2@john.doe",
+   },
 };
 var payload = JSON.stringify(data, null, 2);
 
@@ -281,12 +281,12 @@ var params = { account_id: orgId };
 var search = new URLSearchParams(params).toString();
 var url = `${paperBase}/api/v1/orgs/${my_org_id}/records/${myRecId}`;
 var resp = await fetch(url, {
-  method: 'PATCH',
-  headers: {
-    Authorization: `Bearer ${paperToken}`,
-    'Content-Type': 'application/json',
-  },
-  body: payload,
+   method: "PATCH",
+   headers: {
+      Authorization: `Bearer ${paperToken}`,
+      "Content-Type": "application/json",
+   },
+   body: payload,
 });
 var resInfo = await resp.json();
 ```
@@ -295,11 +295,11 @@ var resInfo = await resp.json();
 
 ```json
 {
-  "success": true,
-  "type": "[]<string>",
-  "total": 2,
-  "changes": ["title", "email"],
-  "count": 2
+   "success": true,
+   "type": "[]<string>",
+   "total": 2,
+   "changes": ["title", "email"],
+   "count": 2
 }
 ```
 
