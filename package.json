@@ -2,6 +2,10 @@
   "name": "docuapi",
   "version": "1.4.0",
   "description": "Beautiful multilingual API documentation theme for Hugo",
+  "scripts": {
+      "fmt": "npm run prettier",
+    "prettier": "npx -p prettier@3 -- prettier --write '**/*.{md,js,html}'"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/bep/docuapi.git"
