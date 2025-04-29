@@ -286,19 +286,20 @@ curl -v --fail-with-body -X POST "${PAPEROS_BASE_URL}/api/v1/integrations/users"
            "given_name": "John",
            "family_name": "Doe",
            "zoneinfo": "America/Denver",
-           "local": "en-US"
+           "locale": "en-US"
         }' | jq
 ```
 
 ```javascript
+var intlData = Intl.DateTimeFormat().resolvedOptions();
 var data = {
    external_id: "john_doe-101",
    email: "john.doe+101@example.com",
    email_verified: false,
    given_name: "John",
    family_name: "Doe",
-   zoneinfo: "America/Denver",
-   local: "en-US",
+   zoneinfo: intlData.timeZone,
+   locale: intlData.locale,
 };
 var payload = JSON.stringify(data, null, 2);
 
@@ -440,7 +441,67 @@ You can register a new PaperOS API key at our [developer portal](https://app.pap
 You must replace <code>ppt_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxcccc</code> with your personal API key.
 </aside>
 
+## Create ID Token
+
+The ID Token represents the subject (user) and can be used to create an organization.
+
+> `POST /api/v1/integrations/id-token`
+
+```shell
+curl -v --fail-with-body -X POST "${PAPEROS_BASE_URL}/api/v1/integrations/id-token" \
+    --user "${CLIENT_ID}:${CLIENT_SECRET}" \
+    -H "Content-Type: application/json" \
+    -d '{
+            "claims": {
+                "external_id": { "value": "john_doe-101" },
+                "auth_time": { "value": 1745571774 },
+                "exp": { "value": 1745575374 },
+                "amr": { "values": ["pwd"] }
+            }
+        }' | jq
+```
+
+```javascript
+var payload = JSON.stringify(
+   {
+      claims: {
+         external_id: { value: "john_doe-101" },
+         auth_time: { value: 1745571774 },
+         exp: { value: 1745575374 },
+         amr: { values: ["pwd"] },
+      },
+   },
+   null,
+   2
+);
+
+var url = `${PAPEROS_BASE_URL}/api/v1/integrations/id-token`;
+var basicAuth = btoa(`${oidc.client_id}:${oidc.client_secret}`);
+var resp = await fetch(url, {
+   method: "POST",
+   credentials: "include",
+   headers: {
+      Authorization: `Basic ${basicAuth}`,
+      "Content-Type": "application/json",
+   },
+   body: payload,
+});
+
+var accessTokenResult = await resp.json();
+console.log(accessTokenResult);
+```
+
+> Example Response:
+
+```json
+{
+   "id_token": "eyJ0eXAiOiJKV1QiLCJraWQiOiJTcG5TVEkyc1p3d0p3aV9oWVJ4VFFnOGlJZHdBMS0zUG81c1NsVUptUXdjIiwiYWxnIjoiRVMyNTYifQ.eyJqdGkiOiJkWXZfZHduTWtIajd3ZjNaM0FQbHZ3IiwiaXNzIjoiaHR0cHM6Ly9wYXBlcm9zLWRldi03LjExMDQuYy5ibm5hLm5ldCIsInN1YiI6InN1Yl9kMDI1NWE4cjNoa25uenNoIiwiYXV0aF90aW1lIjoxNzQ1NDQ3NzQ4LCJjbGllbnRfaWQiOiJvaWRjX3pkY3c5M2s3aDR3NHpiMm0iLCJlbWFpbCI6ImpvaG4uZG9lKzEwMUBleGFtcGxlLmNvbSIsImdpdmVuX25hbWUiOiJKb2huIiwiZmFtaWx5X25hbWUiOiJEb2UiLCJvcmdfaWQiOiJvcmdfZXc0MjFqcjRwbW5oczAyeiIsImlhdCI6MTc0NTQ1MDE0OSwiZXhwIjoxNzQ1NDUzNzQ5fQ.YuvVXJcwfsBJT00SzOHuphh1pt8KXJEMoPmZxKJJWCDrDPbrcI2vX6YNcKtgLOVcv7lKMK1-YKvJBNgAF_N-iA"
+}
+```
+
 ## Create Access Token
+
+The ID Token represents access to a specific organization through the subject (user).
 
 > `POST /api/v1/integrations/access-token`
 
@@ -471,10 +532,10 @@ var payload = JSON.stringify(
       },
    },
    null,
-   2,
+   2
 );
 
-var url = `${PAPEROS_BASE_URL}/api/v1/integrations/users`;
+var url = `${PAPEROS_BASE_URL}/api/v1/integrations/access-token`;
 var basicAuth = btoa(`${oidc.client_id}:${oidc.client_secret}`);
 var resp = await fetch(url, {
    method: "POST",
