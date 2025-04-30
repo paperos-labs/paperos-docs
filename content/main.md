@@ -52,6 +52,81 @@ Depending on your account, your PaperOS base URL may resemble any of the followi
 
 For general operations you can always use `https://app.paperos.com`, however, using the branded domain may be required for certain actions, such as those that generate branded notifications.
 
+## API Introspection
+
+These are DEBUG ENDPOINTS and MAY CHANGE at any time. Use them where it helps, but DO NOT RELY ON them.
+
+> GET /api/v1/schema
+
+```shell
+curl -s "https://app.paperos.com/api/v1/schema" |
+   jq -r '.record_types[].type'
+```
+
+```javascript
+var recordTypesUrl = "https://app.paperos.com/api/v1/schema";
+var recordResp = await fetch(recordTypesUrl);
+var recordData = await recordResp.json();
+
+console.info(`Record Types:`);
+for (let recordType of recordData.record_types) {
+   console.info(`   ${recordType.type}`);
+}
+```
+
+> GET /api/v1/schema/indv
+
+```shell
+b_record_type='indv'
+curl -s "https://app.paperos.com/api/v1/schema/${b_record_type}" |
+   jq -r '.field_types[].type'
+```
+
+```javascript
+var recordType = "individual";
+var fieldTypesUrl = `https://app.paperos.com/api/v1/schema/${recordType}`;
+var fieldResp = await fetch(fieldTypesUrl);
+var fieldData = await fieldResp.json();
+
+console.info(`Record Types for '${recordType}':`);
+for (let fieldType of fieldData.field_types) {
+   console.info(`   ${fieldType.type}`);
+}
+```
+
+> Example
+
+```shell
+curl -s "https://app.paperos.com/api/v1/schema" |
+   jq -r '.record_types[].type' |
+   while read b_type; do
+      echo ""
+      echo "### Record Type: ${b_type}"
+      echo "### Fields:"
+      curl -s "https://app.paperos.com/api/v1/schema/${b_type}" |
+         jq -r '.field_types[].type'
+   done
+```
+
+```javascript
+var recordTypesUrl = "https://app.paperos.com/api/v1/schema";
+var resp = await fetch(recordTypesUrl);
+var data = await resp.json();
+
+for (let recordType of data.record_types) {
+   console.info("");
+   console.info(`Record Type '${recordType.type}':`);
+
+   let fieldTypesUrl = `https://app.paperos.com/api/v1/schema/${recordType.type}`;
+   let fieldResp = await fetch(fieldTypesUrl);
+   let fieldData = await fieldResp.json();
+
+   for (let fieldType of fieldData.field_types) {
+      console.info(`   ${fieldType.type}`);
+   }
+}
+```
+
 ## To-Dos
 
 There are a lot of things that need to have public-facing IDs and slugs and name changes:
