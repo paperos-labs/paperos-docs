@@ -9,7 +9,9 @@ The Workflow Library shows each of the available form collections for a particul
 
 ## List All
 
-> `GET /api/v1/org/workflow_templates` > `GET /api/v1/orgs/:org_id/workflow_templates`
+> `GET /api/v1/org/workflow_templates`
+>
+> `GET /api/v1/orgs/:org_id/workflow_templates`
 
 ```shell
 my_org_id="$(
@@ -270,7 +272,9 @@ console.log(library);
 
 ## Open a Workflow
 
-> `POST /api/v1/org/workflow/:workflow_template_id` > `POST /api/v1/orgs/:org_id/workflow/:workflow_template_id`
+> `POST /api/v1/org/workflow/:workflow_template_id`
+>
+> `POST /api/v1/orgs/:org_id/workflow/:workflow_template_id`
 
 ```shell
 my_template_id='2'

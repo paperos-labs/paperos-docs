@@ -56,7 +56,7 @@ For general operations you can always use `https://app.paperos.com`, however, us
 
 These are DEBUG ENDPOINTS and MAY CHANGE at any time. Use them where it helps, but DO NOT RELY ON them.
 
-> GET /api/v1/schema
+> `GET /api/v1/schema`
 
 ```shell
 curl -s "https://app.paperos.com/api/v1/schema" |
@@ -74,10 +74,10 @@ for (let recordType of recordData.record_types) {
 }
 ```
 
-> GET /api/v1/schema/indv
+> `GET /api/v1/schema/individual`
 
 ```shell
-b_record_type='indv'
+b_record_type='individual'
 curl -s "https://app.paperos.com/api/v1/schema/${b_record_type}" |
    jq -r '.field_types[].type'
 ```
@@ -425,7 +425,7 @@ Set the user's `externalId` as well as their current `locale` and `zoneinfo`.
 
 This is primarily for the initial user sync.
 
-> PATCH /api/v1/integrations/users/:sub
+> `PATCH /api/v1/integrations/users/:sub`
 
 ```shell
 b_ppid_sub='sub_xxxxxxxx'
