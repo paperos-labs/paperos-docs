@@ -16,12 +16,12 @@ Get a list of documents for a specific account
 
 ```shell
 curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/documents" \
-    -H "Authorization: Bearer ${PAPEROS_API_TOKEN}"
+    -H "Authorization: Bearer ${OIDC_ACCESS_TOKEN}"
 ```
 
 ```shell
 curl "$PAPEROS_BASE_URL/api/v1/org/documents?account_id=${account_id}" \
-    -H "Authorization: Bearer ${PAPEROS_API_TOKEN}"
+    -H "Authorization: Bearer ${OIDC_ACCESS_TOKEN}"
 ```
 
 ```javascript
@@ -29,7 +29,7 @@ var url = `${paperBase}/api/v1/orgs/${my_org_id}/documents`;
 var resp = await fetch(url, {
    method: "GET",
    headers: {
-      Authorization: `Bearer ${PAPEROS_API_TOKEN}`,
+      Authorization: `Bearer ${OIDC_ACCESS_TOKEN}`,
    },
 });
 ```
@@ -39,7 +39,7 @@ var url = `${paperBase}/api/v1/org/documents?account_id=${account_id}`;
 var resp = await fetch(url, {
    method: "GET",
    headers: {
-      Authorization: `Bearer ${PAPEROS_API_TOKEN}`,
+      Authorization: `Bearer ${OIDC_ACCESS_TOKEN}`,
    },
 });
 var resource = await resp.json();
@@ -56,12 +56,12 @@ Get a list of documents for a specific account & email
 
 ```shell
 curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/documents?email=${email}" \
-    -H "Authorization: Bearer ${PAPEROS_API_TOKEN}"
+    -H "Authorization: Bearer ${OIDC_ACCESS_TOKEN}"
 ```
 
 ```shell
 curl "${PAPEROS_BASE_URL}/api/v1/org/documents?account_id=${account_id}&email=${email}" \
-    -H "Authorization: Bearer ${PAPEROS_API_TOKEN}"
+    -H "Authorization: Bearer ${OIDC_ACCESS_TOKEN}"
 ```
 
 ```javascript
@@ -69,7 +69,7 @@ var url = `${paperBase}/api/v1/orgs/${my_org_id}/documents?email=${email}`;
 var resp = await fetch(url, {
    method: "GET",
    headers: {
-      Authorization: `Bearer ${PAPEROS_API_TOKEN}`,
+      Authorization: `Bearer ${OIDC_ACCESS_TOKEN}`,
    },
 });
 ```
@@ -79,7 +79,7 @@ var url = `${paperBase}/api/v1/org/documents?account_id=${account_id}&email=${em
 var resp = await fetch(url, {
    method: "GET",
    headers: {
-      Authorization: `Bearer ${PAPEROS_API_TOKEN}`,
+      Authorization: `Bearer ${OIDC_ACCESS_TOKEN}`,
    },
 });
 var resource = await resp.json();

@@ -466,14 +466,16 @@ var resp = await fetch(url, {
 
 # Authentication
 
-> Use your own API Token, or this example token:
+Access Tokens can be created with your OIDC ID and Secret.
+
+> Set Organization-Scoped Access Token
 
 ```sh
-export PAPEROS_API_TOKEN='ppt_7COQmKv8EUi95AkGYDRXjsfI7ZamHr9o0I8D0072uo'
+export OIDC_ACCESS_TOKEN='xxxx.yyyy.zzzz'
 ```
 
 ```javascript
-var paperToken = process.env.PAPEROS_API_TOKEN;
+var paperToken = process.env.OIDC_ACCESS_TOKEN;
 ```
 
 <!--
@@ -640,7 +642,7 @@ console.log(accessTokenResult);
 
 ```shell
 curl --fail-with-body "${PAPEROS_BASE_URL}/api/user/debug" \
-  -H "Authorization: Bearer ${PAPEROS_API_TOKEN}" |
+  -H "Authorization: Bearer ${OIDC_ACCESS_TOKEN}" |
   jq
 ```
 

@@ -15,7 +15,7 @@ submissions, and made available for autofill selection to future forms.
 ```shell
 curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/records" \
     -X 'POST' \
-    -H "Authorization: Bearer ${PAPEROS_API_TOKEN}" \
+    -H "Authorization: Bearer ${OIDC_ACCESS_TOKEN}" \
     -H 'Content-Type: application/json' \
     --data-raw '{
       "type": "individual",
@@ -120,7 +120,7 @@ Create a new record belonging to this organization.
 
 ```shell
 curl "$PAPEROS_BASE_URL/api/account/v1/resources?account_id=${my_org_id}" \
-  -H "Authorization: Bearer $PAPEROS_API_TOKEN" |
+  -H "Authorization: Bearer $OIDC_ACCESS_TOKEN" |
   jq
 ```
 
@@ -201,7 +201,7 @@ TODO don't allow creating completely empty entities
 my_rec_id='17413'
 
 curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/records/${my_rec_id}" \
-  -H "Authorization: Bearer $PAPEROS_API_TOKEN" |
+  -H "Authorization: Bearer $OIDC_ACCESS_TOKEN" |
   jq
 ```
 
@@ -255,7 +255,7 @@ my_rec_id='5617'
 
 curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/records/${my_rec_id}" \
     -X 'PATCH' \
-    -H "Authorization: Bearer ${PAPEROS_API_TOKEN}" \
+    -H "Authorization: Bearer ${OIDC_ACCESS_TOKEN}" \
     -H 'Content-Type: application/json' \
     --data-raw '{
       "fields": {

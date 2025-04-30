@@ -18,7 +18,7 @@ my_org_id="$(
 )"
 
 curl "${PAPEROS_BASE_URL}/api/v1/org/workflow_templates?account_id=${my_org_id}" \
-  -H "Authorization: Bearer ${PAPEROS_API_TOKEN}" |
+  -H "Authorization: Bearer ${OIDC_ACCESS_TOKEN}" |
   jq
 ```
 
@@ -277,7 +277,7 @@ my_template_id='2'
 
 curl "${PAPEROS_BASE_URL}/api/v1/org/workflow/${my_template_id}?account_id=${my_org_id}" \
     -X POST \
-    -H "Authorization: Bearer ${PAPEROS_API_TOKEN}" \
+    -H "Authorization: Bearer ${OIDC_ACCESS_TOKEN}" \
     -H 'Content-Type: application/json' |
     jq
 ```
@@ -320,7 +320,7 @@ my_employee_record='5617'
 
 curl "${PAPEROS_BASE_URL}/api/v1/org/workflow/${my_template_id}?account_id=${my_org_id}" \
     -X POST \
-    -H "Authorization: Bearer ${PAPEROS_API_TOKEN}" \
+    -H "Authorization: Bearer ${OIDC_ACCESS_TOKEN}" \
     -H 'Content-Type: application/json' \
     --data-raw '{
         "records": {

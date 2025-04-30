@@ -13,7 +13,7 @@ title: Organizations
 my_orgs="$(
 
     curl "${PAPEROS_BASE_URL}/api/v1/orgs?updated_since=0" \
-        -H "Authorization: Bearer ${PAPEROS_API_TOKEN}"
+        -H "Authorization: Bearer ${OIDC_ID_TOKEN}"
 
 )"
 echo "${my_orgs}" |
@@ -68,7 +68,7 @@ my_org_id="$(
 echo "${my_org_id}"
 
 curl "${PAPEROS_BASE_URL}/api/v1/org/debug?account_id=${my_org_id}" \
-  -H "Authorization: Bearer ${PAPEROS_API_TOKEN}" |
+  -H "Authorization: Bearer ${OIDC_ID_TOKEN}" |
   jq
 ```
 
@@ -114,7 +114,7 @@ Show account token details
 ```shell
 curl "${PAPEROS_BASE_URL}/api/v1/orgs" \
     -X 'POST' \
-    -H "Authorization: Bearer ${PAPEROS_API_TOKEN}" \
+    -H "Authorization: Bearer ${OIDC_ID_TOKEN}" \
     -H 'Content-Type: application/json' \
     --data-raw '{
         "name": "My Test Company 11",
