@@ -419,6 +419,61 @@ console.log(subjectResp);
 }
 ```
 
+## Update Subject (User)
+
+Set the user's `externalId` as well as their current `locale` and `zoneinfo`.
+
+This is primarily for the initial user sync.
+
+> PATCH /api/v1/integrations/users/:sub
+
+```shell
+b_ppid_sub='sub_xxxxxxxx'
+b_our_id='100-john_doe'
+
+curl -v --fail-with-body -X PATCH "${PAPEROS_BASE_URL}/api/v1/integrations/users/${b_ppid_sub}" \
+    --user "${CLIENT_ID}:${CLIENT_SECRET}" \
+    -H 'Content-Type: application/json' \
+    -d '{
+           "external_id": "'"${b_our_id}"'",
+           "locale": "en-US",
+           "zoneinfo": "America/Denver"
+        }' | jq
+```
+
+```javascript
+var ppidSub = "sub_xxxxxxxx";
+var ourId = "100-john_doe";
+
+var intlData = Intl.DateTimeFormat().resolvedOptions();
+var data = {
+   external_id: ourId,
+   locale: intlData.locale,
+   zoneinfo: intlData.timeZone,
+};
+var payload = JSON.stringify(data, null, 2);
+
+var url = `${PAPEROS_BASE_URL}/api/v1/integrations/users/${ppidSub}`;
+var basicAuth = btoa(`${oidc.client_id}:${oidc.client_secret}`);
+var resp = await fetch(url, {
+   method: "PATCH",
+   credentials: "include",
+   headers: {
+      Authorization: `Basic ${basicAuth}`,
+      "Content-Type": "application/json",
+   },
+   body: payload,
+});
+
+console.log("OK:", resp.status, resp.ok);
+```
+
+> Example Result:
+
+```text
+204 NO CONTENT
+```
+
 ## List Subjects (Users)
 
 > `GET /api/v1/integrations/users`
