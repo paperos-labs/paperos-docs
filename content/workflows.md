@@ -7,28 +7,22 @@ title: Workflows
 
 The Workflow Library shows each of the available form collections for a particular task.
 
-## List All
+## List All Workflow Templates
 
-> `GET /api/v1/org/workflow_templates`
->
-> `GET /api/v1/orgs/:org_id/workflow_templates`
+> `GET /api/v1/orgs/:org_id/workflow-templates`
 
 ```shell
-my_org_id="$(
-    echo "${my_orgs}" |
-        jq '.[0].id'
-)"
-
-curl "${PAPEROS_BASE_URL}/api/v1/org/workflow_templates?account_id=${my_org_id}" \
+curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/workflow-templates" \
   -H "Authorization: Bearer ${OIDC_ACCESS_TOKEN}" |
   jq
 ```
 
 ```javascript
-var orgId = accounts[0].id;
-var url = `${paperBase}/api/v1/org/workflow_templates?account_id=${my_org_id}`;
+var url = `${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/workflow-templates`;
 var resp = await fetch(url, {
-   headers: { Authorization: `Bearer ${paperToken}` },
+   headers: { 
+      Authorization: `Bearer ${OIDC_ACCESS_TOKEN}` 
+   },
 });
 var library = await resp.json();
 
@@ -270,33 +264,57 @@ console.log(library);
 }
 ```
 
-## Open a Workflow
+## List All Started Workflows
 
-> `POST /api/v1/org/workflow/:workflow_template_id`
->
-> `POST /api/v1/orgs/:org_id/workflow/:workflow_template_id`
+> `GET /api/v1/orgs/:org_id/workflows`
 
 ```shell
-my_template_id='2'
-
-curl "${PAPEROS_BASE_URL}/api/v1/org/workflow/${my_template_id}?account_id=${my_org_id}" \
-    -X POST \
-    -H "Authorization: Bearer ${OIDC_ACCESS_TOKEN}" \
-    -H 'Content-Type: application/json' |
-    jq
+curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/workflows" \
+  -H "Authorization: Bearer ${OIDC_ACCESS_TOKEN}" |
+  jq
 ```
 
 ```javascript
-var templateId = 2;
-var params = { account_id: orgId };
-var search = new URLSearchParams(params).toString();
+var url = `${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/workflows`;
+var resp = await fetch(url, {
+   headers: { 
+      Authorization: `Bearer ${OIDC_ACCESS_TOKEN}` 
+   },
+});
+var workflows = await resp.json();
 
-var url = `${PAPEROS_BASE_URL}/api/v1/org/workflow/${my_template_id}?account_id=${my_org_id}`;
+console.log(workflows);
+```
+
+## Start a Workflow
+
+> `POST /api/v1/orgs/:org_id/workflows`
+
+```shell
+curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/workflows" \
+  -X 'POST' \
+  -H "Authorization: Bearer ${OIDC_ACCESS_TOKEN}" \
+  -H "Content-Type: application/json" \
+   --data-raw '{
+      "flow_id": "${my_flow_id}"
+    }' |
+  jq
+```
+
+```javascript
+var data = {
+   flow_id: my_flow_id,
+};
+var payload = JSON.stringify(data, null, 2);
+
+var url = `${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/workflows`;
 var resp = await fetch(url, {
    method: "POST",
    headers: {
-      Authorization: `Bearer ${paperToken}`,
+      Authorization: `Bearer ${OIDC_ACCESS_TOKEN}`,
+      "Content-Type": "application/json",
    },
+   body: payload,
 });
 var workflow = await resp.json();
 
@@ -314,46 +332,42 @@ console.log(workflow);
 
 Opening a workflow will create the associated To-Do items in the PaperOS interface.
 
-## Open with Prepopulated Data
+## Start a Workflow with Prepopulated Data & Auto Submit
 
-> `POST /api/account/project_template/:template_id/create`
+> `POST /api/v1/orgs/:org_id/workflows`
 
 ```shell
-my_template_id='2'
-my_employee_record='5617'
-
-curl "${PAPEROS_BASE_URL}/api/v1/org/workflow/${my_template_id}?account_id=${my_org_id}" \
-    -X POST \
-    -H "Authorization: Bearer ${OIDC_ACCESS_TOKEN}" \
-    -H 'Content-Type: application/json' \
-    --data-raw '{
-        "records": {
-            "employee": "'"${my_employee_record}"'"
-        },
-        "auto_complete": true
+curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/workflows" \
+  -X 'POST' \
+  -H "Authorization: Bearer ${OIDC_ACCESS_TOKEN}" \
+  -H "Content-Type: application/json" \
+   --data-raw '{
+      "flow_id": "${my_flow_id}",
+      "records": [{
+        "role": "company",
+        "id": "rec_kp9fh3354dqt255m"
+      }],
+      "auto_submit": 1
     }' |
-    jq
+  jq
 ```
 
 ```javascript
-var templateId = 2;
-var employeeRecord = "5617";
-
 var data = {
-   records: {
-      employee: employeeRecord,
-   },
-   auto_complete: true,
+   flow_id: my_flow_id,
+   records: [{
+      role: "company",
+      id: "rec_kp9fh3354dqt255m"
+   }],
+   auto_submit: 1
 };
 var payload = JSON.stringify(data, null, 2);
 
-var params = { account_id: orgId };
-var search = new URLSearchParams(params).toString();
-var url = `${paperBase}/api/v1/org/workflow${templateId}?${search}`;
+var url = `${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/workflows`;
 var resp = await fetch(url, {
    method: "POST",
    headers: {
-      Authorization: `Bearer ${paperToken}`,
+      Authorization: `Bearer ${OIDC_ACCESS_TOKEN}`,
       "Content-Type": "application/json",
    },
    body: payload,

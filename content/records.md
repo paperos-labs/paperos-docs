@@ -10,7 +10,7 @@ submissions, and made available for autofill selection to future forms.
 
 ## Create One
 
-> `POST /api/v1/orgs/:org_id`
+> `POST /api/v1/orgs/:org_id/records`
 
 ```shell
 curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/records" \
@@ -18,13 +18,12 @@ curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/records" \
     -H "Authorization: Bearer ${OIDC_ACCESS_TOKEN}" \
     -H 'Content-Type: application/json' \
     --data-raw '{
-      "type": "individual",
-      "name": "John Doe",
+      "type": "indv",
+      "name": "Jane Doe",
       "fields": {
-        "title": "master builder",
-        "email": "john@john.doe",
-        "employee_documents_list": "All of the above",
-        "upload_or_generate": "Generate"
+        "title": "master painter",
+        "email": "jane@jane.doe",
+        "is_board_director": "1"
       }
     }' |
     jq
@@ -32,24 +31,21 @@ curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/records" \
 
 ```javascript
 var data = {
-   type: "individual",
-   name: "John Doe",
+   type: "indv",
+   name: "Jane Doe",
    fields: {
-      title: "master builder",
-      email: "john@john.doe",
-      employee_documents_list: "All of the above",
-      upload_or_generate: "Generate",
+      title: "master painter",
+      email: "jane@jane.doe",
+      is_board_director: "1",
    },
 };
 var payload = JSON.stringify(data, null, 2);
 
-var params = { account_id: orgId };
-var search = new URLSearchParams(params).toString();
-var url = `${paperBase}/api/v1/orgs/${my_org_id}/records`;
+var url = `${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/records`;
 var resp = await fetch(url, {
    method: "POST",
    headers: {
-      Authorization: `Bearer ${paperToken}`,
+      Authorization: `Bearer ${OIDC_ACCESS_TOKEN}`,
       "Content-Type": "application/json",
    },
    body: payload,
@@ -69,7 +65,7 @@ var recordInfo = await resp.json();
 
 Create a new record belonging to this organization.
 
-`POST /api/account/v1/resources/{{resource_type}}?account_id={{org_id}}`
+`POST /api/v1/orgs/{my_org_id}/records`
 
 ### Record Types
 
@@ -112,26 +108,24 @@ Create a new record belonging to this organization.
 | `tax_filing`     | `tax`       |
 | `tos`            | `tos`       |
 
-## List All by Type by Org
+## List All by Type
 
-> `GET /api/v1/org/records?org_id={org_id}&type={type_slug}`
->
-> `GET /api/v1/orgs/{org_id}/records`
+> `GET /api/v1/orgs/{org_id}/records?type={type_slug}`
 
 ```shell
-curl "$PAPEROS_BASE_URL/api/account/v1/resources?account_id=${my_org_id}" \
-  -H "Authorization: Bearer $OIDC_ACCESS_TOKEN" |
+curl -G "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/records" \
+  --data-urlencode "type=org" \
+  -H "Authorization: Bearer ${OIDC_ACCESS_TOKEN}" |
   jq
 ```
 
 ```javascript
-var params = { account_id: orgId };
+var params = { type: "org" };
 var search = new URLSearchParams(params).toString();
-var url = `${paperBase}/api/account/v1/resources?${search}`;
+var url = `${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/records?${search}`;
 var resp = await fetch(url, {
-   method: "POST",
    headers: {
-      Authorization: `Bearer ${paperToken}`,
+      Authorization: `Bearer ${OIDC_ACCESS_TOKEN}`,
    },
 });
 var resInfos = await resp.json();
@@ -186,7 +180,6 @@ TODO don't allow creating completely empty entities
 
 | Query     | Description                                                       |
 | --------- | ----------------------------------------------------------------- |
-| `org_id`  | the organization's public id (begins with `org_`)                 |
 | `type`    | the record type slug, such as `individual` or `org` (`*` for any) |
 | `rec_id`  | a single record ids (begins with `rec_`)                          |
 | `rec_ids` | a comma-separated list of record ids (begin with `rec_`)          |
@@ -201,17 +194,17 @@ TODO don't allow creating completely empty entities
 my_rec_id='17413'
 
 curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/records/${my_rec_id}" \
-  -H "Authorization: Bearer $OIDC_ACCESS_TOKEN" |
+  -H "Authorization: Bearer ${OIDC_ACCESS_TOKEN}" |
   jq
 ```
 
 ```javascript
 var myRecId = "17413";
 
-var url = `${paperBase}/api/v1/orgs/${my_org_id}/records/${myRecId}`;
+var url = `${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/records/${myRecId}`;
 var resp = await fetch(url, {
    headers: {
-      Authorization: `Bearer ${paperToken}`,
+      Authorization: `Bearer ${OIDC_ACCESS_TOKEN}`,
    },
 });
 var recordInfo = await resp.json();
@@ -277,13 +270,11 @@ var data = {
 };
 var payload = JSON.stringify(data, null, 2);
 
-var params = { account_id: orgId };
-var search = new URLSearchParams(params).toString();
-var url = `${paperBase}/api/v1/orgs/${my_org_id}/records/${myRecId}`;
+var url = `${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/records/${myRecId}`;
 var resp = await fetch(url, {
    method: "PATCH",
    headers: {
-      Authorization: `Bearer ${paperToken}`,
+      Authorization: `Bearer ${OIDC_ACCESS_TOKEN}`,
       "Content-Type": "application/json",
    },
    body: payload,
