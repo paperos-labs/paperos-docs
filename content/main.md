@@ -32,6 +32,7 @@ Please install `jq` and `node` to follow along in the examples.
 https://app.paperos.com
 https://example.c.paperos.com
 https://paperos.example.com
+https://demo.example.c.paperos.net
 ```
 
 > Use `example.c.paperos.dev` (note: `.dev`) for the live examples:
@@ -52,7 +53,9 @@ Depending on your account, your PaperOS base URL may resemble any of the followi
 
 For general operations you can always use `https://app.paperos.com`, however, using the branded domain may be required for certain actions, such as those that generate branded notifications.
 
-## API Introspection
+Your Sandbox base URL may look something like `https://demo.example.c.paperos.net`.
+
+<!-- ## API Introspection
 
 These are DEBUG ENDPOINTS and MAY CHANGE at any time. Use them where it helps, but DO NOT RELY ON them.
 
@@ -125,29 +128,20 @@ for (let recordType of data.record_types) {
       console.info(`   ${fieldType.type}`);
    }
 }
-```
+``` -->
 
 ## To-Dos
 
-There are a lot of things that need to have public-facing IDs and slugs and name changes:
+There are multiple things that need to have public-facing IDs and slugs and name changes:
 
 - Needs truncated responses
-   - tasks, transactions, projects
+   - tasks, transactions
    - lots of things
-- Needs Public IDs
-   - `user_id`
-   - `org_id` (`account_id`)
-   - `partner_id`
-   - `brand_id`
-   - `document_id`
 - Needs Segmentation
    - Individual
 - Needs Slugs (or Enums)
    - `role_id` (maybe?)
-   - `resource_type_id`
-   - `feature_type_id` (1, 349, 729)
-   - `templatee_id` (2, 127)
-   - `employee_documents_list` (`"All of the above"`, etc)
+   - `investor_documents_list` (`"All of the above"`, etc)
    - `upload_or_generate` (`"Generate"`, etc)
 
 # OIDC Client
