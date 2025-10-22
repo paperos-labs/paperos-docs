@@ -69,6 +69,8 @@ Create a new record belonging to this organization.
 
 ### Record Types
 
+Below is a small subset of our record types, reach out for a tailored list fitting your needs.
+
 <!--
     SELECT
         CONCAT("`", `slug`, "`") AS Slug,
@@ -77,36 +79,37 @@ Create a new record belonging to this organization.
     ORDER BY `slug`;
 -->
 
-| Slug             | Code        |
-| ---------------- | ----------- |
-| `activity`       | `acty`      |
-| `annual_report`  | `ann_rpt`   |
-| `benefit_plan`   | `benf`      |
-| `contract`       | `k`         |
-| `counsel`        | `cnsl`      |
-| `doc`            | `doc`       |
-| `equity`         | `eq`        |
-| `equity_class`   | `eq_cl`     |
-| `equity_plan`    | `eq_plan`   |
-| `ext_entity`     | `ext_enty`  |
-| `financials`     | `fins`      |
-| `financing`      | `fin`       |
-| `individual`     | `indv`      |
-| `investment`     | `invt`      |
-| `ip`             | `ip`        |
-| `legal_audit`    | `lgl_adt`   |
-| `npo`            | `npo`       |
-| `org`            | `org`       |
-| `org_history`    | `org_hx`    |
-| `pii`            | `pii`       |
-| `qtly_finacials` | `qtly_fins` |
-| `questionnaire`  | `qre`       |
-| `secretary`      | `secy`      |
-| `security`       | `sec`       |
-| `state`          | `st`        |
-| `task`           | `task`      |
-| `tax_filing`     | `tax`       |
-| `tos`            | `tos`       |
+| Slug            | Code      |
+| --------------- | --------- |
+| `activity`      | `acty`    |
+| `annual_report` | `ann_rpt` |
+| `contract`      | `k`       |
+| `doc`           | `doc`     |
+| `equity`        | `eq`      |
+| `equity_class`  | `eq_cl`   |
+| `financing`     | `fin`     |
+| `individual`    | `indv`    |
+| `investment`    | `invt`    |
+| `ip`            | `ip`      |
+| `legal_audit`   | `lgl_adt` |
+| `org`           | `org`     |
+| `pii`           | `pii`     |
+| `questionnaire` | `qre`     |
+| `state`         | `st`      |
+| `task`          | `task`    |
+| `tax_filing`    | `tax`     |
+| `tos`           | `tos`     |
+
+<!-- | `benefit_plan`   | `benf`      | -->
+<!-- | `counsel`        | `cnsl`      | -->
+<!-- | `equity_plan`    | `eq_plan`   | -->
+<!-- | `ext_entity`     | `ext_enty`  | -->
+<!-- | `financials`     | `fins`      | -->
+<!-- | `npo`            | `npo`       | -->
+<!-- | `org_history`    | `org_hx`    | -->
+<!-- | `qtly_finacials` | `qtly_fins` | -->
+<!-- | `secretary`      | `secy`      | -->
+<!-- | `security`       | `sec`       | -->
 
 ## List All by Type
 

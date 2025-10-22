@@ -5,7 +5,7 @@ title: Documents
 
 # Documents
 
-A combination of documents waiting to be signed, completed, or uploaded.
+A combination of documents waiting to be signed, completed, or uploaded. If document requires signatures, the signature links will be passed through `recipients[]`.
 
 ## Get Documents by Org
 
@@ -49,7 +49,7 @@ console.log(resource);
 
 ## Get Documents by Email
 
-Get a list of documents for a specific account & email
+Get a list of documents for a specific account & email.
 
 `GET /api/v1/orgs/{{org_id}}/documents?email={{email}}`
 `GET /api/v1/org/documents?account_id={{account_id}}&email={{email}}`

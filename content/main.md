@@ -604,7 +604,7 @@ var payload = JSON.stringify(
       },
    },
    null,
-   2
+   2,
 );
 
 var url = `${PAPEROS_BASE_URL}/api/v1/integrations/id-token`;
@@ -664,7 +664,7 @@ var payload = JSON.stringify(
       },
    },
    null,
-   2
+   2,
 );
 
 var url = `${PAPEROS_BASE_URL}/api/v1/integrations/access-token`;

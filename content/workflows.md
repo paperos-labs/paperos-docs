@@ -9,6 +9,8 @@ The Workflow Library shows each of the available form collections for a particul
 
 ## List All Workflow Templates
 
+Get list of all available Workflow Templates.
+
 > `GET /api/v1/orgs/:org_id/workflow-templates`
 
 ```shell
@@ -20,8 +22,8 @@ curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/workflow-templates" \
 ```javascript
 var url = `${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/workflow-templates`;
 var resp = await fetch(url, {
-   headers: { 
-      Authorization: `Bearer ${OIDC_ACCESS_TOKEN}` 
+   headers: {
+      Authorization: `Bearer ${OIDC_ACCESS_TOKEN}`,
    },
 });
 var library = await resp.json();
@@ -29,10 +31,63 @@ var library = await resp.json();
 console.log(library);
 ```
 
-> Example Response:
+> Example Response: (simplified for readability)
 
 ```json
 {
+   "success": true,
+   "count": 71,
+   "total": 71,
+   "type": "[]<workflow_template>",
+   "workflow_templates": [
+      {
+         "id": "flow_extg0vcffk3h9085",
+         "label": "Entity Setup",
+         "description": "Form a new entity, or upload your documentation for an existing entity.",
+         "created_at": "2023-12-29T18:56:00.000Z",
+         "updated_at": "2025-05-08T22:07:38.000Z"
+      },
+      {
+         "id": "flow_extg0yj9vywzabwy",
+         "label": "Fundraising Diligence Portal",
+         "description": "Share pitch materials with prospective investors for initial screening. Set up custom Diligence Rooms to respond to requests & share relevant Data Room documentation.",
+         "created_at": "2023-12-29T18:56:00.000Z",
+         "updated_at": "2025-05-08T22:03:20.000Z"
+      },
+      {
+         "id": "flow_extg0g5yjfrtfk3e",
+         "label": "Onboard Employees",
+         "description": "Onboard employees and generate appropriate documents. Or upload the documents that you've already executed.",
+         "created_at": "2023-12-29T18:56:00.000Z",
+         "updated_at": "2025-05-08T22:07:44.000Z"
+      },
+      {
+         "id": "flow_extg0z7hs83avjbt",
+         "label": "Annual Report (State Renewal)",
+         "description": "Complete the annual report required by each state in which your company is registered.",
+         "created_at": "2023-12-29T18:56:00.000Z",
+         "updated_at": "2024-11-20T18:21:08.000Z"
+      },
+      {
+         "id": "flow_extg0h07e96b2etx",
+         "label": "Data Room Setup",
+         "description": "Set up a custom data room that you can manage and share with relevant parties.",
+         "created_at": "2023-12-29T18:56:00.000Z",
+         "updated_at": "2023-12-02T00:33:47.000Z"
+      },
+      {
+         "id": "flow_extg0v4ndq47rnwk",
+         "label": "Doc Send & Sign",
+         "description": "Send and Sign Custom Documents.",
+         "created_at": "2023-12-29T18:56:00.000Z",
+         "updated_at": "2024-10-31T00:05:52.000Z"
+      }
+      // ...rest of available templates
+   ]
+}
+```
+
+<!-- Old Response with non-massaged data {
    "success": true,
    "count": 2,
    "type": "[]<workflow_template>",
@@ -261,10 +316,11 @@ console.log(library);
       }
    ],
    "total": 2
-}
-```
+} -->
 
 ## List All Started Workflows
+
+Get List of started Workflows. Each Workflow was generated from a Workflow Template above.
 
 > `GET /api/v1/orgs/:org_id/workflows`
 
@@ -277,13 +333,33 @@ curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/workflows" \
 ```javascript
 var url = `${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/workflows`;
 var resp = await fetch(url, {
-   headers: { 
-      Authorization: `Bearer ${OIDC_ACCESS_TOKEN}` 
+   headers: {
+      Authorization: `Bearer ${OIDC_ACCESS_TOKEN}`,
    },
 });
 var workflows = await resp.json();
 
 console.log(workflows);
+```
+
+> Example Response:
+
+```json
+{
+   "success": true,
+   "total": 1,
+   "count": 1,
+   "workflows": [
+      {
+         "id": "work_q0yjdgdr77rdnedc",
+         "label": "Entity Setup",
+         "template_id": "flow_extg0vcffk3h9085",
+         "status": "open",
+         "created_at": "2025-10-22T19:41:06.000Z",
+         "updated_at": "2025-10-22T19:50:07.000Z"
+      }
+   ]
+}
 ```
 
 ## Start a Workflow
@@ -355,11 +431,13 @@ curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/workflows" \
 ```javascript
 var data = {
    flow_id: my_flow_id,
-   records: [{
-      role: "company",
-      id: "rec_kp9fh3354dqt255m"
-   }],
-   auto_submit: 1
+   records: [
+      {
+         role: "company",
+         id: "rec_kp9fh3354dqt255m",
+      },
+   ],
+   auto_submit: 1,
 };
 var payload = JSON.stringify(data, null, 2);
 
