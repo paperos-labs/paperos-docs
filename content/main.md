@@ -561,10 +561,13 @@ All API requests should include the API token in the Authorization header with t
 
 `Authorization: Bearer <token>`
 
-You can register a new PaperOS API key at our [developer portal](https://app.paperos.dev).
+API keys (`ppt_...`) are not self-service today — request one from your PaperOS contact,
+who will issue it scoped to your organization(s). Prefer the [OIDC Client](#oidc-client)
+flow above if you need to provision access programmatically for multiple end users.
 
 <aside class="notice">
 You must replace <code>ppt_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxcccc</code> with your personal API key.
+A token only grants access to the organization(s) it was issued for.
 </aside>
 
 ## Create ID Token
