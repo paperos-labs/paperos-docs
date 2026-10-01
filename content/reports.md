@@ -38,13 +38,13 @@ var { reports } = await resp.json();
       {
          "id": 1234,
          "slug": "capital_statement_report",
-         "name": "Capital Statement Report",
+         "name": "Capital Statements",
          "record_count": 42
       },
       {
          "id": 1235,
          "slug": "investor_list",
-         "name": "Investor List",
+         "name": "Investor Info",
          "record_count": 18
       }
    ]
@@ -88,7 +88,7 @@ var data = await resp.json();
    "report": {
       "id": 1234,
       "slug": "capital_statement_report",
-      "name": "Capital Statement Report"
+      "name": "Capital Statements"
    },
    "columns": [
       { "key": "Name", "type": "string" },
