@@ -18,6 +18,10 @@ use [Batch Uploads](#batch-uploads).
 
 ## Record Types and Fields
 
+These are introspection endpoints: use them to discover type and field names
+while you build, but don't depend on the exact response shape at runtime, as it
+may change.
+
 > `GET /api/v1/schema`
 
 ```shell

@@ -67,6 +67,9 @@ Use **staging** while you build. Data on staging is test data. Keep the base
 URL in an environment variable so switching to production is a config change,
 not a code change.
 
+Some organizations also have a sandbox, at an address like
+`https://demo.example.c.paperos.net`. Use one only if PaperOS has given it to you.
+
 # Authentication
 
 > Every request
