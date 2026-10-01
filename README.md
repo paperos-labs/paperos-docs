@@ -41,17 +41,19 @@ sets are two Hugo builds. `./config-reference.toml` overrides `contentDir`,
 
 ## Live reload
 
+The two doc sets are separate Hugo sites, so each needs its own server. Run
+them on different ports to have both up at once:
+
 ```sh
-# Quickstart
+# Quickstart (the default site) -> http://localhost:1313/
 hugo --buildDrafts server
 
-# Full reference
-hugo --buildDrafts server --config config.toml,config-reference.toml
+# Full reference -> http://localhost:1314/reference/
+hugo --buildDrafts server --config config.toml,config-reference.toml --port 1314
 ```
 
 - `baseurl` will be ignored
-- Preview will be available at:
-   - <http://localhost:1313/> (or <http://localhost:1313/reference/> for the reference)
+- The reference server serves ONLY the reference: its `/` is a 404, by design.
 - the cross-links between the two only resolve in a full `./scripts/build.sh` build
 
 # Prod Build
