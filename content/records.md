@@ -7,7 +7,11 @@ title: Records
 
 Records are the individual things in an org: investors (individuals and
 entities), investments, the org itself, and so on. Reports are views over
-records, so a report row's `id` is a record id.
+records, so each report row is a record.
+
+Record URLs take the public record id, `rec_...`: the `record_id` of a report
+row, or the `rec_id` returned when you create a record. (A report row's numeric
+`id` is not accepted here.)
 
 Use records to **add or update one thing at a time**. For many rows at once,
 use [Batch Uploads](#batch-uploads).
@@ -86,7 +90,7 @@ var records = await resp.json();
 | Parameter | Description                                               |
 | --------- | --------------------------------------------------------- |
 | `type`    | record type slug, such as `individual` (`*` for all types) |
-| `rec_ids` | comma-separated record ids, e.g. `rec_ids=17413,17414`    |
+| `rec_ids` | comma-separated record ids (`rec_...`)                    |
 
 ## Get One Record
 
@@ -106,8 +110,8 @@ var resp = await fetch(url, {
 var record = await resp.json();
 ```
 
-Returns one record, in the same shape as the list items above. Keep its
-`updated_at`; you'll send it back when you update.
+Returns one record, in the same shape as the list items above. `{rec_id}` is
+the public `rec_...` id.
 
 ## Create a Record
 
@@ -149,7 +153,6 @@ var { rec_id } = await resp.json();
 ```json
 {
    "success": true,
-   "type": "string",
    "rec_id": "rec_01hcey7qcfeeqmh1af6x3xafa2"
 }
 ```
@@ -166,7 +169,6 @@ curl -X PATCH "${PAPEROS_BASE_URL}/api/v1/orgs/${org_id}/records/${rec_id}" \
     -H "Authorization: Bearer ${PAPEROS_TOKEN}" \
     -H "Content-Type: application/json" \
     --data-raw '{
-        "updated_at": "2023-09-22T19:50:13.000Z",
         "fields": {
             "email": "jane.doe@example.com"
         }
@@ -183,7 +185,6 @@ var resp = await fetch(url, {
       "Content-Type": "application/json",
    },
    body: JSON.stringify({
-      updated_at: lastRead.updated_at,
       fields: { email: "jane.doe@example.com" },
    }),
 });
@@ -195,14 +196,14 @@ var result = await resp.json();
 ```json
 {
    "success": true,
-   "type": "[]<string>",
-   "total": 1,
-   "changes": ["email"],
-   "count": 1
+   "changes": ["email"]
 }
 ```
 
-Send only the fields you're changing. Include `updated_at` from your last read
-of the record (optimistic concurrency), so you don't silently overwrite an edit
-someone made in PaperOS in the meantime. If the update is rejected, re-read the
-record, re-apply your change, and try again.
+Body: `{ "name": "...", "fields": { "<field>": "<value>" } }`. `name` is
+optional; send only the fields you're changing.
+
+There is **no conflict check**: the last write wins, and `updated_at` is set by
+the server. If someone (or another system) may edit the record in PaperOS,
+re-read it right before patching so you don't overwrite their change with stale
+data.

@@ -109,7 +109,7 @@ app.post("/api/orgs/:orgId/sync/:report", async (req, res, next) => {
                        report_slug = EXCLUDED.report_slug,
                        last_synced_at = EXCLUDED.last_synced_at,
                        removed_upstream_at = NULL`,
-               [orgId, String(rec.id), reportSlug, rec.fields, startedAt],
+               [orgId, rec.record_id, reportSlug, rec.fields, startedAt],
             );
          }
          await db.query(

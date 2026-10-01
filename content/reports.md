@@ -90,6 +90,7 @@ var data = await resp.json();
    "records": [
       {
          "id": 98765,
+         "record_id": "rec_01hcey7qcfeeqmh1af6x3xafa2",
          "fields": {
             "investor_name": "Jane Doe",
             "total_commitment": "250000"
@@ -108,7 +109,7 @@ URL-encode names with spaces). An unknown report returns
 | `offset`           | `0`     | skip this many records                                               |
 | `limit`            | all     | return at most this many records (max `5000`)                        |
 | `reveal_sensitive` | `false` | `true` returns SSNs/EINs unmasked (default: masked to last 4)         |
-| `format`           | JSON    | `csv` downloads the report as CSV, with a leading `record_id` column |
+| `format`           | JSON    | `csv` downloads the report as CSV (columns: `record_id`, `id`, then the report's) |
 
 Things to know:
 
@@ -116,8 +117,10 @@ Things to know:
   numbers and dates yourself.
 - Document columns show `"File Uploaded"`, not the file. Use
   [Documents](#documents) for files.
-- `records[].id` is the PaperOS record id. Use it with the
-  [Records](#records) endpoints, and as the key when syncing to your database.
+- Each record has two ids. **`record_id`** (`rec_...`) is the public record
+  id: use it with the [Records](#records) endpoints and as the key when syncing
+  to your database. `id` is PaperOS's internal numeric id; it is stable, but the
+  Records endpoints don't accept it.
 - For large reports, page with `offset`/`limit` until you've read
   `record_count` records.
 - `masked_columns` lists columns whose values were masked. Avoid
@@ -143,4 +146,5 @@ var resp = await fetch(url, {
 var csvText = await resp.text();
 ```
 
-Same data as the JSON form, as a CSV file whose first column is `record_id`.
+Same data as the JSON form, as a CSV file. The columns are `record_id`, `id`,
+then the report's columns.

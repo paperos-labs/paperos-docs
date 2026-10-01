@@ -13,8 +13,9 @@ with PaperOS without duplicates or lost edits.
 - **PaperOS is the source of truth** for investor and fund records. Your
   database is a copy plus your app's own data.
 - Key every synced row by **`(org_id, paperos_record_id)`**, with a unique
-  index. Store ids as text (record ids may be numeric, like `98765`, or
-  prefixed, like `rec_...`).
+  index, where `paperos_record_id` is the public `rec_...` id (a report row's
+  `record_id`, or the `rec_id` returned on create). Store it as text. Don't key
+  on the numeric `id`; the Records endpoints don't accept it.
 - **Never store** tokens, SSNs, or EINs. Reports mask SSNs/EINs by default;
   don't pass `reveal_sensitive=true` in a sync.
 - Build against **staging** (`staging.paperos.dev`); data there is test data.
@@ -28,7 +29,7 @@ with PaperOS without duplicates or lost edits.
 CREATE TABLE paperos_records (
     id                  BIGSERIAL PRIMARY KEY,
     org_id              TEXT        NOT NULL,  -- e.g. org_01ewdx...
-    paperos_record_id   TEXT        NOT NULL,  -- records[].id from the report
+    paperos_record_id   TEXT        NOT NULL,  -- records[].record_id (rec_...)
     report_slug         TEXT        NOT NULL,  -- e.g. capital_statements
     fields              JSONB       NOT NULL,  -- records[].fields, as strings
     last_synced_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -73,7 +74,8 @@ See the [end-to-end example](#end-to-end-example) for the code.
 ## Pushing (your DB to PaperOS)
 
 **Single records:** `POST` to create, then store the returned `rec_id`
-immediately. `PATCH` to update, sending `updated_at` from your last read.
+immediately. `PATCH` to update, sending only changed fields. PATCH is last
+write wins, so re-read the record first if it may have been edited elsewhere.
 
 **Statements and other bulk data:** use a batch upload.
 
