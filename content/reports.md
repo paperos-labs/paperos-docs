@@ -37,22 +37,33 @@ var { reports } = await resp.json();
    "reports": [
       {
          "id": 1234,
-         "slug": "capital_statements",
-         "name": "Capital Statements",
+         "slug": "capital_statement_report",
+         "name": "Capital Statement Report",
          "record_count": 42
+      },
+      {
+         "id": 1235,
+         "slug": "investor_list",
+         "name": "Investor List",
+         "record_count": 18
       }
    ]
 }
 ```
 
 Lists the reports available in the org, with how many records each has.
+Which reports exist depends on the org. Slugs you will commonly see include
+`capital_statement_report`, `capital_contribution_report`,
+`distribution_report`, `investor_list`, `k1_report`, `lp_company_summary`,
+`spv_equity`, and `spv_financings`. Use the slugs this endpoint returns rather
+than hard-coding a list.
 
 ## Get Report Data
 
 > `GET /api/v1/orgs/{org_id}/reports/{report}`
 
 ```shell
-curl -G "${PAPEROS_BASE_URL}/api/v1/orgs/${org_id}/reports/capital_statements" \
+curl -G "${PAPEROS_BASE_URL}/api/v1/orgs/${org_id}/reports/capital_statement_report" \
     --data-urlencode "offset=0" \
     --data-urlencode "limit=500" \
     -H "Authorization: Bearer ${PAPEROS_TOKEN}" |
@@ -60,7 +71,7 @@ curl -G "${PAPEROS_BASE_URL}/api/v1/orgs/${org_id}/reports/capital_statements" \
 ```
 
 ```javascript
-var report = encodeURIComponent("capital_statements");
+var report = encodeURIComponent("capital_statement_report");
 var params = new URLSearchParams({ offset: 0, limit: 500 });
 var url = `${paperBase}/api/v1/orgs/${orgId}/reports/${report}?${params}`;
 var resp = await fetch(url, {
@@ -76,12 +87,17 @@ var data = await resp.json();
    "org_id": "org_01ewdxxpvgg2y19pbtbyddtvv8",
    "report": {
       "id": 1234,
-      "slug": "capital_statements",
-      "name": "Capital Statements"
+      "slug": "capital_statement_report",
+      "name": "Capital Statement Report"
    },
    "columns": [
-      { "key": "investor_name", "type": "string" },
-      { "key": "total_commitment", "type": "string" }
+      { "key": "Name", "type": "string" },
+      { "key": "Email", "type": "string" },
+      { "key": "Ownership Percentage", "type": "string" },
+      { "key": "Total Contributions", "type": "string" },
+      { "key": "Inception To Date Distributions", "type": "string" },
+      { "key": "Inception To Date Ending Balance", "type": "string" },
+      { "key": "Capital Statement Document", "type": "string" }
    ],
    "record_count": 42,
    "offset": 0,
@@ -92,8 +108,13 @@ var data = await resp.json();
          "id": 98765,
          "record_id": "rec_01hcey7qcfeeqmh1af6x3xafa2",
          "fields": {
-            "investor_name": "Jane Doe",
-            "total_commitment": "250000"
+            "Name": "Jane Doe",
+            "Email": "jane@example.com",
+            "Ownership Percentage": "12.5",
+            "Total Contributions": "250000",
+            "Inception To Date Distributions": "0",
+            "Inception To Date Ending Balance": "250000",
+            "Capital Statement Document": "File Uploaded"
          }
       }
    ]
@@ -113,6 +134,14 @@ URL-encode names with spaces). An unknown report returns
 
 Things to know:
 
+- **Field keys are the report's display labels**, exactly as shown in the
+  PaperOS table: `"Name"`, `"Email"`, `"Total Contributions"`, not
+  `name`/`total_contributions`. `columns[].key` is that same label. Labels
+  differ between reports (`investor_list` uses `"Full Legal Name"`,
+  `"Email Address"`, `"Commitment Amount"`, `"SSN/EIN"`, `"Signatory Name"`;
+  `distribution_report` uses `"Name"`, `"Amount"`, `"Distribution Date"`,
+  `"Email"`). Map the labels you need to your own column names explicitly, and
+  tolerate a missing key: labels can be renamed in PaperOS.
 - **Values are strings**, exactly as stored (`"250000"`, not `250000`). Parse
   numbers and dates yourself.
 - Document columns show `"File Uploaded"`, not the file. Use
@@ -132,14 +161,14 @@ Things to know:
 > `GET /api/v1/orgs/{org_id}/reports/{report}?format=csv`
 
 ```shell
-curl -G "${PAPEROS_BASE_URL}/api/v1/orgs/${org_id}/reports/capital_statements" \
+curl -G "${PAPEROS_BASE_URL}/api/v1/orgs/${org_id}/reports/capital_statement_report" \
     --data-urlencode "format=csv" \
     -H "Authorization: Bearer ${PAPEROS_TOKEN}" \
-    -o capital_statements.csv
+    -o capital_statement_report.csv
 ```
 
 ```javascript
-var url = `${paperBase}/api/v1/orgs/${orgId}/reports/capital_statements?format=csv`;
+var url = `${paperBase}/api/v1/orgs/${orgId}/reports/capital_statement_report?format=csv`;
 var resp = await fetch(url, {
    headers: { Authorization: `Bearer ${token}` },
 });

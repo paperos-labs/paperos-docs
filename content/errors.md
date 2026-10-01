@@ -11,8 +11,8 @@ title: Errors
 {
    "status": 400,
    "code": "MISSING_COLUMNS",
-   "message": "missing required columns",
-   "missing": ["investor.email"]
+   "message": "The CSV is missing required columns for this batch type.",
+   "missing": ["Investor.email"]
 }
 ```
 
@@ -23,10 +23,11 @@ on `message`.
 | Status | `code`                  | Meaning and what to do                                                                |
 | ------ | ----------------------- | ------------------------------------------------------------------------------------- |
 | 400    | `MISSING_COLUMNS`       | CSV lacks required columns; see `missing`. Fix the header row.                        |
+| 400    | `BLANK_REQUIRED_VALUES` | A required column is empty in some rows; see `blanks` (`line`, `column`; up to 50). Fill them in. Dry run catches it. |
 | 400    | `UNKNOWN_BATCH_TYPE`    | Not a valid batch type; see `batch_types`.                                            |
 | 400    | `EMPTY_CSV`             | The CSV has no data rows.                                                             |
 | 400    | `INVALID_CSV`           | The CSV couldn't be parsed (check quoting and line endings).                          |
-| 401    | `UNAUTHORIZED`          | Token missing or expired. Have the browser reload so the SSO gate refreshes it.       |
+| 401    | `UNAUTHORIZED`          | Token missing, malformed, expired, or invalid. Have the browser reload so the SSO gate refreshes it. |
 | 404    | `ORG_NOT_FOUND`         | The org doesn't exist or this user can't access it.                                   |
 | 404    | `REPORT_NOT_FOUND`      | No such report; see `available` for report names.                                     |
 | 409    | `BATCH_PROJECT_MISSING` | The org isn't set up for this batch type yet. Contact PaperOS.                        |

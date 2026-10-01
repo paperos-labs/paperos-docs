@@ -19,6 +19,15 @@ The flow is always the same:
 3. **dry run** it (validates, writes nothing)
 4. **upload** it once
 
+<aside class="warning">
+<strong>Capital statement uploads can email investors.</strong> The
+<code>capital_statements</code> template requires an
+<code>Investor.send_email_yes_or_no</code> column. <code>Yes</code> emails each
+investor their generated statement as part of the upload. Use <code>No</code>
+for testing and prototypes; only send <code>Yes</code> when you actually intend
+to notify those investors.
+</aside>
+
 | Type                    | Use it for                                         |
 | ----------------------- | -------------------------------------------------- |
 | `capital_statements`    | investor capital statements (PDFs are generated)   |
@@ -87,13 +96,25 @@ var headers = template.columns.map((c) => c.header);
 {
    "type": "capital_statements",
    "columns": [
-      { "header": "investor.email", "required": true }
+      { "header": "Capital Statement.name", "required": true },
+      { "header": "Capital Statement.period_ending_date", "required": true },
+      { "header": "Investor.name", "required": true },
+      { "header": "Investor.email", "required": true },
+      { "header": "Investor.send_email_yes_or_no", "required": true }
    ]
 }
 ```
 
-Returns the CSV columns for a batch type. Headers look like
-`resource_var.field_name` (for example `investor.email`).
+Returns the CSV columns for a batch type. Headers are the resource label, a
+dot, and the field (for example `Capital Statement.period_ending_date`,
+`Investor.name`, `Investor.email`). The example above is abridged; always build
+from the template the endpoint returns.
+
+**Matching investors:** rows are matched to existing investors by **name and
+email**. Send the investor's name and email exactly as they appear in the
+`investor_list` report (`"Full Legal Name"` and `"Email Address"`). A name that
+doesn't match (or is blank) creates a new, duplicate investor instead of
+attaching the row to the existing one.
 
 Build your CSV header row from the `header` values, in order. Add
 `?format=csv` to download a header-only CSV instead (handy as a spreadsheet
@@ -139,7 +160,13 @@ var check = await resp.json();
    "dry_run": true,
    "type": "capital_statements",
    "rows": 12,
-   "columns": ["investor.email"],
+   "columns": [
+      "Capital Statement.name",
+      "Capital Statement.period_ending_date",
+      "Investor.name",
+      "Investor.email",
+      "Investor.send_email_yes_or_no"
+   ],
    "missing": []
 }
 ```
@@ -150,13 +177,31 @@ var check = await resp.json();
 {
    "status": 400,
    "code": "MISSING_COLUMNS",
-   "message": "missing required columns",
-   "missing": ["investor.email"]
+   "message": "The CSV is missing required columns for this batch type.",
+   "missing": ["Investor.email"],
+   "template_url": "/api/v1/orgs/org_01ewdxxpvgg2y19pbtbyddtvv8/batch-types/capital_statements/template"
+}
+```
+
+> Example Error (400), a required value left empty:
+
+```json
+{
+   "status": 400,
+   "code": "BLANK_REQUIRED_VALUES",
+   "message": "Some rows leave required columns empty. Fill them in or drop those rows.",
+   "blanks": [{ "line": 2, "column": "Investor.name" }]
 }
 ```
 
 Validates without writing anything: checks the type, that the CSV parses, that
-required columns are present, and counts rows. **Always dry run first.**
+required columns are present, that no row leaves a required column empty, and
+counts rows. **Always dry run first.**
+
+`BLANK_REQUIRED_VALUES` means a required column is in the header but empty in
+one or more rows. `blanks` lists each `line` (CSV line number, header is line 1)
+and `column`, up to 50 entries. Fill them in and dry run again. (Left
+unchecked, a blank `Investor.name` would create a nameless duplicate investor.)
 
 ## Upload a Batch
 
@@ -214,9 +259,16 @@ Send the CSV either way:
 | `file_name` |         | name to record for the file (raw CSV form only)      |
 | `dry_run`   | `false` | `true` validates only; nothing is written            |
 
-Limits and checks: max **5 MB**; unknown type, empty CSV, or missing required
-columns return `400`. Check `failed_lines` and `warnings` in the response, and
+Limits and checks: max **5 MB**; unknown type, empty CSV, missing required
+columns (`MISSING_COLUMNS`), or blank required values (`BLANK_REQUIRED_VALUES`)
+return `400`, the same checks as the dry run. Check `failed_lines` and `warnings` in the response, and
 open `batch_url` to see the batch in PaperOS.
+
+**Uploads are slow; set a long timeout.** The request returns only after
+PaperOS has created the records and generated the PDFs. On staging a one-row
+capital statement upload took about 7 seconds; larger batches take
+proportionally longer. Give the `POST` a client timeout of several minutes
+(for example 10), and make sure any proxy in front of your backend allows it.
 
 <aside class="warning">
 <strong>Uploads are NOT idempotent.</strong> Posting the same CSV twice creates

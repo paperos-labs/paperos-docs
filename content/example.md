@@ -29,6 +29,26 @@ const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
 const app = express();
 app.use(express.json({ limit: "5mb" }));
 
+// Report fields are keyed by display label ("Name", "Total Contributions", ...).
+// Map the labels you use to your own names in one place; labels can be renamed
+// in PaperOS, so a missing label becomes null instead of an error.
+const CAPITAL_STATEMENT_FIELDS = {
+   name: "Name",
+   email: "Email",
+   ownership_pct: "Ownership Percentage",
+   total_contributions: "Total Contributions",
+   itd_distributions: "Inception To Date Distributions",
+   itd_ending_balance: "Inception To Date Ending Balance",
+};
+
+function pickFields(fields, mapping) {
+   const out = {};
+   for (const [col, label] of Object.entries(mapping)) {
+      out[col] = fields?.[label] ?? null;
+   }
+   return out;
+}
+
 // Call the Developer API as the signed-in user.
 // The token is read per request and never stored or logged.
 async function paperos(req, path, init = {}) {
@@ -39,6 +59,9 @@ async function paperos(req, path, init = {}) {
    const resp = await fetch(`${PAPEROS_BASE_URL}${path}`, {
       ...init,
       headers: { ...init.headers, Authorization: `Bearer ${token}` },
+      // Batch uploads generate PDFs before returning (~7s for one row, longer
+      // for bigger batches), so allow several minutes.
+      signal: init.signal ?? AbortSignal.timeout(10 * 60 * 1000),
    });
    const type = resp.headers.get("content-type") || "";
    const body = type.includes("json") ? await resp.json() : await resp.text();
@@ -54,8 +77,9 @@ async function paperos(req, path, init = {}) {
 ```
 
 `paperos()` reads the `X-Auth-Request-Access-Token` header on every request,
-calls PaperOS from the backend, and turns error responses into exceptions that
-carry `status` and `code`.
+calls PaperOS from the backend with a generous timeout, and turns error
+responses into exceptions that carry `status` and `code`. `pickFields()` turns
+a report record's label-keyed `fields` into your own column names.
 
 ## Pull a Report Into Postgres
 
@@ -132,6 +156,26 @@ app.post("/api/orgs/:orgId/sync/:report", async (req, res, next) => {
       next(err);
    }
 });
+
+// GET /api/orgs/:orgId/capital-statements -> synced rows in your own shape
+app.get("/api/orgs/:orgId/capital-statements", async (req, res, next) => {
+   try {
+      const { rows } = await pool.query(
+         `SELECT paperos_record_id, fields FROM paperos_records
+           WHERE org_id = $1 AND report_slug = 'capital_statement_report'
+             AND removed_upstream_at IS NULL`,
+         [req.params.orgId],
+      );
+      res.json(
+         rows.map((r) => ({
+            paperos_record_id: r.paperos_record_id,
+            ...pickFields(r.fields, CAPITAL_STATEMENT_FIELDS),
+         })),
+      );
+   } catch (err) {
+      next(err);
+   }
+});
 ```
 
 Use the same `org_id` form (public `org_xxx` id) everywhere you store it, so
@@ -153,8 +197,11 @@ function toCsv(headers, rows) {
 }
 
 // POST /api/orgs/:orgId/statements
-// body: { file_name, rows: [{ "investor.email": "...", ... }] }
+// body: { file_name, rows: [{ "Investor.name": "...", "Investor.email": "...", ... }] }
 // Each row's keys are template headers; map your bank/accounting data to them first.
+// Use each investor's "Full Legal Name" / "Email Address" from investor_list exactly,
+// or the upload creates a duplicate investor. Investor.send_email_yes_or_no = "Yes"
+// emails investors their statements: keep it "No" while testing.
 app.post("/api/orgs/:orgId/statements", async (req, res, next) => {
    const { orgId } = req.params;
    const type = "capital_statements";
@@ -188,7 +235,8 @@ app.post("/api/orgs/:orgId/statements", async (req, res, next) => {
          body: JSON.stringify({ type, file_name: fileName, csv }),
       });
 
-      // 3. dry run: validates, writes nothing (MISSING_COLUMNS etc. throw here)
+      // 3. dry run: validates, writes nothing
+      //    (MISSING_COLUMNS, BLANK_REQUIRED_VALUES etc. throw here)
       const check = await paperos(req, `${base}/batches?dry_run=true`, payload());
       await pool.query(
          `UPDATE batch_uploads SET row_count = $2, status = 'submitted',
@@ -245,6 +293,7 @@ app.use((err, req, res, next) => {
       code: err.code || "INTERNAL",
       message: err.message,
       ...(err.body?.missing && { missing: err.body.missing }),
+      ...(err.body?.blanks && { blanks: err.body.blanks }),
    });
 });
 

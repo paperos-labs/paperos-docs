@@ -125,7 +125,8 @@ Tokens expire after about **1 hour**. The SSO gate refreshes the browser
 session roughly every 55 minutes, so:
 
 - read the header **on every request**; don't cache the token
-- if PaperOS returns `401 UNAUTHORIZED`, return 401 to your frontend and have
+- if PaperOS returns `401 UNAUTHORIZED` (missing, malformed, expired, or
+  invalid token), return 401 to your frontend and have
   it reload the page, so the SSO gate refreshes the session, then try again
 
 Because you must not store the token, run syncs while handling a user request

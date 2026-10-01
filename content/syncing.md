@@ -30,8 +30,8 @@ CREATE TABLE paperos_records (
     id                  BIGSERIAL PRIMARY KEY,
     org_id              TEXT        NOT NULL,  -- e.g. org_01ewdx...
     paperos_record_id   TEXT        NOT NULL,  -- records[].record_id (rec_...)
-    report_slug         TEXT        NOT NULL,  -- e.g. capital_statements
-    fields              JSONB       NOT NULL,  -- records[].fields, as strings
+    report_slug         TEXT        NOT NULL,  -- e.g. capital_statement_report
+    fields              JSONB       NOT NULL,  -- records[].fields, keyed by display label
     last_synced_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
     removed_upstream_at TIMESTAMPTZ,           -- set when missing from a full pull
     UNIQUE (org_id, paperos_record_id)
@@ -59,6 +59,12 @@ CREATE TABLE batch_uploads (
 These are starting points; add your own columns (for example, typed copies of
 the fields you query often).
 
+Report `fields` are keyed by the report's **display labels** (`"Name"`,
+`"Email"`, `"Total Contributions"`, ...), not snake_case. When you copy values
+into typed columns, map each label to your own column name explicitly in one
+place, and treat a missing label as "no value" rather than an error: labels can
+be renamed in PaperOS.
+
 ## Pulling (PaperOS to your DB)
 
 1. Fetch the report (page with `offset`/`limit` until you have
@@ -79,11 +85,17 @@ write wins, so re-read the record first if it may have been edited elsewhere.
 
 **Statements and other bulk data:** use a batch upload.
 
-1. Build the CSV from the [template](#get-a-template) headers.
+1. Build the CSV from the [template](#get-a-template) headers. Use each
+   investor's name and email exactly as `investor_list` has them
+   (`"Full Legal Name"`, `"Email Address"`) so rows match existing investors,
+   and set `Investor.send_email_yes_or_no` to `No` unless you mean to email
+   them.
 2. Hash the CSV and insert a `batch_uploads` row (`pending`). If the unique
    constraint fails, this exact CSV was already sent; stop.
-3. [Dry run](#dry-run). Fix any `MISSING_COLUMNS` before going on.
-4. `POST` it **once**. Save `file_id`, `batch_url`, `failed_lines`, and
+3. [Dry run](#dry-run). Fix any `MISSING_COLUMNS` or `BLANK_REQUIRED_VALUES`
+   before going on.
+4. `POST` it **once**, with a client timeout of several minutes (PDFs are
+   generated before it returns). Save `file_id`, `batch_url`, `failed_lines`, and
    `warnings`, and mark the row `succeeded`.
 5. If the POST errored or timed out, mark the row `unknown` and **don't
    retry**. Check the report or `batch_url` to see whether it landed.
