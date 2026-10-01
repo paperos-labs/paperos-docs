@@ -1,56 +1,147 @@
 ---
-weight: 1200
+weight: 1400
 title: Records
 ---
 
 # Records
 
-Records are the collections of data that can be both the result of form
-submissions, and made available for autofill selection to future forms.
+Records are the individual things in an org: investors (individuals and
+entities), investments, the org itself, and so on. Reports are views over
+records, so a report row's `id` is a record id.
 
-## Create One
+Use records to **add or update one thing at a time**. For many rows at once,
+use [Batch Uploads](#batch-uploads).
 
-> `POST /api/v1/orgs/:org_id/records`
+## Record Types and Fields
+
+> `GET /api/v1/schema`
 
 ```shell
-curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/records" \
-    -X 'POST' \
-    -H "Authorization: Bearer ${OIDC_ACCESS_TOKEN}" \
-    -H 'Content-Type: application/json' \
-    --data-raw '{
-      "type": "indv",
+curl -s "${PAPEROS_BASE_URL}/api/v1/schema" |
+    jq -r '.record_types[].type'
+```
+
+```javascript
+var resp = await fetch(`${paperBase}/api/v1/schema`);
+var { record_types } = await resp.json();
+```
+
+> `GET /api/v1/schema/{type}`
+
+```shell
+curl -s "${PAPEROS_BASE_URL}/api/v1/schema/individual" |
+    jq -r '.field_types[].type'
+```
+
+```javascript
+var resp = await fetch(`${paperBase}/api/v1/schema/individual`);
+var { field_types } = await resp.json();
+```
+
+Lists record types, and the fields each type has. Use these to find the
+`type` and `fields` keys for creating and updating records.
+
+## List Records
+
+> `GET /api/v1/orgs/{org_id}/records?type={type_slug}`
+
+```shell
+curl -G "${PAPEROS_BASE_URL}/api/v1/orgs/${org_id}/records" \
+    --data-urlencode "type=individual" \
+    -H "Authorization: Bearer ${PAPEROS_TOKEN}" |
+    jq
+```
+
+```javascript
+var params = new URLSearchParams({ type: "individual" });
+var url = `${paperBase}/api/v1/orgs/${orgId}/records?${params}`;
+var resp = await fetch(url, {
+   headers: { Authorization: `Bearer ${token}` },
+});
+var records = await resp.json();
+```
+
+> Example Response:
+
+```json
+[
+   {
+      "id": 17413,
       "name": "Jane Doe",
-      "fields": {
-        "title": "master painter",
-        "email": "jane@jane.doe",
-        "is_board_director": "1"
+      "resource_type_id": 1,
+      "account_id": 97,
+      "created_at": "2023-09-22T19:50:13.000Z",
+      "updated_at": "2023-09-22T19:50:13.000Z",
+      "finalized": 0,
+      "archived": 0,
+      "is_draft": 0,
+      "features": {
+         "name": "Jane Doe",
+         "email": "jane@example.com"
       }
+   }
+]
+```
+
+| Parameter | Description                                               |
+| --------- | --------------------------------------------------------- |
+| `type`    | record type slug, such as `individual` (`*` for all types) |
+| `rec_ids` | comma-separated record ids, e.g. `rec_ids=17413,17414`    |
+
+## Get One Record
+
+> `GET /api/v1/orgs/{org_id}/records/{rec_id}`
+
+```shell
+curl "${PAPEROS_BASE_URL}/api/v1/orgs/${org_id}/records/${rec_id}" \
+    -H "Authorization: Bearer ${PAPEROS_TOKEN}" |
+    jq
+```
+
+```javascript
+var url = `${paperBase}/api/v1/orgs/${orgId}/records/${recId}`;
+var resp = await fetch(url, {
+   headers: { Authorization: `Bearer ${token}` },
+});
+var record = await resp.json();
+```
+
+Returns one record, in the same shape as the list items above. Keep its
+`updated_at`; you'll send it back when you update.
+
+## Create a Record
+
+> `POST /api/v1/orgs/{org_id}/records`
+
+```shell
+curl -X POST "${PAPEROS_BASE_URL}/api/v1/orgs/${org_id}/records" \
+    -H "Authorization: Bearer ${PAPEROS_TOKEN}" \
+    -H "Content-Type: application/json" \
+    --data-raw '{
+        "type": "individual",
+        "name": "Jane Doe",
+        "fields": {
+            "email": "jane@example.com"
+        }
     }' |
     jq
 ```
 
 ```javascript
-var data = {
-   type: "indv",
-   name: "Jane Doe",
-   fields: {
-      title: "master painter",
-      email: "jane@jane.doe",
-      is_board_director: "1",
-   },
-};
-var payload = JSON.stringify(data, null, 2);
-
-var url = `${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/records`;
+var url = `${paperBase}/api/v1/orgs/${orgId}/records`;
 var resp = await fetch(url, {
    method: "POST",
    headers: {
-      Authorization: `Bearer ${OIDC_ACCESS_TOKEN}`,
+      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
    },
-   body: payload,
+   body: JSON.stringify({
+      type: "individual",
+      name: "Jane Doe",
+      fields: { email: "jane@example.com" },
+   }),
 });
-var recordInfo = await resp.json();
+var { rec_id } = await resp.json();
 ```
 
 > Example Response:
@@ -63,226 +154,40 @@ var recordInfo = await resp.json();
 }
 ```
 
-Create a new record belonging to this organization.
+**Store the returned `rec_id` in your database immediately**, so a retry
+doesn't create a second record.
 
-`POST /api/v1/orgs/{my_org_id}/records`
+## Update a Record
 
-### Record Types
-
-Below is a small subset of our record types, reach out for a tailored list fitting your needs.
-
-<!--
-    SELECT
-        CONCAT("`", `slug`, "`") AS Slug,
-        CONCAT("`", `code`, "`") AS Code
-    FROM `resource_type`
-    ORDER BY `slug`;
--->
-
-| Slug            | Code      |
-| --------------- | --------- |
-| `activity`      | `acty`    |
-| `annual_report` | `ann_rpt` |
-| `contract`      | `k`       |
-| `doc`           | `doc`     |
-| `equity`        | `eq`      |
-| `equity_class`  | `eq_cl`   |
-| `financing`     | `fin`     |
-| `individual`    | `indv`    |
-| `investment`    | `invt`    |
-| `ip`            | `ip`      |
-| `legal_audit`   | `lgl_adt` |
-| `org`           | `org`     |
-| `pii`           | `pii`     |
-| `questionnaire` | `qre`     |
-| `state`         | `st`      |
-| `task`          | `task`    |
-| `tax_filing`    | `tax`     |
-| `tos`           | `tos`     |
-
-<!-- | `benefit_plan`   | `benf`      | -->
-<!-- | `counsel`        | `cnsl`      | -->
-<!-- | `equity_plan`    | `eq_plan`   | -->
-<!-- | `ext_entity`     | `ext_enty`  | -->
-<!-- | `financials`     | `fins`      | -->
-<!-- | `npo`            | `npo`       | -->
-<!-- | `org_history`    | `org_hx`    | -->
-<!-- | `qtly_finacials` | `qtly_fins` | -->
-<!-- | `secretary`      | `secy`      | -->
-<!-- | `security`       | `sec`       | -->
-
-## List All by Type
-
-> `GET /api/v1/orgs/{org_id}/records?type={type_slug}`
+> `PATCH /api/v1/orgs/{org_id}/records/{rec_id}`
 
 ```shell
-curl -G "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/records" \
-  --data-urlencode "type=org" \
-  -H "Authorization: Bearer ${OIDC_ACCESS_TOKEN}" |
-  jq
-```
-
-```javascript
-var params = { type: "org" };
-var search = new URLSearchParams(params).toString();
-var url = `${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/records?${search}`;
-var resp = await fetch(url, {
-   headers: {
-      Authorization: `Bearer ${OIDC_ACCESS_TOKEN}`,
-   },
-});
-var resInfos = await resp.json();
-```
-
-> Example Response:
-
-```json
-[
-   {
-      "id": 5617,
-      "name": "Test 1",
-      "resource_type_id": 2,
-      "account_id": 97,
-      "created_at": "2021-01-19T18:18:49.000Z",
-      "updated_at": "2021-01-19T18:18:49.000Z",
-      "finalized": 0,
-      "archived": 0,
-      "is_draft": 0,
-      "features": {
-         "name": "Test 1"
-      }
-   },
-   {
-      "id": 17413,
-      "name": "Bob the Builder",
-      "resource_type_id": 1,
-      "account_id": 97,
-      "created_at": "2023-09-22T19:50:13.000Z",
-      "updated_at": "2023-09-22T19:50:13.000Z",
-      "finalized": 0,
-      "archived": 0,
-      "is_draft": 0,
-      "features": {
-         "name": "Bob the Builder",
-         "signatory_name": "Bob the Builder",
-         "first_name": "Bob",
-         "last_name": "Builder",
-         "middle_name": "the",
-         "title": "master builder",
-         "email": "bob@bobbuild.bob",
-         "employee_documents_list": "All of the above",
-         "upload_or_generate": "Generate"
-      }
-   }
-]
-```
-
-Records are scoped to a specific account.
-
-TODO don't allow creating completely empty entities
-
-| Query     | Description                                                       |
-| --------- | ----------------------------------------------------------------- |
-| `type`    | the record type slug, such as `individual` or `org` (`*` for any) |
-| `rec_id`  | a single record ids (begins with `rec_`)                          |
-| `rec_ids` | a comma-separated list of record ids (begin with `rec_`)          |
-| `since`   | an ISO timestamp of the last record received (second resolution)  |
-| `limit`   | return only `n` records                                           |
-
-## Get One by ID
-
-> `GET /api/v1/orgs/:org_id/records/:rec_id`
-
-```shell
-my_rec_id='17413'
-
-curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/records/${my_rec_id}" \
-  -H "Authorization: Bearer ${OIDC_ACCESS_TOKEN}" |
-  jq
-```
-
-```javascript
-var myRecId = "17413";
-
-var url = `${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/records/${myRecId}`;
-var resp = await fetch(url, {
-   headers: {
-      Authorization: `Bearer ${OIDC_ACCESS_TOKEN}`,
-   },
-});
-var recordInfo = await resp.json();
-```
-
-> Example Response:
-
-```json
-{
-   "id": 17413,
-   "name": "Bob the Builder",
-   "resource_type_id": 1,
-   "account_id": 97,
-   "created_at": "2023-09-22T19:50:13.000Z",
-   "updated_at": "2023-09-22T19:50:13.000Z",
-   "finalized": 0,
-   "archived": 0,
-   "is_draft": 0,
-   "features": {
-      "name": "Bob the Builder",
-      "signatory_name": "Bob the Builder",
-      "first_name": "Bob",
-      "last_name": "Builder",
-      "middle_name": "the",
-      "title": "master builder",
-      "email": "bob@bobbuild.bob",
-      "employee_documents_list": "All of the above",
-      "upload_or_generate": "Generate"
-   }
-}
-```
-
-Show details for a resource by its ID.
-
-## Update One by ID
-
-> `PATCH /api/v1/orgs/:org_id/records/:rec_id`
-
-```shell
-my_rec_id='5617'
-
-curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/records/${my_rec_id}" \
-    -X 'PATCH' \
-    -H "Authorization: Bearer ${OIDC_ACCESS_TOKEN}" \
-    -H 'Content-Type: application/json' \
+curl -X PATCH "${PAPEROS_BASE_URL}/api/v1/orgs/${org_id}/records/${rec_id}" \
+    -H "Authorization: Bearer ${PAPEROS_TOKEN}" \
+    -H "Content-Type: application/json" \
     --data-raw '{
-      "fields": {
-        "title": "Product Manager",
-        "email": "john2@john.doe",
-      }
+        "updated_at": "2023-09-22T19:50:13.000Z",
+        "fields": {
+            "email": "jane.doe@example.com"
+        }
     }' |
     jq
 ```
 
 ```javascript
-var myRecId = "5617";
-
-var data = {
-   fields: {
-      title: "Product Manager",
-      email: "john2@john.doe",
-   },
-};
-var payload = JSON.stringify(data, null, 2);
-
-var url = `${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/records/${myRecId}`;
+var url = `${paperBase}/api/v1/orgs/${orgId}/records/${recId}`;
 var resp = await fetch(url, {
    method: "PATCH",
    headers: {
-      Authorization: `Bearer ${OIDC_ACCESS_TOKEN}`,
+      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
    },
-   body: payload,
+   body: JSON.stringify({
+      updated_at: lastRead.updated_at,
+      fields: { email: "jane.doe@example.com" },
+   }),
 });
-var resInfo = await resp.json();
+var result = await resp.json();
 ```
 
 > Example Response:
@@ -291,10 +196,13 @@ var resInfo = await resp.json();
 {
    "success": true,
    "type": "[]<string>",
-   "total": 2,
-   "changes": ["title", "email"],
-   "count": 2
+   "total": 1,
+   "changes": ["email"],
+   "count": 1
 }
 ```
 
-Update the properties of an existing resource
+Send only the fields you're changing. Include `updated_at` from your last read
+of the record (optimistic concurrency), so you don't silently overwrite an edit
+someone made in PaperOS in the meantime. If the update is rejected, re-read the
+record, re-apply your change, and try again.

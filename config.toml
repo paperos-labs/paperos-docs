@@ -1,6 +1,6 @@
 languageCode = "en-us"
 baseurl = "https://dev.paperos.com/"
-title = "PaperOS Developer API"
+title = "PaperOS Developer API — Quickstart"
 
 disableKinds = ["taxonomy"]
 
@@ -56,11 +56,12 @@ name = "JavaScript"
 [languages.en]
 languageName = "English"
 weight = 2
-title = "PaperOS Developer API"
+title = "PaperOS Developer API — Quickstart"
 
 [languages.en.params]
 # Left sidebar footer items. Use HTMl or Markdown.
 toc_footers = [
+"<a href='/reference/'>Full API Reference &rarr;</a>",
 "<a href='https://app.paperos.com' target='_blank'>Sign Up for a Developer Key</a>",
 "Documentation Powered by [DocuAPI](https://github.com/bep/docuapi)",
 ]
