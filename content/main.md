@@ -33,10 +33,13 @@ route, ask us to add it to the Developer API.
 ## How a typical integration looks
 
 1. Your app is deployed on the PaperOS deploy platform, behind PaperOS SSO.
-2. A signed-in user loads a page; the SSO gate forwards their PaperOS access
-   token to **your backend** in a request header.
-3. Your backend calls the Developer API with that token, scoped to one org.
-4. Your backend stores what it needs in your own Postgres database.
+2. A signed-in user loads a page; the SSO gate forwards their **OAuth access
+   token** to **your backend** in a request header.
+3. Your backend sends that token to a Developer API URL naming the user's
+   selected PaperOS workspace. PaperOS checks their access and obtains an
+   account-scoped token internally.
+4. The API returns the requested data, such as reports. Your backend returns
+   only the data your UI needs and, if needed, stores it in your database.
 
 The browser never sees the token, and never calls PaperOS directly.
 
@@ -99,13 +102,32 @@ curl "${PAPEROS_BASE_URL}/api/v1/orgs?updated_since=0" \
     jq
 ```
 
-There is **one rule**: send `Authorization: Bearer <token>`, where the token is
-any PaperOS user token.
-
 When your app runs behind PaperOS SSO on the deploy platform, the SSO gate
-forwards the signed-in user's PaperOS access token to your app backend in the
+forwards the signed-in user's **OAuth access token** to your app backend in the
 **`X-Auth-Request-Access-Token`** request header. Read it, and pass it on as the
-Bearer token.
+Bearer token. This identifies the user; it does **not** select a PaperOS workspace.
+
+The gate does not forward the ID token or refresh token to your app. Your backend
+does not need to convert the OAuth token into an ID token before using the API.
+
+## Which token is which?
+
+| Token | What it represents | Default lifetime |
+| --- | --- | --- |
+| OAuth access token | The signed-in user in the OAuth flow. This is what the SSO gate forwards. | 1 hour |
+| PaperOS ID token | The user's identity, without choosing an account. Also accepted as a user token by these APIs. | 24 hours |
+| PaperOS access token without an account | A user token returned by the internal exchange when no account is selected. It does not grant extra workspace access compared with the ID token. | 1 hour |
+| Account-scoped PaperOS access token | A token containing a selected account after membership is checked. | 1 hour |
+
+The response field name `access_token` alone does not tell you which of these
+flows issued it. The token without an account still needs account scoping to
+operate on workspace data, just like the ID token; the data API can perform that
+step internally. None of these tokens grants membership the user does not have.
+
+A refresh token renews the OAuth session. It is not an API bearer token and is
+not forwarded to your app. The client-ID/client-secret authentication in the
+[full reference](/reference/#authentication) is a separate integration model,
+not a prerequisite for using the SSO gate's token.
 
 <aside class="notice">
 If your app was deployed before this header was added, re-enable the SSO gate
@@ -113,24 +135,43 @@ If your app was deployed before this header was added, re-enable the SSO gate
 it starts forwarding the token.
 </aside>
 
-## Org scoping is automatic
+<span id="org-scoping-is-automatic"></span>
 
-For every `/api/v1/orgs/{org_id}/...` route, PaperOS checks that the user can
-access that org and scopes the call to it. There is no separate
-"workspace token" step.
+## Selecting a workspace
 
-`{org_id}` accepts the org's public id (`org_xxx`) or its numeric id. Get the
-list of orgs the user can access from [`GET /api/v1/orgs`](#orgs).
+Use the original user-level token from the gate and put the selected workspace
+in `/api/v1/orgs/{org_id}/...`. PaperOS checks membership and exchanges to an
+account-scoped token internally before handling the request. You do not need to
+make that exchange yourself. A PaperOS ID token follows the same user-level path.
+
+Use a public org ID (`org_...`) returned by [`GET /api/v1/orgs`](#orgs). Here
+**org**, **workspace**, and **account** refer to the PaperOS data context, not a
+GitHub organization. `account_id` is its internal numeric ID. Numeric IDs are
+accepted by some routes, but not consistently across the API.
+
+### Data requests return data; token requests return tokens
+
+| Request | Response |
+| --- | --- |
+| `GET /api/v1/orgs/{org_id}/reports` | The workspace's available reports. |
+| `GET /api/v1/orgs/{org_id}/reports/{report}` | The requested report's data. |
+| `POST /api/v1/orgs/{org_id}/access-token` | An account-scoped access token and metadata, **not** report data or an ID token. |
+
+Putting an org ID in a reports URL does not turn the response into a token.
+Token exchange is an internal step on the way to the report data. See the
+[current limitations](#current-workspace-scoping-limitations) before reusing an
+already account-scoped token.
 
 ## Token expiry
 
-Tokens expire after about **1 hour**. The SSO gate refreshes the browser
-session roughly every 55 minutes, so:
+The gate's OAuth access token normally expires after **1 hour**. The gate is
+configured to attempt session renewal on requests after about 55 minutes; this
+is not a guarantee that every browser session renews successfully. So:
 
 - read the header **on every request**; don't cache the token
 - if PaperOS returns `401 UNAUTHORIZED` (missing, malformed, expired, or
-  invalid token), return 401 to your frontend and have
-  it reload the page, so the SSO gate refreshes the session, then try again
+  invalid token), return 401 to your frontend and send the user back through
+  sign-in if session renewal fails; do not retry in an endless reload loop
 
 Because you must not store the token, run syncs while handling a user request
 (for example a "Sync now" button, or on page load).
@@ -149,7 +190,9 @@ Because you must not store the token, run syncs while handling a user request
 - write the token to logs, error trackers, or your database
 - store SSNs or EINs (reports mask them by default; leave it that way)
 
-## Optional: org-bound access token
+<span id="optional-org-bound-access-token"></span>
+
+## Optional: account-scoped access token
 
 > `POST /api/v1/orgs/{org_id}/access-token`
 
@@ -172,7 +215,7 @@ var orgToken = await resp.json();
 
 ```json
 {
-   "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJ...",
+   "access_token": "<ACCOUNT_ACCESS_TOKEN>",
    "token_type": "Bearer",
    "expires_in": 3600,
    "org_id": "org_01ewdxxpvgg2y19pbtbyddtvv8",
@@ -180,6 +223,31 @@ var orgToken = await resp.json();
 }
 ```
 
-You don't need this for normal use; automatic org scoping covers it. It is
-there for clients that want a token bound to a single org. Treat the returned
-token exactly like the user token: backend only, never stored.
+The workspace is selected by the URL; no `account_id` body is needed. The
+response includes only the account access token and metadata, **not** an
+`id_token`. `expires_in` is the remaining lifetime, which can be less than 3600
+if the server reuses an existing token.
+
+You don't need this call for normal data requests with the gate's user token.
+If you use it, send the resulting token only to URLs for the same workspace.
+Keep it backend-only, never logged or stored. Do not treat its account claim as
+a guarantee that it cannot be exchanged for another workspace the user can access.
+
+## Current workspace-scoping limitations
+
+Source review of the server's staging revision `f1ede6e07` on October 2, 2026
+found these differences between endpoint families. These are documented
+limitations, not fixes or a claim of live endpoint testing:
+
+- **Records:** an already account-scoped token can retain its original account
+  even when the URL names a different workspace. A request intended for B may
+  read or write A. Use the original user-level token from the gate, or a token
+  whose account matches the URL.
+- **Reports, batches, and the access-token endpoint:** an already scoped token
+  may be exchanged for the workspace in the URL if the user has access there.
+  An account-scoped token is not an exclusive delegation boundary.
+- **Get one org:** this route looks up the public `org_...` ID, unlike newer
+  routes that also accept numeric account IDs. Use public IDs from List Orgs.
+
+These differences do not remove the membership requirement. Do not rely on
+cross-workspace token reuse behaving the same way across all endpoints.

@@ -517,7 +517,21 @@ var resp = await fetch(url, {
 
 # Authentication
 
-Access Tokens can be created with your OIDC ID and Secret.
+This reference describes the **registered OIDC client** integration: your
+backend uses its client ID and secret to request tokens representing a subject.
+It is separate from the **paper-deploy SSO gate** flow, where the signed-in
+user's OAuth access token arrives in a backend request header.
+
+For a deployed app behind that gate, start with the
+[quickstart authentication guide](https://dev.paperos.com/#authentication). Use the gate's token
+directly for workspace data requests; do not first call the client-credential
+endpoints below to obtain an ID token or an account token.
+
+When using an account-scoped token, keep its account aligned with the workspace
+in the request URL. Current records routes can retain the token's account when
+the URL differs, while newer reports/batch routes can re-scope after checking
+membership. See the [current scoping limitations](https://dev.paperos.com/#current-workspace-scoping-limitations);
+do not treat account scoping as an exclusive delegation boundary.
 
 > Set Organization-Scoped Access Token
 
@@ -557,16 +571,15 @@ var paperToken = process.env.OIDC_ACCESS_TOKEN;
 </script>
 -->
 
-PaperOS uses API keys to allow access to the API.
-
 All API requests should include the API token in the Authorization header with the `Bearer` prefix:
 
 `Authorization: Bearer <token>`
 
-You can register a new PaperOS API key at our [developer portal](https://app.paperos.dev).
-
 <aside class="notice">
-You must replace <code>ppt_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxcccc</code> with your personal API key.
+Client secrets and tokens belong only on the backend. Never expose them to
+browser JavaScript, log them, or embed them in URLs. The client-credential
+flow below is not the OAuth authorization-code exchange or the optional
+<a href="https://dev.paperos.com/#optional-account-scoped-access-token">workspace access-token endpoint</a>.
 </aside>
 
 ## Create ID Token
@@ -604,10 +617,10 @@ var payload = JSON.stringify(
 );
 
 var url = `${PAPEROS_BASE_URL}/api/v1/integrations/id-token`;
-var basicAuth = btoa(`${oidc.client_id}:${oidc.client_secret}`);
+// Node.js backend only.
+var basicAuth = Buffer.from(`${oidc.client_id}:${oidc.client_secret}`).toString("base64");
 var resp = await fetch(url, {
    method: "POST",
-   credentials: "include",
    headers: {
       Authorization: `Basic ${basicAuth}`,
       "Content-Type": "application/json",
@@ -615,8 +628,8 @@ var resp = await fetch(url, {
    body: payload,
 });
 
-var accessTokenResult = await resp.json();
-console.log(accessTokenResult);
+var idTokenResult = await resp.json();
+// Keep idTokenResult.id_token on the backend; do not log or return it to the browser.
 ```
 
 > Example Response:
@@ -629,7 +642,9 @@ console.log(accessTokenResult);
 
 ## Create Access Token
 
-The ID Token represents access to a specific organization through the subject (user).
+The access token represents access to a specific organization through the
+subject (user). This client-credential endpoint returns an `access_token`, not
+an ID token. It is different from a normal reports request, which returns data.
 
 > `POST /api/v1/integrations/access-token`
 
@@ -664,10 +679,10 @@ var payload = JSON.stringify(
 );
 
 var url = `${PAPEROS_BASE_URL}/api/v1/integrations/access-token`;
-var basicAuth = btoa(`${oidc.client_id}:${oidc.client_secret}`);
+// Node.js backend only.
+var basicAuth = Buffer.from(`${oidc.client_id}:${oidc.client_secret}`).toString("base64");
 var resp = await fetch(url, {
    method: "POST",
-   credentials: "include",
    headers: {
       Authorization: `Basic ${basicAuth}`,
       "Content-Type": "application/json",
@@ -676,7 +691,7 @@ var resp = await fetch(url, {
 });
 
 var accessTokenResult = await resp.json();
-console.log(accessTokenResult);
+// Keep accessTokenResult.access_token on the backend; do not log or return it to the browser.
 ```
 
 > Example Response:
@@ -688,6 +703,9 @@ console.log(accessTokenResult);
 ```
 
 ## Inspect Token
+
+This is an internal diagnostic route, not a supported Developer API integration
+dependency. Apps should use the documented `/api/v1/*` routes.
 
 > `GET /api/user/debug`
 
