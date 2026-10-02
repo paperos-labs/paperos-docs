@@ -7,7 +7,7 @@ title: End-to-End Example
 
 A small Node.js (18+) + Express backend that:
 
-1. reads the token the SSO gate forwards
+1. reads the user-level OAuth access token the SSO gate forwards
 2. lists reports and syncs one into Postgres (with `pg`)
 3. builds a CSV from your own data, dry-runs it, and uploads it once
 
@@ -286,7 +286,7 @@ app.use((err, req, res, next) => {
    // Log the code and message only; never log request headers (they hold the token).
    console.error("request failed:", err.status, err.code, err.message);
    if (err.status === 401) {
-      // The frontend should reload the page so the SSO gate refreshes the token.
+      // Return through SSO; sign in again if renewal fails. Do not loop on reload.
       return res.status(401).json({ code: "UNAUTHORIZED" });
    }
    res.status(err.status || 500).json({
@@ -300,5 +300,6 @@ app.use((err, req, res, next) => {
 app.listen(process.env.PORT || 8000);
 ```
 
-On the frontend, call your own `/api/...` routes with `fetch`, and reload the
-page when one returns `401`. The browser never talks to PaperOS directly.
+On the frontend, call your own `/api/...` routes with `fetch`. On `401`, return
+through the SSO gate and ask the user to sign in again if session renewal fails.
+Avoid automatic reload loops. The browser never talks to PaperOS directly.

@@ -9,6 +9,10 @@ An org (organization, "workspace") is a company, fund, or other entity in
 PaperOS. Everything else (reports, batches, records, documents) lives inside an
 org, so start here to find the `org_id` you'll use in every other call.
 
+This is not a GitHub organization. The API's public `org_...` ID and its internal
+numeric `account_id` identify the same PaperOS workspace. Prefer the public ID
+returned below because numeric IDs are not accepted by every endpoint.
+
 ## List Orgs
 
 > `GET /api/v1/orgs?updated_since=0`
@@ -68,5 +72,6 @@ var resp = await fetch(url, {
 var org = await resp.json();
 ```
 
-Returns a single org. `{org_id}` may be the public id (`org_xxx`) or the
-numeric id. Returns `404 ORG_NOT_FOUND` if the user can't access it.
+Returns a single org. Use the public ID (`org_...`); this route does not resolve
+numeric account IDs. An inaccessible or unknown org returns 404. This older
+route can return `NOT_FOUND`, while newer org routes use `ORG_NOT_FOUND`.

@@ -27,7 +27,7 @@ on `message`.
 | 400    | `UNKNOWN_BATCH_TYPE`    | Not a valid batch type; see `batch_types`.                                            |
 | 400    | `EMPTY_CSV`             | The CSV has no data rows.                                                             |
 | 400    | `INVALID_CSV`           | The CSV couldn't be parsed (check quoting and line endings).                          |
-| 401    | `UNAUTHORIZED`          | Token missing, malformed, expired, or invalid. Have the browser reload so the SSO gate refreshes it. |
+| 401    | `UNAUTHORIZED`          | Token missing, malformed, expired, or invalid. Return through the SSO gate; sign in again if session renewal fails. Do not loop on reload. |
 | 404    | `ORG_NOT_FOUND`         | The org doesn't exist or this user can't access it.                                   |
 | 404    | `REPORT_NOT_FOUND`      | No such report; see `available` for report names.                                     |
 | 409    | `BATCH_PROJECT_MISSING` | The org isn't set up for this batch type yet. Contact PaperOS.                        |

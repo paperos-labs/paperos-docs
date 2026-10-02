@@ -9,6 +9,12 @@ Records are the individual things in an org: investors (individuals and
 entities), investments, the org itself, and so on. Reports are views over
 records, so each report row is a record.
 
+Use the original user-level token from the SSO gate, or an account-scoped token
+matching the workspace in the URL. The current records implementation can use
+an already-scoped token's account even when the URL names another workspace.
+See [workspace-scoping limitations](#current-workspace-scoping-limitations)
+before reading or writing records across workspaces.
+
 Record URLs take the public record id, `rec_...`: the `record_id` of a report
 row, or the `rec_id` returned when you create a record. (A report row's numeric
 `id` is not accepted here.)
