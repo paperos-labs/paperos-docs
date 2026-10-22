@@ -115,6 +115,8 @@ Below is a small subset of our record types, reach out for a tailored list fitti
 
 > `GET /api/v1/orgs/{org_id}/records?type={type_slug}`
 
+`type` is required — pass a record type slug (e.g. `individual`, `org`), or `*` for all types.
+
 ```shell
 curl -G "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/records" \
   --data-urlencode "type=org" \
@@ -137,64 +139,62 @@ var resInfos = await resp.json();
 > Example Response:
 
 ```json
-[
-   {
-      "id": 5617,
-      "name": "Test 1",
-      "resource_type_id": 2,
-      "account_id": 97,
-      "created_at": "2021-01-19T18:18:49.000Z",
-      "updated_at": "2021-01-19T18:18:49.000Z",
-      "finalized": 0,
-      "archived": 0,
-      "is_draft": 0,
-      "features": {
-         "name": "Test 1"
-      }
-   },
-   {
-      "id": 17413,
-      "name": "Bob the Builder",
-      "resource_type_id": 1,
-      "account_id": 97,
-      "created_at": "2023-09-22T19:50:13.000Z",
-      "updated_at": "2023-09-22T19:50:13.000Z",
-      "finalized": 0,
-      "archived": 0,
-      "is_draft": 0,
-      "features": {
+{
+   "success": true,
+   "count": 2,
+   "total": 2,
+   "type": "[]<individual>",
+   "records": [
+      {
+         "id": "rec_01hcey5617qthd2jjz2vzv0g8",
+         "type": "individual",
+         "name": "Test 1",
+         "created_at": "2021-01-19T18:18:49.000Z",
+         "updated_at": "2021-01-19T18:18:49.000Z",
+         "fields": {
+            "name": "Test 1"
+         }
+      },
+      {
+         "id": "rec_01hcey17413feeqmh1af6x3xafa2",
+         "type": "individual",
          "name": "Bob the Builder",
-         "signatory_name": "Bob the Builder",
-         "first_name": "Bob",
-         "last_name": "Builder",
-         "middle_name": "the",
-         "title": "master builder",
-         "email": "bob@bobbuild.bob",
-         "employee_documents_list": "All of the above",
-         "upload_or_generate": "Generate"
+         "created_at": "2023-09-22T19:50:13.000Z",
+         "updated_at": "2023-09-22T19:50:13.000Z",
+         "fields": {
+            "name": "Bob the Builder",
+            "signatory_name": "Bob the Builder",
+            "first_name": "Bob",
+            "last_name": "Builder",
+            "middle_name": "the",
+            "title": "master builder",
+            "email": "bob@bobbuild.bob",
+            "employee_documents_list": "All of the above",
+            "upload_or_generate": "Generate"
+         }
       }
-   }
-]
+   ]
+}
 ```
 
-Records are scoped to a specific account.
+Records are scoped to a specific account. Drafts and archived records are excluded
+unless requested.
 
 TODO don't allow creating completely empty entities
 
-| Query     | Description                                                       |
-| --------- | ----------------------------------------------------------------- |
-| `type`    | the record type slug, such as `individual` or `org` (`*` for any) |
-| `rec_id`  | a single record ids (begins with `rec_`)                          |
-| `rec_ids` | a comma-separated list of record ids (begin with `rec_`)          |
-| `since`   | an ISO timestamp of the last record received (second resolution)  |
-| `limit`   | return only `n` records                                           |
+| Query        | Description                                                        |
+| ------------ | ------------------------------------------------------------------ |
+| `type`       | the record type slug, such as `individual` or `org` (`*` for any) |
+| `rec_ids`    | a comma/space/pipe-separated list of record ids (begin with `rec_`) |
+| `is_draft`   | pass any truthy value to include draft records                     |
+| `archived`   | pass any truthy value to include archived records                  |
 
 ## Get One by ID
 
 > `GET /api/v1/orgs/:org_id/records/:rec_id`
 
 ```shell
-my_rec_id='17413'
+my_rec_id='rec_01hcey17413feeqmh1af6x3xafa2'
 
 curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/records/${my_rec_id}" \
   -H "Authorization: Bearer ${OIDC_ACCESS_TOKEN}" |
@@ -202,7 +202,7 @@ curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/records/${my_rec_id}" \
 ```
 
 ```javascript
-var myRecId = "17413";
+var myRecId = "rec_01hcey17413feeqmh1af6x3xafa2";
 
 var url = `${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/records/${myRecId}`;
 var resp = await fetch(url, {
@@ -217,37 +217,38 @@ var recordInfo = await resp.json();
 
 ```json
 {
-   "id": 17413,
-   "name": "Bob the Builder",
-   "resource_type_id": 1,
-   "account_id": 97,
-   "created_at": "2023-09-22T19:50:13.000Z",
-   "updated_at": "2023-09-22T19:50:13.000Z",
-   "finalized": 0,
-   "archived": 0,
-   "is_draft": 0,
-   "features": {
+   "success": true,
+   "type": "individual",
+   "record": {
+      "id": "rec_01hcey17413feeqmh1af6x3xafa2",
+      "type": "individual",
       "name": "Bob the Builder",
-      "signatory_name": "Bob the Builder",
-      "first_name": "Bob",
-      "last_name": "Builder",
-      "middle_name": "the",
-      "title": "master builder",
-      "email": "bob@bobbuild.bob",
-      "employee_documents_list": "All of the above",
-      "upload_or_generate": "Generate"
+      "created_at": "2023-09-22T19:50:13.000Z",
+      "updated_at": "2023-09-22T19:50:13.000Z",
+      "fields": {
+         "name": "Bob the Builder",
+         "signatory_name": "Bob the Builder",
+         "first_name": "Bob",
+         "last_name": "Builder",
+         "middle_name": "the",
+         "title": "master builder",
+         "email": "bob@bobbuild.bob",
+         "employee_documents_list": "All of the above",
+         "upload_or_generate": "Generate"
+      }
    }
 }
 ```
 
-Show details for a resource by its ID.
+Show details for a resource by its ID. `type` is optional here (unlike the list
+endpoint) and narrows/validates the lookup if passed.
 
 ## Update One by ID
 
 > `PATCH /api/v1/orgs/:org_id/records/:rec_id`
 
 ```shell
-my_rec_id='5617'
+my_rec_id='rec_01hcey5617qthd2jjz2vzv0g8'
 
 curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/records/${my_rec_id}" \
     -X 'PATCH' \
@@ -263,7 +264,7 @@ curl "${PAPEROS_BASE_URL}/api/v1/orgs/${my_org_id}/records/${my_rec_id}" \
 ```
 
 ```javascript
-var myRecId = "5617";
+var myRecId = "rec_01hcey5617qthd2jjz2vzv0g8";
 
 var data = {
    fields: {
