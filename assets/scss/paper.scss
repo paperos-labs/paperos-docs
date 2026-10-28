@@ -1,0 +1,476 @@
+// Paper brand layer for the docs. Loaded after the Slate/DocuAPI stylesheet
+// (see layouts/partials/hook_head_end.html), so plain selectors win ties.
+// Values mirror the tokens in getpaper's src/styles/tokens.css.
+
+$page: #fffcf5;
+$page-alt: #fdf8ec;
+$surface: #ffffff;
+$rule: #efe7d6;
+$ink: #101114;
+$ink-2: #22242a;
+$muted: #667085;
+$muted-2: #8a93a5;
+$yellow: #ffbf00;
+$yellow-deep: #d49c00;
+$yellow-soft: #ffe08a;
+$yellow-wash: #fff8e6;
+$azure: #1a6bfe;
+$tint-blue: #f2f7ff;
+$tint-blush: #fff4f2;
+$tint-mint: #f2faf5;
+$error: #c2412d;
+$success: #2f8a5b;
+
+$serif: Georgia, 'Times New Roman', serif;
+$radius-sm: 8px;
+$radius-md: 14px;
+$shadow-focus: 0 0 0 4px rgba(255, 191, 0, 0.35);
+
+$nav-width: 250px;
+$main-padding: 32px;
+$examples-width: 50%;
+$tablet-width: 930px;
+$phone-width: $tablet-width - $nav-width;
+
+html,
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: $yellow-soft;
+}
+
+// SIDEBAR
+////////////////////
+.toc-wrapper {
+  border-right: 1px solid $rule;
+  font-weight: 400;
+  padding-bottom: 24px;
+
+  .logo-link {
+    display: block;
+    padding: 28px 24px 12px;
+    border: 0;
+  }
+
+  .logo {
+    width: 112px;
+    height: auto;
+    margin: 0;
+  }
+
+  .logo-tag {
+    display: block;
+    margin: 0 24px 16px;
+    color: $muted;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  & > .search {
+    margin: 0 16px 12px;
+
+    input {
+      width: 100%;
+      margin: 0;
+      padding: 9px 12px 9px 34px;
+      background: $surface;
+      color: $ink;
+      border: 1px solid $rule;
+      border-radius: $radius-sm;
+      font-size: 14px;
+      transition: border-color 160ms, box-shadow 160ms;
+
+      &::placeholder {
+        color: $muted-2;
+      }
+
+      &:focus {
+        border-color: $yellow;
+        box-shadow: $shadow-focus;
+      }
+    }
+
+    &:before {
+      top: 11px;
+      left: 13px;
+      color: $muted-2;
+    }
+  }
+
+  .search-results {
+    background: $surface;
+    border: 1px solid $rule;
+    border-radius: $radius-sm;
+    margin: 0 16px;
+
+    &.visible {
+      margin-bottom: 12px;
+    }
+
+    a {
+      color: $ink-2;
+    }
+  }
+
+  ul,
+  li {
+    line-height: 30px;
+  }
+
+  li a,
+  .toc-link {
+    font-size: 14px;
+    color: $ink-2;
+  }
+
+  .toc-link {
+    position: relative;
+    margin: 1px 12px;
+    padding: 0 12px;
+    border-radius: $radius-sm;
+    transition: background 160ms, color 160ms;
+
+    &:hover {
+      background: rgba(16, 17, 20, 0.04);
+      color: $ink;
+    }
+
+    &.active {
+      background: $yellow-wash;
+      color: $ink;
+      font-weight: 700;
+    }
+
+    &.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 7px;
+      bottom: 7px;
+      width: 3px;
+      border-radius: 3px;
+      background: $yellow;
+    }
+
+    &.active-parent {
+      font-weight: 700;
+    }
+  }
+
+  .toc-list-h2,
+  .da-toc-list-h2 {
+    background: transparent;
+    font-weight: 400;
+  }
+
+  .toc-h2,
+  .toc-h3 {
+    font-size: 13px;
+    color: $muted;
+  }
+
+  .toc-h2 {
+    padding-left: 24px;
+  }
+
+  .toc-h3 {
+    padding-left: 36px;
+  }
+
+  .toc-footer {
+    margin: 16px 24px 0;
+    padding: 16px 0 0;
+    border-top: 1px solid $rule;
+
+    li {
+      padding: 0;
+      font-size: 13px;
+      line-height: 1.5;
+      margin-bottom: 8px;
+      color: $muted;
+    }
+
+    a {
+      font-size: 13px;
+      color: $ink-2;
+    }
+
+    li:first-child a {
+      font-weight: 700;
+      color: $ink;
+    }
+
+    li:last-child,
+    li:last-child a {
+      color: $muted-2;
+      font-size: 12px;
+    }
+  }
+}
+
+#nav-button {
+  opacity: 1;
+  color: $ink;
+
+  span {
+    background: $surface;
+    border: 1px solid $rule;
+    border-radius: $radius-sm;
+    box-shadow: 0 1px 2px rgba(16, 17, 20, 0.06);
+    opacity: 1;
+  }
+}
+
+// CONTENT
+////////////////////
+.content {
+  color: $ink-2;
+
+  a {
+    color: $ink;
+    text-decoration: underline;
+    text-decoration-color: $yellow;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+
+    &:hover {
+      text-decoration-color: $yellow-deep;
+    }
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: $serif;
+    font-weight: 400;
+    color: $ink;
+    letter-spacing: -0.015em;
+    background: none;
+  }
+
+  h1 {
+    font-size: 34px;
+    line-height: 1.15;
+    margin-top: 2.2em;
+    padding-top: 1.4em;
+    padding-bottom: 0.2em;
+    border-top: 1px solid $rule;
+    border-bottom: 0;
+    background: none;
+  }
+
+  h1:first-child,
+  div:first-child + h1 {
+    padding-top: 48px;
+  }
+
+  h2 {
+    font-size: 24px;
+    line-height: 1.25;
+    margin-top: 3em;
+    padding-top: 1.2em;
+    padding-bottom: 0.6em;
+    border-top: 1px solid $rule;
+    background-image: none;
+  }
+
+  h1 + h2,
+  h1 + div + h2 {
+    margin-top: 0;
+    border-top: 0;
+  }
+
+  h3 {
+    font-size: 19px;
+    margin-top: 2em;
+  }
+
+  h4,
+  h5,
+  h6 {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: $muted;
+  }
+
+  p,
+  li,
+  dt,
+  dd {
+    line-height: 1.65;
+  }
+
+  // Inline code
+  code {
+    background: $page-alt;
+    border: 1px solid $rule;
+    border-radius: 6px;
+    padding: 1px 5px;
+    color: $ink;
+    font-size: 0.86em;
+    word-break: normal;
+    overflow-wrap: anywhere;
+  }
+
+  pre > code {
+    border: 0;
+    padding: 0;
+    color: inherit;
+    font-size: inherit;
+  }
+
+  // Parameter / field tables
+  table {
+    border-collapse: separate;
+    border-spacing: 0;
+    background: $surface;
+    border: 1px solid $rule;
+    border-radius: $radius-sm;
+    overflow: hidden;
+    padding: 0;
+    margin: 0 calc(#{$examples-width} + #{$main-padding}) 1.5em $main-padding;
+
+    th {
+      background: $page-alt;
+      border-bottom: 1px solid $rule;
+      padding: 9px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: $muted;
+    }
+
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid $rule;
+    }
+
+    tr:last-child {
+      border-bottom: 0;
+
+      td {
+        border-bottom: 0;
+      }
+    }
+
+    tr:nth-child(odd) > td,
+    tr:nth-child(even) > td {
+      background: $surface;
+    }
+  }
+
+  // Callouts: soft brand tints with a colored rule, dark text
+  aside {
+    color: $ink-2;
+    border-left: 3px solid $azure;
+    border-radius: 0 $radius-sm $radius-sm 0;
+    padding: 14px 18px;
+    margin-left: $main-padding;
+    margin-right: calc(#{$examples-width} + #{$main-padding});
+
+    &:before {
+      color: $azure;
+    }
+
+    &.warning {
+      border-left-color: $error;
+
+      &:before {
+        color: $error;
+      }
+    }
+
+    &.success {
+      border-left-color: $success;
+
+      &:before {
+        color: $success;
+      }
+    }
+
+    code {
+      background: rgba(255, 255, 255, 0.7);
+    }
+  }
+
+  // Code column
+  pre,
+  blockquote {
+    a {
+      color: $yellow-soft;
+      border-bottom-color: rgba(255, 224, 138, 0.4);
+    }
+  }
+
+  pre {
+    line-height: 1.6;
+  }
+
+  blockquote > p {
+    border-left: 3px solid $yellow;
+    font-size: 13px;
+    color: #d4d7de;
+  }
+
+  .search-highlight {
+    border: 0;
+    border-radius: 3px;
+    padding: 0 2px;
+    margin: 0;
+    background: $yellow-soft;
+  }
+}
+
+// Language tabs above the code column
+.lang-selector {
+  border-bottom: 1px solid #262931;
+
+  a {
+    font-size: 13px;
+    font-weight: 700;
+    padding: 0 16px;
+    line-height: 44px;
+    border-bottom: 2px solid transparent;
+    transition: color 160ms, border-color 160ms;
+
+    &:hover {
+      color: #fff;
+    }
+
+    &.active {
+      border-bottom-color: $yellow;
+    }
+  }
+}
+
+.copy-clipboard {
+  fill: #c3cbe0;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: $shadow-focus;
+}
+
+@media (max-width: $phone-width) {
+  .content {
+    table,
+    aside {
+      margin-left: 16px;
+      margin-right: 16px;
+    }
+
+    h1:first-child,
+    div:first-child + h1 {
+      padding-top: 56px;
+    }
+  }
+}

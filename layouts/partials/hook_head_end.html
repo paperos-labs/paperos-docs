@@ -1,0 +1,11 @@
+<link rel="icon" href="{{ "favicon.ico" | absURL }}" />
+{{ $isDev := ne hugo.Environment "production" }}
+{{ $paperCSS := resources.Get "scss/paper.scss" | toCSS (dict "targetPath" "styles/paper.css" "enableSourceMap" $isDev) }}
+{{ if not $isDev }}
+  {{ $paperCSS = $paperCSS | minify | fingerprint }}
+{{ end }}
+<link
+  href="{{ $paperCSS.RelPermalink }}"
+  rel="stylesheet"
+  media="screen"
+  {{ if not $isDev }}integrity="{{ $paperCSS.Data.Integrity }}"{{ end }} />
