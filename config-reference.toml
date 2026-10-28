@@ -1,0 +1,19 @@
+# Overrides for the full API reference, built into ./public/reference/.
+# Used together with ./config.toml (see ./scripts/build.sh):
+#   hugo --config config.toml,config-reference.toml
+# The right-most file wins, so values here override ./config.toml.
+baseurl = "https://dev.paperos.com/reference/"
+title = "PaperOS Developer API — Full Reference"
+contentDir = "content-reference"
+publishDir = "public/reference"
+
+[languages]
+[languages.en]
+title = "PaperOS Developer API — Full Reference"
+
+[languages.en.params]
+toc_footers = [
+"<a href='/'>&larr; Quickstart (start here)</a>",
+"<a href='https://app.paperos.com' target='_blank'>Sign Up for a Developer Key</a>",
+"Documentation Powered by [DocuAPI](https://github.com/bep/docuapi)",
+]

@@ -24,18 +24,37 @@ git clone https://github.com/paperos-labs/paperos-docs.git ./dev.paperos.com/
 pushd ./dev.paperos.com/
 npm clean-install
 go mod download -modcacherw
-hugo
+./scripts/build.sh
 ```
+
+The site is built twice into `./public/`:
+
+| URL path      | Content                 | Config                                     |
+| ------------- | ----------------------- | ------------------------------------------ |
+| `/`           | Quickstart (`./content/`) | `./config.toml`                            |
+| `/reference/` | Full API reference (`./content-reference/`) | `./config.toml` + `./config-reference.toml` |
+
+docuapi renders every page of a language into a single page, so the two doc
+sets are two Hugo builds. `./config-reference.toml` overrides `contentDir`,
+`publishDir`, `baseurl`, the title, and the sidebar links (the right-most
+`--config` file wins).
 
 ## Live reload
 
+The two doc sets are separate Hugo sites, so each needs its own server. Run
+them on different ports to have both up at once:
+
 ```sh
+# Quickstart (the default site) -> http://localhost:1313/
 hugo --buildDrafts server
+
+# Full reference -> http://localhost:1314/reference/
+hugo --buildDrafts server --config config.toml,config-reference.toml --port 1314
 ```
 
 - `baseurl` will be ignored
-- Preview will be available at:
-   - <http://localhost:1313/>
+- The reference server serves ONLY the reference: its `/` is a 404, by design.
+- the cross-links between the two only resolve in a full `./scripts/build.sh` build
 
 # Prod Build
 
@@ -45,8 +64,14 @@ hugo --buildDrafts server
 baseurl = "https://dev.paperos.com/"
 ```
 
+`./config-reference.toml`:
+
+```toml
+baseurl = "https://dev.paperos.com/reference/"
+```
+
 ```sh
-hugo
+./scripts/build.sh
 ```
 
 ## Deploy
@@ -70,16 +95,20 @@ hugo
    chmod 0640 ~/.ssh/config
    ```
 
-3. sync the local build to the server
+3. sync the local build (both `./public/` and `./public/reference/`) to the server
    ```sh
+   ./scripts/build.sh
    rsync -avhPz ./public/ dev.paperos.com:~/public/
    ```
 
 # Modify
 
-- the names of the files in `./content/` are arbitrary
+- the names of the files in `./content/` (quickstart) and
+  `./content-reference/` (full reference) are arbitrary; order comes from
+  `weight` in the front matter
    ```sh
-   ./content/records.md
+   ./content/reports.md
+   ./content-reference/records.md
    ```
 - styles can be overwritten in `./assets/`
    ```sh
