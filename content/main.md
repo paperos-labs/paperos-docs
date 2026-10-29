@@ -7,14 +7,14 @@ title: Quickstart
 
 The **PaperOS Developer API** lets your app read and write the data in a PaperOS
 organization (a "workspace"): pull reports such as capital statements and
-investor lists, batch-upload statements built from bank or accounting exports,
+investor lists, submit forms such as statements built from bank or accounting exports,
 add and update records, and keep your own database in sync.
 
 This quickstart covers the common jobs. The [full API reference](/reference/)
 documents everything else (OIDC clients, workflows, and more).
 
 <aside class="notice">
-<strong>New:</strong> Reports, Batch Uploads, and the org access-token exchange
+<strong>New:</strong> Reports, Form uploads, and the org access-token exchange
 are new and live on <strong>staging</strong> (<code>staging.paperos.dev</code>)
 first. Build against staging; they will reach production afterwards.
 </aside>
@@ -61,9 +61,9 @@ export PAPEROS_BASE_URL='https://staging.paperos.dev'
 var paperBase = process.env.PAPEROS_BASE_URL;
 ```
 
-| Environment | Base URL                                                    |
-| ----------- | ----------------------------------------------------------- |
-| Staging     | `https://staging.paperos.dev`                               |
+| Environment | Base URL                                                          |
+| ----------- | ----------------------------------------------------------------- |
+| Staging     | `https://staging.paperos.dev`                                     |
 | Production  | `https://app.paperos.com` (or your organization's branded domain) |
 
 Use **staging** while you build. Data on staging is test data. Keep the base
@@ -112,12 +112,12 @@ does not need to convert the OAuth token into an ID token before using the API.
 
 ## Which token is which?
 
-| Token | What it represents | Default lifetime |
-| --- | --- | --- |
-| OAuth access token | The signed-in user in the OAuth flow. This is what the SSO gate forwards. | 1 hour |
-| PaperOS ID token | The user's identity, without choosing an account. Also accepted as a user token by these APIs. | 24 hours |
-| PaperOS access token without an account | A user token returned by the internal exchange when no account is selected. It does not grant extra workspace access compared with the ID token. | 1 hour |
-| Account-scoped PaperOS access token | A token containing a selected account after membership is checked. | 1 hour |
+| Token                                   | What it represents                                                                                                                               | Default lifetime |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------- |
+| OAuth access token                      | The signed-in user in the OAuth flow. This is what the SSO gate forwards.                                                                        | 1 hour           |
+| PaperOS ID token                        | The user's identity, without choosing an account. Also accepted as a user token by these APIs.                                                   | 24 hours         |
+| PaperOS access token without an account | A user token returned by the internal exchange when no account is selected. It does not grant extra workspace access compared with the ID token. | 1 hour           |
+| Account-scoped PaperOS access token     | A token containing a selected account after membership is checked.                                                                               | 1 hour           |
 
 The response field name `access_token` alone does not tell you which of these
 flows issued it. The token without an account still needs account scoping to
@@ -151,11 +151,11 @@ accepted by some routes, but not consistently across the API.
 
 ### Data requests return data; token requests return tokens
 
-| Request | Response |
-| --- | --- |
-| `GET /api/v1/orgs/{org_id}/reports` | The workspace's available reports. |
-| `GET /api/v1/orgs/{org_id}/reports/{report}` | The requested report's data. |
-| `POST /api/v1/orgs/{org_id}/access-token` | An account-scoped access token and metadata, **not** report data or an ID token. |
+| Request                                      | Response                                                                         |
+| -------------------------------------------- | -------------------------------------------------------------------------------- |
+| `GET /api/v1/orgs/{org_id}/reports`          | The workspace's available reports.                                               |
+| `GET /api/v1/orgs/{org_id}/reports/{report}` | The requested report's data.                                                     |
+| `POST /api/v1/orgs/{org_id}/access-token`    | An account-scoped access token and metadata, **not** report data or an ID token. |
 
 Putting an org ID in a reports URL does not turn the response into a token.
 Token exchange is an internal step on the way to the report data. See the
@@ -243,7 +243,7 @@ limitations, not fixes or a claim of live endpoint testing:
   even when the URL names a different workspace. A request intended for B may
   read or write A. Use the original user-level token from the gate, or a token
   whose account matches the URL.
-- **Reports, batches, and the access-token endpoint:** an already scoped token
+- **Reports, forms, and the access-token endpoint:** an already scoped token
   may be exchanged for the workspace in the URL if the user has access there.
   An account-scoped token is not an exclusive delegation boundary.
 - **Get one org:** this route looks up the public `org_...` ID, unlike newer

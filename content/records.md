@@ -5,9 +5,9 @@ title: Records
 
 # Records
 
-Records are the individual things in an org: investors (individuals and
-entities), investments, the org itself, and so on. Reports are views over
-records, so each report row is a record.
+A record is a single entry in your workspace, such as an investor, an
+investment, or the org itself. Every report row is a record, so use these
+endpoints to look up or change the data behind your reports.
 
 Use the original user-level token from the SSO gate, or an account-scoped token
 matching the workspace in the URL. The current records implementation can use
@@ -20,40 +20,22 @@ row, or the `rec_id` returned when you create a record. (A report row's numeric
 `id` is not accepted here.)
 
 Use records to **add or update one thing at a time**. For many rows at once,
-use [Batch Uploads](#batch-uploads).
+use [Forms](#forms).
 
 ## Record Types and Fields
 
-These are introspection endpoints: use them to discover type and field names
-while you build, but don't depend on the exact response shape at runtime, as it
-may change.
+Every record has a `type`, and each type has its own set of `fields`. You'll
+need both to create and update records. A few common types:
 
-> `GET /api/v1/schema`
+| Type                 | What it is                                   |
+| -------------------- | -------------------------------------------- |
+| `individual`         | a person, such as an investor or team member |
+| `org`                | an organization, such as an entity investor  |
+| `capital_statements` | an investor's capital statement for a period |
+| `financing`          | a financing round or investment              |
 
-```shell
-curl -s "${PAPEROS_BASE_URL}/api/v1/schema" |
-    jq -r '.record_types[].type'
-```
-
-```javascript
-var resp = await fetch(`${paperBase}/api/v1/schema`);
-var { record_types } = await resp.json();
-```
-
-> `GET /api/v1/schema/{type}`
-
-```shell
-curl -s "${PAPEROS_BASE_URL}/api/v1/schema/individual" |
-    jq -r '.field_types[].type'
-```
-
-```javascript
-var resp = await fetch(`${paperBase}/api/v1/schema/individual`);
-var { field_types } = await resp.json();
-```
-
-Lists record types, and the fields each type has. Use these to find the
-`type` and `fields` keys for creating and updating records.
+For the full list of record types and the fields relevant to your use case,
+reach out to your PaperOS contact.
 
 ## List Records
 
@@ -97,10 +79,10 @@ var records = await resp.json();
 ]
 ```
 
-| Parameter | Description                                               |
-| --------- | --------------------------------------------------------- |
+| Parameter | Description                                                |
+| --------- | ---------------------------------------------------------- |
 | `type`    | record type slug, such as `individual` (`*` for all types) |
-| `rec_ids` | comma-separated record ids (`rec_...`)                    |
+| `rec_ids` | comma-separated record ids (`rec_...`)                     |
 
 ## Get One Record
 

@@ -6,7 +6,7 @@ title: Orgs
 # Orgs
 
 An org (organization, "workspace") is a company, fund, or other entity in
-PaperOS. Everything else (reports, batches, records, documents) lives inside an
+PaperOS. Everything else (reports, forms, records, documents) lives inside an
 org, so start here to find the `org_id` you'll use in every other call.
 
 This is not a GitHub organization. The API's public `org_...` ID and its internal

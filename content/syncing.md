@@ -83,9 +83,9 @@ See the [end-to-end example](#end-to-end-example) for the code.
 immediately. `PATCH` to update, sending only changed fields. PATCH is last
 write wins, so re-read the record first if it may have been edited elsewhere.
 
-**Statements and other bulk data:** use a batch upload.
+**Statements and other bulk data:** use a form upload.
 
-1. Build the CSV from the [template](#get-a-template) headers. Use each
+1. Build the CSV from the [template](#get-form-template) headers. Use each
    investor's name and email exactly as `investor_list` has them
    (`"Full Legal Name"`, `"Email Address"`) so rows match existing investors,
    and set `Investor.send_email_yes_or_no` to `No` unless you mean to email

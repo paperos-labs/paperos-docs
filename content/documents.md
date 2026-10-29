@@ -6,7 +6,7 @@ title: Documents
 # Documents
 
 Documents in an org: uploaded files, generated documents (such as capital
-statement PDFs from a batch upload), and documents waiting for signatures.
+statement PDFs from a form upload), and documents waiting for signatures.
 
 ## List Documents
 

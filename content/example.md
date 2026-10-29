@@ -59,8 +59,8 @@ async function paperos(req, path, init = {}) {
    const resp = await fetch(`${PAPEROS_BASE_URL}${path}`, {
       ...init,
       headers: { ...init.headers, Authorization: `Bearer ${token}` },
-      // Batch uploads generate PDFs before returning (~7s for one row, longer
-      // for bigger batches), so allow several minutes.
+      // Form uploads generate PDFs before returning (~7s for one form, longer
+      // for more forms), so allow several minutes.
       signal: init.signal ?? AbortSignal.timeout(10 * 60 * 1000),
    });
    const type = resp.headers.get("content-type") || "";
