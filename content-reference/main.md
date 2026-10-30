@@ -7,7 +7,7 @@ title: API Reference
 
 Welcome to the PaperOS API!
 
-<aside class="notice">New here? Start with the <a href="/">Quickstart</a>: auth via PaperOS SSO, reports, batch uploads, records, and syncing to your own database. This page is the full reference.</aside>
+<aside class="notice">New here? Start with the <a href="/">Quickstart</a> for data APIs and the SSO gate, or <a href="#partner-integrations">Partner Integrations</a> for an app using its own login. This page is the full reference.</aside>
 
 You can view code examples in the dark area to the right, and you can switch the programming language of the examples with the tabs in the top right.
 
@@ -165,16 +165,36 @@ Please report any incompatibility with compliant clients to support as a bug.
 
 ## Registration
 
-In general, you should **contact support** to create and configure your OIDC Client.
+Register the application in a PaperOS workspace where the developer has full
+access. First [select the owning workspace](#select-the-owning-workspace) and
+obtain its account-scoped developer token. Use that token as
+`PAPEROS_OWNER_TOKEN` below. Registration itself does not require partner
+impersonation to be enabled.
 
-Although you can create your own client with your user Access Token, it will have minimal permissions and **may not be useful**.
+List existing registrations before creating one. A new registration starts
+with `requestable_scopes: ["profile"]`; use its generated client credentials to
+[request admin setup](#request-admin-setup) for the additional partner access.
+Registration does not automatically enable impersonation or link existing users.
+
+The request requires a nonempty `redirect_uris` array. For a web client, provide
+the app's actual HTTPS callback URI even if this backend integration will not
+use redirects. The domains below are documentation examples; an agent must
+obtain real values before calling the registration tool. Optional metadata may
+be omitted; it is not necessary to supply every example field.
+
+This POST is not idempotent. If its outcome is uncertain, list registrations
+and recover the existing client's credentials before attempting another create.
+Set `PAPEROS_CLIENT_FILE` to a private file outside source control; the response
+contains a secret.
 
 > `POST /api/v1/oidc/clients`
 
 ```shell
+umask 077
 curl --fail-with-body -X POST "${PAPEROS_BASE_URL}/api/v1/oidc/clients" \
-    -H "Authorization: Bearer ${UI_ACCESS_TOKEN}" \
+    -H "Authorization: Bearer ${PAPEROS_OWNER_TOKEN}" \
     -H 'Content-Type: application/json' \
+    --output "${PAPEROS_CLIENT_FILE}" \
     -d '{
            "redirect_uris": ["https://app.example.com/callback", "https://app.example.com/return"],
            "response_types": ["code"],
@@ -213,17 +233,18 @@ var url = `${paperBase}/api/v1/oidc/clients`;
 var resp = await fetch(url, {
    method: "POST",
    headers: {
-      Authorization: `Bearer ${uiAccessToken}`,
+      Authorization: `Bearer ${ownerToken}`,
       "Content-Type": "application/json",
    },
    body: payload,
 });
+if (!resp.ok) throw new Error(`Registration failed: ${resp.status}`);
 var oidcClient = await resp.json();
-
-console.log(oidcClient);
+// Save oidcClient.client_id and client_secret in the backend's secret store.
+// Do not log this object or return it to the browser.
 ```
 
-> Example Response:
+> HTTP201 response (example secret redacted):
 
 ```json
 {
@@ -249,7 +270,7 @@ console.log(oidcClient);
    "require_auth_time": true,
    "initiate_login_uri": "https://app.example.com/oidc/start",
    "requestable_scopes": ["profile"],
-   "client_secret": "86fa1382-055c-492d-9f0b-7fc0963ca0c7",
+   "client_secret": "<CLIENT_SECRET>",
    "client_secret_expires_at": 0,
    "client_id": "oidc_pc2tsa5rd1m4tamb",
    "client_id_issued_at": 1745559634
@@ -267,24 +288,30 @@ For more information on the meaning of the various fields, and additional availa
 
 ## List
 
+Use the owning workspace's developer token. The raw PaperOS response includes
+credentials; the examples below remove them before displaying metadata.
+The MCP `list_paperos_integrations(owner_org_id)` tool also omits secrets.
+
 > `GET /api/v1/oidc/clients`
 
 ```shell
 curl --fail-with-body "${PAPEROS_BASE_URL}/api/v1/oidc/clients" \
-    -H "Authorization: Bearer ${UI_ACCESS_TOKEN}"
+    -H "Authorization: Bearer ${PAPEROS_OWNER_TOKEN}" |
+    jq '{success, total, type, oidc_clients: [.oidc_clients[] | del(.client_secret, .secrets)], count}'
 ```
 
 ```javascript
 var url = `${paperBase}/api/v1/oidc/clients`;
 var resp = await fetch(url, {
-   headers: { Authorization: `Bearer ${uiAccessToken}` },
+   headers: { Authorization: `Bearer ${ownerToken}` },
 });
+if (!resp.ok) throw new Error(`List integrations failed: ${resp.status}`);
 var oidcClients = await resp.json();
-
-console.log(oidcClients);
+var integrations = oidcClients.oidc_clients.map(({ client_secret, secrets, ...app }) => app);
+// Display integrations only; do not log the credential-bearing raw response.
 ```
 
-> Example Response:
+> Raw HTTP200 response shape, before the examples remove secrets:
 
 ```json
 {
@@ -323,7 +350,7 @@ console.log(oidcClients);
          "secrets": [
             {
                "id": "occs_zdcw9631vkaf4ppk",
-               "secret": "9ba82b72-38eb-4a6d-bc57-bace7a0d5bd1",
+               "secret": "<CLIENT_SECRET>",
                "comment": "",
                "expires_at": null,
                "created_at": "2025-04-23T18:43:54Z",
@@ -331,7 +358,7 @@ console.log(oidcClients);
             }
          ],
          "client_secret_expires_at": 0,
-         "client_secret": "9ba82b72-38eb-4a6d-bc57-bace7a0d5bd1"
+         "client_secret": "<CLIENT_SECRET>"
       }
    ],
    "count": 1
@@ -342,12 +369,80 @@ Extensions:
 
 - multiple secrets: we support multiple secrets to allow for a grace period during rotation
 
+## Get registration and recover credentials
+
+Use this explicitly when you need an existing application's credentials.
+The developer must have access to the registration in its owning workspace.
+It is different from authenticating a setup request with the app's credentials.
+
+> `GET /api/v1/oidc/clients/{client_id}`
+
+```shell
+umask 077
+curl --fail-with-body "${PAPEROS_BASE_URL}/api/v1/oidc/clients/${CLIENT_ID}" \
+    -H "Authorization: Bearer ${PAPEROS_OWNER_TOKEN}" \
+    --output "${PAPEROS_CLIENT_FILE}"
+```
+
+```javascript
+// Node.js backend only; ownerToken is the developer's scoped account token.
+const response = await fetch(`${paperBase}/api/v1/oidc/clients/${encodeURIComponent(clientId)}`, {
+   headers: { Authorization: `Bearer ${ownerToken}` },
+});
+if (!response.ok) throw new Error(`Get integration failed: ${response.status}`);
+const registration = await response.json();
+if (!registration.oidc_client) throw new Error("Integration not found in this workspace");
+// Store registration.oidc_client credentials securely; never log this response.
+```
+
+> HTTP200 response, showing the identity and credential fields (other registered metadata is omitted here):
+
+```json
+{
+   "success": true,
+   "type": "<oidc_client>",
+   "oidc_client": {
+      "id": "oidc_zdcw93k7h4w4zb2m",
+      "org_id": "org_01he3t2sjcs6zybd2cemyvn7qn",
+      "client_name": "Example App",
+      "requestable_scopes": ["profile"],
+      "revoked_at": null,
+      "secrets": [
+         {
+            "id": "occs_zdcw9631vkaf4ppk",
+            "secret": "<CLIENT_SECRET>",
+            "comment": "",
+            "expires_at": null,
+            "created_at": "2025-04-23T18:43:54Z",
+            "revoked_at": null
+         }
+      ],
+      "client_secret": "<CLIENT_SECRET>",
+      "client_secret_expires_at": 0
+   }
+}
+```
+
+The raw single-client endpoint uses `oidc_client.id`; registration and list
+responses use `client_id`. The current raw endpoint can return HTTP200 with
+no `oidc_client` when nothing matches. Check the object, not just the status.
+The new MCP `get_paperos_integration(owner_org_id, client_id)` tool normalizes
+the ID to `client_id` and rejects missing or revoked integrations, or registrations
+without an active credential.
+
 ## Create Subject (User)
+
+This endpoint requires the application's impersonation grant. It creates a new
+PaperOS user and links that user to the calling application; it rejects an email
+that already exists. It does not create a workspace or automatically claim an
+existing account. Preserve the returned `subject.sub` for later token requests. In the backend
+examples below, `clientId` and `clientSecret` come from your saved application
+credentials; `paperBase` is `process.env.PAPEROS_BASE_URL`.
 
 > `POST /api/v1/integrations/users`
 
 ```shell
-curl -v --fail-with-body -X POST "${PAPEROS_BASE_URL}/api/v1/integrations/users" \
+curl --fail-with-body -X POST "${PAPEROS_BASE_URL}/api/v1/integrations/users" \
     --user "${CLIENT_ID}:${CLIENT_SECRET}" \
     -H 'Content-Type: application/json' \
     -d '{
@@ -374,11 +469,11 @@ var data = {
 };
 var payload = JSON.stringify(data, null, 2);
 
-var url = `${PAPEROS_BASE_URL}/api/v1/integrations/users`;
-var basicAuth = btoa(`${oidc.client_id}:${oidc.client_secret}`);
+var url = `${paperBase}/api/v1/integrations/users`;
+// Node.js backend only.
+var basicAuth = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
 var resp = await fetch(url, {
    method: "POST",
-   credentials: "include",
    headers: {
       Authorization: `Basic ${basicAuth}`,
       "Content-Type": "application/json",
@@ -387,7 +482,7 @@ var resp = await fetch(url, {
 });
 
 var subjectResp = await resp.json();
-console.log(subjectResp);
+// Save subjectResp.subject.sub alongside the app account; do not log user payloads.
 ```
 
 > Example Result:
@@ -427,7 +522,7 @@ This is primarily for the initial user sync.
 b_ppid_sub='sub_xxxxxxxx'
 b_our_id='100-john_doe'
 
-curl -v --fail-with-body -X PATCH "${PAPEROS_BASE_URL}/api/v1/integrations/users/${b_ppid_sub}" \
+curl --fail-with-body -X PATCH "${PAPEROS_BASE_URL}/api/v1/integrations/users/${b_ppid_sub}" \
     --user "${CLIENT_ID}:${CLIENT_SECRET}" \
     -H 'Content-Type: application/json' \
     -d '{
@@ -449,11 +544,11 @@ var data = {
 };
 var payload = JSON.stringify(data, null, 2);
 
-var url = `${PAPEROS_BASE_URL}/api/v1/integrations/users/${ppidSub}`;
-var basicAuth = btoa(`${oidc.client_id}:${oidc.client_secret}`);
+var url = `${paperBase}/api/v1/integrations/users/${ppidSub}`;
+// Node.js backend only.
+var basicAuth = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
 var resp = await fetch(url, {
    method: "PATCH",
-   credentials: "include",
    headers: {
       Authorization: `Basic ${basicAuth}`,
       "Content-Type": "application/json",
@@ -472,6 +567,11 @@ console.log("OK:", resp.status, resp.ok);
 
 ## List Subjects (Users)
 
+Returns users already linked to this application, including their email, `sub`,
+`external_id`, and accessible workspaces in `orgs`. Match the shared email in your
+backend, then use that subject and the chosen workspace ID. There is no email
+lookup parameter on this endpoint.
+
 > `GET /api/v1/integrations/users`
 
 ```shell
@@ -481,10 +581,10 @@ curl --fail-with-body "${PAPEROS_BASE_URL}/api/v1/integrations/users" \
 ```
 
 ```javascript
-var url = `${PAPEROS_BASE_URL}/api/v1/integrations/users`;
-var basicAuth = btoa(`${oidc.client_id}:${oidc.client_secret}`);
+var url = `${paperBase}/api/v1/integrations/users`;
+// Node.js backend only.
+var basicAuth = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
 var resp = await fetch(url, {
-   credentials: "include",
    headers: { Authorization: `Basic ${basicAuth}` },
 });
 ```
@@ -499,6 +599,7 @@ var resp = await fetch(url, {
       {
          "given_name": "John",
          "family_name": "Doe",
+         "email": "john.doe+101@example.com",
          "locale": "en-US",
          "zoneinfo": "America/Denver",
          "external_id": "john_doe-101",
@@ -521,6 +622,9 @@ This reference describes the **registered OIDC client** integration: your
 backend uses its client ID and secret to request tokens representing a subject.
 It is separate from the **paper-deploy SSO gate** flow, where the signed-in
 user's OAuth access token arrives in a backend request header.
+
+See [Partner Integrations](#partner-integrations) for registration, admin setup,
+linked subjects, and the release status of the new MCP/setup additions.
 
 For a deployed app behind that gate, start with the
 [quickstart authentication guide](https://dev.paperos.com/#authentication). Use the gate's token
@@ -571,7 +675,10 @@ var paperToken = process.env.OIDC_ACCESS_TOKEN;
 </script>
 -->
 
-All API requests should include the API token in the Authorization header with the `Bearer` prefix:
+PaperOS data requests use an API token in the Authorization header with the
+`Bearer` prefix. Registration uses a developer's account-scoped Bearer token;
+the `/integrations/users` and `/integrations/*-token` endpoints below use
+HTTP Basic application credentials.
 
 `Authorization: Bearer <token>`
 
@@ -586,20 +693,27 @@ flow below is not the OAuth authorization-code exchange or the optional
 
 The ID Token represents the subject (user) and can be used to create an organization.
 
+Use exactly one subject selector: `claims.sub.value` from the linked-user list,
+or the application's `claims.external_id.value`. The examples use `external_id`.
+`AUTH_TIME`/`authTime` must be the app's actual recent authentication time in Unix
+seconds; `TOKEN_EXPIRES_AT`/`expiresAt` must be later and within the server's
+24-hour limit. `AUTH_METHOD`/`authMethod` must describe the real authentication
+method (for example, `pwd` for password). Do not invent a fresh login time to
+bypass these checks. Set `PAPEROS_TOKEN_FILE` to a private file outside source control.
+
 > `POST /api/v1/integrations/id-token`
 
 ```shell
-curl -v --fail-with-body -X POST "${PAPEROS_BASE_URL}/api/v1/integrations/id-token" \
+umask 077
+curl --fail-with-body -X POST "${PAPEROS_BASE_URL}/api/v1/integrations/id-token" \
     --user "${CLIENT_ID}:${CLIENT_SECRET}" \
     -H "Content-Type: application/json" \
-    -d '{
-            "claims": {
-                "external_id": { "value": "john_doe-101" },
-                "auth_time": { "value": 1745571774 },
-                "exp": { "value": 1745575374 },
-                "amr": { "values": ["pwd"] }
-            }
-        }' | jq
+    --data "$(jq -n --arg external_id "$EXTERNAL_ID" \
+        --argjson auth_time "$AUTH_TIME" --argjson exp "$TOKEN_EXPIRES_AT" \
+        --arg amr "$AUTH_METHOD" \
+        '{claims: {external_id: {value: $external_id}, auth_time: {value: $auth_time},
+                   exp: {value: $exp}, amr: {values: [$amr]}}}')" \
+    --output "${PAPEROS_TOKEN_FILE}"
 ```
 
 ```javascript
@@ -607,18 +721,18 @@ var payload = JSON.stringify(
    {
       claims: {
          external_id: { value: "john_doe-101" },
-         auth_time: { value: 1745571774 },
-         exp: { value: 1745575374 },
-         amr: { values: ["pwd"] },
+         auth_time: { value: authTime },
+         exp: { value: expiresAt },
+         amr: { values: [authMethod] },
       },
    },
    null,
    2,
 );
 
-var url = `${PAPEROS_BASE_URL}/api/v1/integrations/id-token`;
+var url = `${paperBase}/api/v1/integrations/id-token`;
 // Node.js backend only.
-var basicAuth = Buffer.from(`${oidc.client_id}:${oidc.client_secret}`).toString("base64");
+var basicAuth = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
 var resp = await fetch(url, {
    method: "POST",
    headers: {
@@ -636,7 +750,7 @@ var idTokenResult = await resp.json();
 
 ```json
 {
-   "id_token": "eyJ0eXAiOiJKV1QiLCJraWQiOiJTcG5TVEkyc1p3d0p3aV9oWVJ4VFFnOGlJZHdBMS0zUG81c1NsVUptUXdjIiwiYWxnIjoiRVMyNTYifQ.eyJqdGkiOiJkWXZfZHduTWtIajd3ZjNaM0FQbHZ3IiwiaXNzIjoiaHR0cHM6Ly9wYXBlcm9zLWRldi03LjExMDQuYy5ibm5hLm5ldCIsInN1YiI6InN1Yl9kMDI1NWE4cjNoa25uenNoIiwiYXV0aF90aW1lIjoxNzQ1NDQ3NzQ4LCJjbGllbnRfaWQiOiJvaWRjX3pkY3c5M2s3aDR3NHpiMm0iLCJlbWFpbCI6ImpvaG4uZG9lKzEwMUBleGFtcGxlLmNvbSIsImdpdmVuX25hbWUiOiJKb2huIiwiZmFtaWx5X25hbWUiOiJEb2UiLCJvcmdfaWQiOiJvcmdfZXc0MjFqcjRwbW5oczAyeiIsImlhdCI6MTc0NTQ1MDE0OSwiZXhwIjoxNzQ1NDUzNzQ5fQ.YuvVXJcwfsBJT00SzOHuphh1pt8KXJEMoPmZxKJJWCDrDPbrcI2vX6YNcKtgLOVcv7lKMK1-YKvJBNgAF_N-iA"
+   "id_token": "<ID_TOKEN>"
 }
 ```
 
@@ -646,21 +760,24 @@ The access token represents access to a specific organization through the
 subject (user). This client-credential endpoint returns an `access_token`, not
 an ID token. It is different from a normal reports request, which returns data.
 
+Use the actual authentication claims described under [Create ID Token](#create-id-token)
+and a workspace from the selected linked subject's `orgs`. Set `PAPEROS_TOKEN_FILE`
+to a private file outside source control. Compatibility with newer data endpoints
+must be checked separately; see [Partner workspace tokens](#partner-workspace-tokens).
+
 > `POST /api/v1/integrations/access-token`
 
 ```shell
-curl -v --fail-with-body -X POST "${PAPEROS_BASE_URL}/api/v1/integrations/access-token" \
+umask 077
+curl --fail-with-body -X POST "${PAPEROS_BASE_URL}/api/v1/integrations/access-token" \
     --user "${CLIENT_ID}:${CLIENT_SECRET}" \
     -H "Content-Type: application/json" \
-    -d '{
-            "claims": {
-                "external_id": { "value": "john_doe-101" },
-                "org_id": { "value": "org_ew421jr4pmnhs02z" },
-                "auth_time": { "value": 1745571774 },
-                "exp": { "value": 1745575374 },
-                "amr": { "values": ["pwd"] }
-            }
-        }' | jq
+    --data "$(jq -n --arg external_id "$EXTERNAL_ID" --arg org_id "$ORG_ID" \
+        --argjson auth_time "$AUTH_TIME" --argjson exp "$TOKEN_EXPIRES_AT" \
+        --arg amr "$AUTH_METHOD" \
+        '{claims: {external_id: {value: $external_id}, org_id: {value: $org_id},
+                   auth_time: {value: $auth_time}, exp: {value: $exp}, amr: {values: [$amr]}}}')" \
+    --output "${PAPEROS_TOKEN_FILE}"
 ```
 
 ```javascript
@@ -669,18 +786,18 @@ var payload = JSON.stringify(
       claims: {
          external_id: { value: "john_doe-101" },
          org_id: { value: "org_ew421jr4pmnhs02z" },
-         auth_time: { value: 1745571774 },
-         exp: { value: 1745575374 },
-         amr: { values: ["pwd"] },
+         auth_time: { value: authTime },
+         exp: { value: expiresAt },
+         amr: { values: [authMethod] },
       },
    },
    null,
    2,
 );
 
-var url = `${PAPEROS_BASE_URL}/api/v1/integrations/access-token`;
+var url = `${paperBase}/api/v1/integrations/access-token`;
 // Node.js backend only.
-var basicAuth = Buffer.from(`${oidc.client_id}:${oidc.client_secret}`).toString("base64");
+var basicAuth = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
 var resp = await fetch(url, {
    method: "POST",
    headers: {
@@ -698,7 +815,7 @@ var accessTokenResult = await resp.json();
 
 ```json
 {
-   "access_token": "eyJ0eXAiOiJKV1QiLCJraWQiOiJTcG5TVEkyc1p3d0p3aV9oWVJ4VFFnOGlJZHdBMS0zUG81c1NsVUptUXdjIiwiYWxnIjoiRVMyNTYifQ.eyJqdGkiOiJkWXZfZHduTWtIajd3ZjNaM0FQbHZ3IiwiaXNzIjoiaHR0cHM6Ly9wYXBlcm9zLWRldi03LjExMDQuYy5ibm5hLm5ldCIsInN1YiI6InN1Yl9kMDI1NWE4cjNoa25uenNoIiwiYXV0aF90aW1lIjoxNzQ1NDQ3NzQ4LCJjbGllbnRfaWQiOiJvaWRjX3pkY3c5M2s3aDR3NHpiMm0iLCJlbWFpbCI6ImpvaG4uZG9lKzEwMUBleGFtcGxlLmNvbSIsImdpdmVuX25hbWUiOiJKb2huIiwiZmFtaWx5X25hbWUiOiJEb2UiLCJvcmdfaWQiOiJvcmdfZXc0MjFqcjRwbW5oczAyeiIsImlhdCI6MTc0NTQ1MDE0OSwiZXhwIjoxNzQ1NDUzNzQ5fQ.YuvVXJcwfsBJT00SzOHuphh1pt8KXJEMoPmZxKJJWCDrDPbrcI2vX6YNcKtgLOVcv7lKMK1-YKvJBNgAF_N-iA"
+   "access_token": "<WORKSPACE_ACCESS_TOKEN>"
 }
 ```
 

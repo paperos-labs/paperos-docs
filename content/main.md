@@ -13,6 +13,20 @@ add and update records, and keep your own database in sync.
 This quickstart covers the common jobs. The [full API reference](/reference/)
 documents everything else (OIDC clients, workflows, and more).
 
+## Choose an integration
+
+- **App behind the PaperOS SSO gate:** follow the SSO examples on this page.
+  The gate supplies the signed-in user's token to your backend.
+- **App with its own login, hosted anywhere:** use a registered application and
+  its client ID and secret. Follow [Partner Integrations](/reference/#partner-integrations)
+  to register, request admin setup, find linked accounts, and obtain workspace
+  tokens. Deploying with PaperOS is optional for this path.
+
+Developers can use the documented HTTP endpoints directly. Agents can read the
+same workflow through the deploy MCP server's `get_paperos_api_integration_guide`
+tool with `topic: "partner-integration"`. The dashboard is optional. See the
+partner guide's release notice before relying on the new tools or setup endpoint.
+
 <aside class="notice">
 <strong>New:</strong> Reports, Form uploads, and the org access-token exchange
 are new and live on <strong>staging</strong> (<code>staging.paperos.dev</code>)
@@ -27,10 +41,14 @@ first. Build against staging; they will reach production afterwards.
 | `/api/public/*` | Unauthenticated app routes used by the PaperOS UI. Not for you.    |
 | `/api/*`        | Internal app routes used by the PaperOS UI. Undocumented, changes. |
 
-Only call `/api/v1/*`. If you need something that only exists on an internal
+For PaperOS data, call the documented `/api/v1/*` routes. The separate deploy
+service also hosts the documented `/api/integrations/setup-request` workflow;
+it is not a PaperOS data endpoint. If you need an undocumented internal data
 route, ask us to add it to the Developer API.
 
 ## How a typical integration looks
+
+For the **SSO gate** path:
 
 1. Your app is deployed on the PaperOS deploy platform, behind PaperOS SSO.
 2. A signed-in user loads a page; the SSO gate forwards their **OAuth access
@@ -75,7 +93,11 @@ Some organizations also have a sandbox, at an address like
 
 # Authentication
 
-> Every request
+The examples below use the SSO gate. Registered partner apps use
+[client credentials and linked subjects](/reference/#partner-integrations)
+instead; their users do not need to sign in through PaperOS SSO.
+
+> Every PaperOS data request
 
 ```text
 Authorization: Bearer <token>
@@ -164,6 +186,11 @@ already account-scoped token.
 
 ## Token expiry
 
+This section applies to tokens forwarded by the **SSO gate**. Partner apps
+request replacement workspace tokens through their
+[registered-client flow](/reference/#partner-workspace-tokens); they do not
+send their users through the deploy gate to renew those tokens.
+
 The gate's OAuth access token normally expires after **1 hour**. The gate is
 configured to attempt session renewal on requests after about 55 minutes; this
 is not a guarantee that every browser session renews successfully. So:
@@ -177,6 +204,8 @@ Because you must not store the token, run syncs while handling a user request
 (for example a "Sync now" button, or on page load).
 
 ## Security do's and don'ts
+
+For the SSO gate flow described here:
 
 **Do**
 

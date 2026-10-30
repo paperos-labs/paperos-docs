@@ -14,6 +14,6 @@ title = "PaperOS Developer API — Full Reference"
 [languages.en.params]
 toc_footers = [
 "<a href='/'>&larr; Quickstart (start here)</a>",
-"<a href='https://app.paperos.com' target='_blank'>Sign Up for a Developer Key</a>",
+"<a href='https://app.paperos.com' target='_blank' rel='noopener'>Sign in to PaperOS</a>",
 "Documentation Powered by [DocuAPI](https://github.com/bep/docuapi)",
 ]
