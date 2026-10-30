@@ -578,7 +578,7 @@ lookup parameter on this endpoint.
 
 The MCP tool `list_paperos_integration_users(client_id, client_secret)` returns
 this same payload. The optional [integration dashboard](#register-through-the-dashboard)
-can display and export the linked-user list once released.
+can display and export the linked-user list.
 
 > `GET /api/v1/integrations/users`
 
@@ -632,7 +632,7 @@ It is separate from the **paper-deploy SSO gate** flow, where the signed-in
 user's OAuth access token arrives in a backend request header.
 
 See [Partner Integrations](#partner-integrations) for registration, admin setup,
-linked subjects, and the release status of the new MCP/setup additions.
+linked subjects, MCP/setup tools, and current limitations.
 
 For a deployed app behind that gate, start with the
 [quickstart authentication guide](https://dev.paperos.com/#authentication). Use the gate's token

@@ -13,7 +13,9 @@ what it can request.
 
 <aside class="notice">
 The integration MCP tools, dashboard workflow, and deploy integration APIs
-described here have not been released or verified end to end.
+were deployed on October 30, 2026. Runtime availability and served dashboard
+assets were verified. Real setup completion, customer account creation,
+workspace-token issuance, and customer data calls have not been verified end to end.
 The existing PaperOS registration and linked-user endpoints are separate from
 those additions. The public workspace-token exchange used by the new MCP tools
 is staging-first; use a compatible PaperOS environment.
@@ -40,7 +42,7 @@ subject and that subject's access to the requested workspace.
 ## Register through the dashboard
 
 For an interactive workflow, the deploy dashboard's **Partner integrations** page
-is [available at this route once released](https://deploy.onpaper.co/dashboard/integrations.html).
+is [available here](https://deploy.onpaper.co/dashboard/integrations.html).
 Use your PaperOS sign-in, choose the workspace that will own the registration,
 and select an existing app or register a new one with its name and actual HTTPS
 redirect URLs. You can reveal and copy its client ID and secret for your app's

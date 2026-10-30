@@ -29,8 +29,8 @@ linked-account, and workspace-token tools. The optional
 [integration dashboard](/reference/#register-through-the-dashboard) offers
 registration, setup requests/status, and linked-user JSON export. Admin setup
 remains a manual step whichever entry point you use.
-Check the partner guide's release notice before relying on the new tools,
-dashboard page, or setup endpoint.
+Check the partner guide's limitations and verification notes before using the
+integration.
 
 <aside class="notice">
 <strong>New:</strong> Reports, Form uploads, and the org access-token exchange
