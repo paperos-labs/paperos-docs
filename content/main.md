@@ -24,8 +24,10 @@ documents everything else (OIDC clients, workflows, and more).
 
 Developers can use the documented HTTP endpoints directly. Agents can read the
 same workflow through the deploy MCP server's `get_paperos_api_integration_guide`
-tool with `topic: "partner-integration"`. The dashboard is optional. See the
-partner guide's release notice before relying on the new tools or setup endpoint.
+tool with `topic: "partner-integration"`. For manual registration, see the optional
+[dashboard registration page](/reference/#register-through-the-dashboard).
+Check the partner guide's release notice before relying on the new tools,
+dashboard page, or setup endpoint.
 
 <aside class="notice">
 <strong>New:</strong> Reports, Form uploads, and the org access-token exchange

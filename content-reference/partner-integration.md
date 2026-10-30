@@ -12,8 +12,8 @@ credentials, its links to PaperOS users, and each user's workspace access determ
 what it can request.
 
 <aside class="notice">
-The registration MCP tools and deploy setup-request API described here are new
-local implementation work and have not been released or verified end to end.
+The registration MCP tools, dashboard registration page, and deploy setup-request
+API described here have not been released or verified end to end.
 The existing PaperOS registration and linked-user endpoints are separate from
 those additions. The public workspace-token exchange used by the new MCP tools
 is staging-first; use a compatible PaperOS environment.
@@ -36,6 +36,21 @@ The workflow is:
 The workspace owning the registration is not an allowlist of customer data
 workspaces. A later token request checks both the application's link to the
 subject and that subject's access to the requested workspace.
+
+## Register through the dashboard
+
+For manual registration, the deploy dashboard's **Partner integrations** page
+is [available at this route once released](https://deploy.onpaper.co/dashboard/integrations.html).
+Use your PaperOS sign-in, choose the workspace that will own the registration,
+and select an existing app or register a new one with its name and actual HTTPS
+redirect URLs. You can reveal and copy its client ID and secret for your app's
+backend secret store. Registration requires full access to the owning workspace;
+it does not require an app deployment or GitHub connection.
+
+The page uses the same PaperOS registration APIs and permissions described
+below. It currently covers registration and credential recovery; the admin
+setup request and ticket-status display are not part of this dashboard step.
+Direct API and MCP registration remain available without using the dashboard.
 
 ## Select the owning workspace
 
