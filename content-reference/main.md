@@ -439,6 +439,10 @@ existing account. Preserve the returned `subject.sub` for later token requests. 
 examples below, `clientId` and `clientSecret` come from your saved application
 credentials; `paperBase` is `process.env.PAPEROS_BASE_URL`.
 
+Agents can use `create_paperos_integration_user` with the same account fields;
+see the [integration tool contract](#agents-using-deploy-mcp). Its response is
+the same payload below. The tool does not bypass the application's required grant.
+
 > `POST /api/v1/integrations/users`
 
 ```shell
@@ -571,6 +575,10 @@ Returns users already linked to this application, including their email, `sub`,
 `external_id`, and accessible workspaces in `orgs`. Match the shared email in your
 backend, then use that subject and the chosen workspace ID. There is no email
 lookup parameter on this endpoint.
+
+The MCP tool `list_paperos_integration_users(client_id, client_secret)` returns
+this same payload. The optional [integration dashboard](#register-through-the-dashboard)
+can display and export the linked-user list once released.
 
 > `GET /api/v1/integrations/users`
 
@@ -764,6 +772,11 @@ Use the actual authentication claims described under [Create ID Token](#create-i
 and a workspace from the selected linked subject's `orgs`. Set `PAPEROS_TOKEN_FILE`
 to a private file outside source control. Compatibility with newer data endpoints
 must be checked separately; see [Partner workspace tokens](#partner-workspace-tokens).
+
+Agents can use `get_paperos_integration_workspace_token` with the app's client
+credentials, `org_id`, actual `auth_time`, `exp`, and `amr`, and exactly one of
+`sub` or `external_id`. It builds the same `claims` payload shown below and
+returns the same access-token response; see the [tool contract](#agents-using-deploy-mcp).
 
 > `POST /api/v1/integrations/access-token`
 

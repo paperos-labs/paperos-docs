@@ -24,8 +24,11 @@ documents everything else (OIDC clients, workflows, and more).
 
 Developers can use the documented HTTP endpoints directly. Agents can read the
 same workflow through the deploy MCP server's `get_paperos_api_integration_guide`
-tool with `topic: "partner-integration"`. For manual registration, see the optional
-[dashboard registration page](/reference/#register-through-the-dashboard).
+tool with `topic: "partner-integration"`, then use its registration, setup/status,
+linked-account, and workspace-token tools. The optional
+[integration dashboard](/reference/#register-through-the-dashboard) offers
+registration, setup requests/status, and linked-user JSON export. Admin setup
+remains a manual step whichever entry point you use.
 Check the partner guide's release notice before relying on the new tools,
 dashboard page, or setup endpoint.
 
@@ -44,9 +47,10 @@ first. Build against staging; they will reach production afterwards.
 | `/api/*`        | Internal app routes used by the PaperOS UI. Undocumented, changes. |
 
 For PaperOS data, call the documented `/api/v1/*` routes. The separate deploy
-service also hosts the documented `/api/integrations/setup-request` workflow;
-it is not a PaperOS data endpoint. If you need an undocumented internal data
-route, ask us to add it to the Developer API.
+service also hosts the documented `/api/integrations/setup-request` workflow
+and a read-only `/api/integrations/users` proxy for the dashboard;
+these are separate from the PaperOS data endpoints. If you need an undocumented
+internal data route, ask us to add it to the Developer API.
 
 ## How a typical integration looks
 

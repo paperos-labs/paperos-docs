@@ -12,8 +12,8 @@ credentials, its links to PaperOS users, and each user's workspace access determ
 what it can request.
 
 <aside class="notice">
-The registration MCP tools, dashboard registration page, and deploy setup-request
-API described here have not been released or verified end to end.
+The integration MCP tools, dashboard workflow, and deploy integration APIs
+described here have not been released or verified end to end.
 The existing PaperOS registration and linked-user endpoints are separate from
 those additions. The public workspace-token exchange used by the new MCP tools
 is staging-first; use a compatible PaperOS environment.
@@ -39,7 +39,7 @@ subject and that subject's access to the requested workspace.
 
 ## Register through the dashboard
 
-For manual registration, the deploy dashboard's **Partner integrations** page
+For an interactive workflow, the deploy dashboard's **Partner integrations** page
 is [available at this route once released](https://deploy.onpaper.co/dashboard/integrations.html).
 Use your PaperOS sign-in, choose the workspace that will own the registration,
 and select an existing app or register a new one with its name and actual HTTPS
@@ -47,10 +47,17 @@ redirect URLs. You can reveal and copy its client ID and secret for your app's
 backend secret store. Registration requires full access to the owning workspace;
 it does not require an app deployment or GitHub connection.
 
-The page uses the same PaperOS registration APIs and permissions described
-below. It currently covers registration and credential recovery; the admin
-setup request and ticket-status display are not part of this dashboard step.
-Direct API and MCP registration remain available without using the dashboard.
+The selected registration then supplies credentials for requesting admin setup
+and manually refreshing the ticket's status. The optional linked-users step
+shows the application's subjects and their workspaces. Its JSON export contains
+`{"client_id":"oidc_...","subjects":[...]}`. The app secret stays in page memory,
+outside the export and browser storage. The exported list contains customer data; store it only where
+your integration needs it. Admin setup itself remains manual.
+
+The page uses the same operations and permissions described below. Direct API
+and MCP workflows remain available without using the dashboard. The dashboard
+does not create customer accounts or issue customer workspace tokens; use the
+documented API or MCP tools for those operations.
 
 ## Select the owning workspace
 
@@ -114,6 +121,11 @@ No deployed app or GitHub connection is required for these integration tools.
 | `list_paperos_integrations(owner_org_id)` | Find existing registrations; this tool omits secrets. |
 | `get_paperos_integration(owner_org_id, client_id)` | Explicitly recover an existing registration's credentials. |
 | `register_paperos_integration(owner_org_id, client_name, redirect_uris, contacts=None, client_uri=None)` | Create one registration and return its generated credentials. |
+| `request_paperos_integration_setup(client_id, client_secret)` | Create or reuse the app's manual admin setup ticket. |
+| `get_paperos_integration_setup_status(client_id, client_secret)` | Read that ticket's processing/completed status. |
+| `list_paperos_integration_users(client_id, client_secret)` | List linked subjects and their accessible workspaces. |
+| `create_paperos_integration_user(client_id, client_secret, external_id, email, locale, zoneinfo, given_name=None, family_name=None, email_verified=None)` | Create a new linked PaperOS account; existing emails are rejected. |
+| `get_paperos_integration_workspace_token(client_id, client_secret, org_id, auth_time, exp, amr, sub=None, external_id=None)` | Request a workspace token using one linked subject selector and actual app authentication claims. |
 
 The registration tools use the connected developer's OAuth token to call
 `POST /api/v1/orgs/{owner_org_id}/access-token`, then use the returned account
@@ -156,8 +168,13 @@ trying again. Registration is not idempotent and must not be retried automatical
 The guide tool reads Markdown shipped with the MCP server. It does not scrape
 this website, and it can serve its installed guide even when the website is
 unavailable. Docs releases and MCP releases must carry the same contract.
-The registration tools do not themselves submit or complete admin setup;
-the HTTP setup workflow follows below.
+The setup tools and customer-operation tools use the registered app's client
+ID and secret. Registration does not automatically call them. They return the
+existing ticket, linked-subject, created-subject, or token payloads documented
+below, without an extra wrapper. The connected developer's MCP login is not a
+substitute for the customer's authentication context when issuing a token.
+Use only the tools advertised by your connected server; an older server may not
+expose these additions yet.
 
 ## Request admin setup
 
@@ -168,6 +185,12 @@ cannot override the app or its metadata in the body.
 
 Set `DEPLOY_BASE_URL` to the deploy service exposing this feature. This is a
 different service from `PAPEROS_BASE_URL`.
+
+Agents use `request_paperos_integration_setup(client_id, client_secret)` and
+`get_paperos_integration_setup_status(client_id, client_secret)`. Both return
+the same ticket payload as the HTTP calls below. They submit/read the request;
+an admin still performs setup manually. Report `processing` as pending admin
+work, not a completed integration.
 
 > `POST /api/integrations/setup-request` on the deploy service
 
@@ -249,12 +272,29 @@ users. Creation links the new user to the calling application and returns
 or automatically link an existing PaperOS account. Existing-user links require
 the current administrative provisioning procedure.
 
+The MCP equivalent is
+`create_paperos_integration_user(client_id, client_secret, external_id, email, locale, zoneinfo, given_name=None, family_name=None, email_verified=None)`.
+The four account fields `external_id`, `email`, `locale`, and `zoneinfo` are
+required; names and the boolean `email_verified` are optional. Supply real
+account details and assert email verification only when it occurred. The result
+is the same `success`, `type`, and `subject` response as the API, including
+`subject.sub` and initially empty `orgs`. Creating a user does not create a
+workspace. After an uncertain creation result, list and reconcile before retrying.
+
 [`GET /api/v1/integrations/users`](#list-subjects-users) returns only subjects
 linked to the calling application, with their email, `sub`, optional
 `external_id`, and `orgs`. Match a shared account by its email, then select the
 requested public `org_...` ID from that subject's `orgs`. A user may have several
 workspaces. This endpoint does not accept an email lookup parameter; filtering
 the returned list happens in your backend.
+
+Agents use `list_paperos_integration_users(client_id, client_secret)`, which
+returns the same `success`, `type`, and `subjects` response as the API. The
+dashboard's `GET /api/integrations/users` on the deploy host is a read-only
+proxy with Basic app credentials and that same payload. Its responses use
+`Cache-Control: no-store`; errors use `{"error":"message"}`. There are no deploy
+REST wrappers for creating customer accounts or issuing their tokens: direct
+HTTP clients use the existing PaperOS endpoints.
 
 ## Partner workspace tokens
 
@@ -265,11 +305,26 @@ the workspace. It checks the app's permission for that subject and the subject's
 workspace access before issuance. Email plus workspace is not a supported
 shortcut request body.
 
+The MCP tool is
+`get_paperos_integration_workspace_token(client_id, client_secret, org_id, auth_time, exp, amr, sub=None, external_id=None)`.
+Supply **exactly one** of `sub` or `external_id`. The tool builds the API's
+`claims` body and returns the same `{"access_token":"..."}` result. It checks
+the existing authorization; it does not create a link or workspace membership.
+
 This endpoint also validates authentication claims such as `auth_time`, `exp`,
 and `amr`; follow its documented request contract using the app's actual login
 context. When a token expires, the backend requests a replacement with valid
 credentials and claims. This is not the OAuth refresh-token grant and does not
 require passing the app's Supabase login token to PaperOS.
+
+`auth_time` and `exp` are integer Unix seconds. The existing endpoint requires
+`auth_time` before now and within 24 hours plus 15 seconds, and `exp` after
+`auth_time` by less than that interval. `exp` is an authentication assertion,
+not an override of the issued token's lifetime. `amr` is a nonempty list of
+supported methods that actually occurred, such as `pwd` for a password login.
+Never substitute the developer's MCP login or invent fresh claims to bypass
+these checks. A stale app authentication context cannot support replacement
+issuance merely by retrying it unchanged.
 
 Keep issued tokens in the backend and associate them with the client, subject,
 and workspace they represent. Do not reuse one token across unrelated workspaces.
