@@ -44,17 +44,26 @@ subject and that subject's access to the requested workspace.
 For an interactive workflow, the deploy dashboard's **Partner integrations** page
 is [available here](https://deploy.onpaper.co/dashboard/integrations.html).
 Use your PaperOS sign-in, choose the workspace that will own the registration,
-and select an existing app or register a new one with its name and actual HTTPS
-redirect URLs. You can reveal and copy its client ID and secret for your app's
-backend secret store. Registration requires full access to the owning workspace;
-it does not require an app deployment or GitHub connection.
+and use an existing app or register a new one with its name and actual HTTPS
+redirect URLs. Each app has independent credentials, admin-setup, and linked-user
+controls. **Show credentials** lets you reveal and copy its client ID and secret
+for your app's backend secret store; **Hide credentials** closes that display.
+Setup and linked-user actions work while credentials are hidden. Registration
+requires full access to the owning workspace; it does not require an app
+deployment or GitHub connection.
 
-The selected registration then supplies credentials for requesting admin setup
-and manually refreshing the ticket's status. The optional linked-users step
-shows the application's subjects and their workspaces. Its JSON export contains
+The page checks each app's setup status when its registration loads. Use
+**Request admin setup** when no ticket exists, then **Refresh status** to see
+later changes. Admin setup itself remains manual.
+
+The optional **Load linked users** action retrieves the application's subjects
+and their workspaces. Search the loaded list by name, email, user or external ID,
+or workspace name or ID. Results are shown 25 per page; expand a user to see
+their IDs, scopes, and workspaces. **Export JSON** exports all loaded users,
+regardless of the current search or page, as
 `{"client_id":"oidc_...","subjects":[...]}`. The app secret stays in page memory,
-outside the export and browser storage. The exported list contains customer data; store it only where
-your integration needs it. Admin setup itself remains manual.
+outside the export and browser storage. The exported list contains customer
+data; store it only where your integration needs it.
 
 The page uses the same operations and permissions described below. Direct API
 and MCP workflows remain available without using the dashboard. The dashboard
@@ -113,7 +122,9 @@ an `owner_org_id` field to the PaperOS registration request body.
 
 ## Agents using deploy MCP
 
-Connect the PaperOS deploy MCP server with the developer's PaperOS OAuth account.
+Connect to the PaperOS deploy MCP server at
+[`https://deploy.onpaper.co/mcp`](https://deploy.onpaper.co/mcp) and sign in with
+the developer's PaperOS OAuth account.
 No deployed app or GitHub connection is required for these integration tools.
 
 | Tool | Purpose |
@@ -161,6 +172,10 @@ Use the app's actual name and a real HTTPS redirect URI supplied by its develope
 or configuration. The existing web-client API requires `redirect_uris` even
 for a backend integration that will not use an interactive redirect. Do not
 invent a callback URL or submit an example domain as a real registration.
+The MCP tool and dashboard default an omitted `client_uri` to the first redirect
+URL's origin and use that homepage for `policy_uri` and `tos_uri`. Direct HTTP
+registration must supply all three HTTPS URLs; see the
+[registration requirements and compatibility defaults](#registration).
 
 Registration and explicit recovery return secrets. Save them in the app's
 backend secret store; do not repeat them in chat, logs, committed files, or
@@ -171,10 +186,14 @@ The guide tool reads Markdown shipped with the MCP server. It does not scrape
 this website, and it can serve its installed guide even when the website is
 unavailable. Docs releases and MCP releases must carry the same contract.
 The setup tools and customer-operation tools use the registered app's client
-ID and secret. Registration does not automatically call them. They return the
-existing ticket, linked-subject, created-subject, or token payloads documented
-below, without an extra wrapper. The connected developer's MCP login is not a
-substitute for the customer's authentication context when issuing a token.
+ID and secret. Registration does not automatically call them. Setup tools return
+the documented ticket payload, and the token tool returns `access_token`.
+Customer tools return `success`, `type`, and `subject` (create) or `subjects`
+(list). Deploy keeps the supported subject fields and normalizes each `orgs`
+entry to `{"id":"org_...","name":"..."}`; extra upstream fields are omitted.
+The dashboard's linked-user proxy uses the same normalization. The connected
+developer's MCP login is not a substitute for the customer's authentication
+context when issuing a token.
 Use only the tools advertised by your connected server; an older server may not
 expose these additions yet.
 
@@ -185,8 +204,16 @@ This request does not use a developer login, workspace ownership token, GitHub
 connection, or deployment ID. The registered app supplies the identity; callers
 cannot override the app or its metadata in the body.
 
-Set `DEPLOY_BASE_URL` to the deploy service exposing this feature. This is a
-different service from `PAPEROS_BASE_URL`.
+For the hosted deploy service, set `DEPLOY_BASE_URL` to
+`https://deploy.onpaper.co`. This is a different service from `PAPEROS_BASE_URL`.
+
+```shell
+export DEPLOY_BASE_URL='https://deploy.onpaper.co'
+```
+
+```javascript
+const deployBase = "https://deploy.onpaper.co";
+```
 
 Agents use `request_paperos_integration_setup(client_id, client_secret)` and
 `get_paperos_integration_setup_status(client_id, client_secret)`. Both return
@@ -260,9 +287,9 @@ before submitting again.
 Source review found that PaperOS's existing client inspection endpoint can
 disclose registered secrets after an incorrect password. The new deploy handler
 compares the supplied secret with the returned active secrets, but that does
-not repair the upstream disclosure. This remains an unresolved release blocker
-before exposing the workflow. This finding is from source and local tests,
-not a live authentication test.
+not repair the upstream disclosure. The toolkit has been deployed with this
+upstream security issue still unresolved; deployment does not mean it is fixed.
+This finding is from source and local tests, not a live authentication test.
 </aside>
 
 ## Linked users and workspace selection
@@ -279,7 +306,7 @@ The MCP equivalent is
 The four account fields `external_id`, `email`, `locale`, and `zoneinfo` are
 required; names and the boolean `email_verified` are optional. Supply real
 account details and assert email verification only when it occurred. The result
-is the same `success`, `type`, and `subject` response as the API, including
+uses the documented `success`, `type`, and `subject` shape, including
 `subject.sub` and initially empty `orgs`. Creating a user does not create a
 workspace. After an uncertain creation result, list and reconcile before retrying.
 
@@ -291,9 +318,10 @@ workspaces. This endpoint does not accept an email lookup parameter; filtering
 the returned list happens in your backend.
 
 Agents use `list_paperos_integration_users(client_id, client_secret)`, which
-returns the same `success`, `type`, and `subjects` response as the API. The
-dashboard's `GET /api/integrations/users` on the deploy host is a read-only
-proxy with Basic app credentials and that same payload. Its responses use
+returns `success`, `type`, and `subjects` with the field normalization described
+in the [integration tool contract](#agents-using-deploy-mcp). The dashboard's
+`GET /api/integrations/users` on the deploy host is a read-only proxy with Basic
+app credentials and that normalized response. Its responses use
 `Cache-Control: no-store`; errors use `{"error":"message"}`. There are no deploy
 REST wrappers for creating customer accounts or issuing their tokens: direct
 HTTP clients use the existing PaperOS endpoints.

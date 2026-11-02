@@ -178,9 +178,17 @@ Registration does not automatically enable impersonation or link existing users.
 
 The request requires a nonempty `redirect_uris` array. For a web client, provide
 the app's actual HTTPS callback URI even if this backend integration will not
-use redirects. The domains below are documentation examples; an agent must
-obtain real values before calling the registration tool. Optional metadata may
-be omitted; it is not necessary to supply every example field.
+use redirects. Direct HTTP registration also requires nonempty HTTPS
+`client_uri`, `policy_uri`, and `tos_uri` values in the current PaperOS
+implementation; omitting them causes a database error. Supply the app's actual
+homepage, privacy-policy, and terms URLs. Other metadata, such as `contacts`
+and `logo_uri`, may be omitted. The domains below are documentation examples;
+an agent must obtain real values before calling the registration tool.
+
+The deploy dashboard and MCP registration tool supply compatibility defaults:
+`client_uri` defaults to the first redirect URL's origin when omitted, and
+`policy_uri` and `tos_uri` use that homepage. These defaults do not generate
+privacy-policy or terms pages.
 
 This POST is not idempotent. If its outcome is uncertain, list registrations
 and recover the existing client's credentials before attempting another create.
@@ -440,8 +448,9 @@ examples below, `clientId` and `clientSecret` come from your saved application
 credentials; `paperBase` is `process.env.PAPEROS_BASE_URL`.
 
 Agents can use `create_paperos_integration_user` with the same account fields;
-see the [integration tool contract](#agents-using-deploy-mcp). Its response is
-the same payload below. The tool does not bypass the application's required grant.
+it returns the documented `success`, `type`, and `subject` shape with the field
+normalization described in the [integration tool contract](#agents-using-deploy-mcp).
+The tool does not bypass the application's required grant.
 
 > `POST /api/v1/integrations/users`
 
@@ -577,8 +586,10 @@ backend, then use that subject and the chosen workspace ID. There is no email
 lookup parameter on this endpoint.
 
 The MCP tool `list_paperos_integration_users(client_id, client_secret)` returns
-this same payload. The optional [integration dashboard](#register-through-the-dashboard)
-can display and export the linked-user list.
+the documented `success`, `type`, and `subjects` shape with the field normalization
+described in the [integration tool contract](#agents-using-deploy-mcp). The optional
+[integration dashboard](#register-through-the-dashboard) can display and export
+that normalized linked-user list.
 
 > `GET /api/v1/integrations/users`
 

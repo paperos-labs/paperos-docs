@@ -22,9 +22,10 @@ documents everything else (OIDC clients, workflows, and more).
   to register, request admin setup, find linked accounts, and obtain workspace
   tokens. Deploying with PaperOS is optional for this path.
 
-Developers can use the documented HTTP endpoints directly. Agents can read the
-same workflow through the deploy MCP server's `get_paperos_api_integration_guide`
-tool with `topic: "partner-integration"`, then use its registration, setup/status,
+Developers can use the documented HTTP endpoints directly. Agents can connect to
+the [PaperOS deploy MCP server](https://deploy.onpaper.co/mcp) and read the same
+workflow through its `get_paperos_api_integration_guide` tool with
+`topic: "partner-integration"`, then use its registration, setup/status,
 linked-account, and workspace-token tools. The optional
 [integration dashboard](/reference/#register-through-the-dashboard) offers
 registration, setup requests/status, and linked-user JSON export. Admin setup
