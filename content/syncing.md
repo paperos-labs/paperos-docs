@@ -16,7 +16,9 @@ with PaperOS without duplicates or lost edits.
   index, where `paperos_record_id` is the public `rec_...` id (a report row's
   `record_id`, or the `rec_id` returned on create). Store it as text. Don't key
   on the numeric `id`; the Records endpoints don't accept it.
-- **Never store** tokens, SSNs, or EINs. Reports mask SSNs/EINs by default;
+- **Never store SSO gate tokens** in your sync database. Partner client credentials
+  belong in a backend secret store; see [Partner Integrations](/reference/#partner-integrations).
+  Never store SSNs or EINs. Reports mask SSNs/EINs by default;
   don't pass `reveal_sensitive=true` in a sync.
 - Build against **staging** (`staging.paperos.dev`); data there is test data.
 

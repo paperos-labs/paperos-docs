@@ -16,9 +16,10 @@ title: Errors
 }
 ```
 
-Errors return a non-2xx status and a JSON body with `status`, a stable `code`,
+PaperOS data API errors return a non-2xx status and a JSON body with `status`, a stable `code`,
 a human-readable `message`, and sometimes extra fields. Branch on `code`, not
-on `message`.
+on `message`. The separate deploy setup API uses
+[its own error response](/reference/#request-admin-setup).
 
 | Status | `code`                  | Meaning and what to do                                                                                                                     |
 | ------ | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -27,7 +28,7 @@ on `message`.
 | 400    | `UNKNOWN_BATCH_TYPE`    | Not a valid form type; see [List Forms](#list-forms).                                                                                      |
 | 400    | `EMPTY_CSV`             | The CSV has no data rows.                                                                                                                  |
 | 400    | `INVALID_CSV`           | The CSV couldn't be parsed (check quoting and line endings).                                                                               |
-| 401    | `UNAUTHORIZED`          | Token missing, malformed, expired, or invalid. Return through the SSO gate; sign in again if session renewal fails. Do not loop on reload. |
+| 401    | `UNAUTHORIZED`          | Token missing, malformed, expired, or invalid. For the SSO gate flow, return through the gate; sign in again if renewal fails. Partner apps follow their registered-client token flow. Do not loop on reload or retry the same expired token. |
 | 404    | `ORG_NOT_FOUND`         | The org doesn't exist or this user can't access it.                                                                                        |
 | 404    | `REPORT_NOT_FOUND`      | No such report; see `available` for report names.                                                                                          |
 | 409    | `BATCH_PROJECT_MISSING` | The org isn't set up for this form yet. Contact PaperOS.                                                                                   |

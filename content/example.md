@@ -5,7 +5,7 @@ title: End-to-End Example
 
 # End-to-End Example
 
-A small Node.js (18+) + Express backend that:
+A small Node.js (18+) + Express backend for the **SSO gate** path that:
 
 1. reads the user-level OAuth access token the SSO gate forwards
 2. lists reports and syncs one into Postgres (with `pg`)
@@ -13,6 +13,10 @@ A small Node.js (18+) + Express backend that:
 
 The code is in the **JavaScript** tab on the right. It uses the tables from
 [Suggested Tables](#suggested-tables).
+
+For an app using its own login, start with
+[Partner Integrations](/reference/#partner-integrations). This example's
+header reader and sign-in recovery are specific to the SSO gate.
 
 ## Setup and Helper
 
